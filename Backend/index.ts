@@ -13,8 +13,13 @@ async function init() {
 
 
         const server: Server = Happi.server({
-            port: 3000,
+            port: 3001,
             host: 'localhost',
+            routes :{
+                cors : {
+                    origin : ["http://localhost:5173"]
+                }
+            }
         });
 
 

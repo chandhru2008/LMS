@@ -9,11 +9,10 @@ import { EmployeeRepository } from '../Repository/employeeRepositary';
 export const createEmployee = async (request: Request, h: ResponseToolkit) => {
   try {
     const employeeData = request.payload as any;
+    console.log(employeeData);
     const newEmployee = await EmployeeService.createEmployee(employeeData);
-    console.log(newEmployee);
     const token = generateToken(newEmployee);
-    console.log(token);
-    return h.response({ token }).code(201);
+    return h.response({ message: 'Registration successful' }).code(201);
   } catch (error) {
     return h.response({ message: error.message }).code(400);
   }

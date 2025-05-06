@@ -7,6 +7,7 @@ export const employeeRoutes: ServerRoute[] = [
     path: '/register',
     handler: EmployeeController.createEmployee,
     options: {
+      cors : true,
       payload: {
         parse: true,
         output: 'data',
