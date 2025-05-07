@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
-import { LeaveType } from "./LeaveType";
-import { Employee } from "./Employee";
+import { LeaveType } from "../leave-types/leave-type-model";
+import { Employee } from "../empolyee/employee-model";
 
 @Entity()
 export class LeaveRequest{

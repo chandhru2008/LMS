@@ -1,8 +1,8 @@
 import { DataSource } from "typeorm";
-import { Employee } from "../../entity/Employee";
-import { LeaveType } from "../../entity/LeaveType";
-import { LeaveRequest } from "../../entity/Leave-request";
-import { LeaveBalance } from "../../entity/LeaveBalance";
+import { Employee } from "../../modules/empolyee/employee-model";
+import { LeaveType } from "../../modules/leave-types/leave-type-model";
+import { LeaveRequest } from "../../modules/leave-requests/leave-request-model";
+import { LeaveBalance } from "../../modules/leave-balances/leave-balance-model";
 
 
 const dataSource = new DataSource({

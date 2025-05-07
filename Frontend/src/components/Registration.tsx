@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
-
+import  {  useState } from 'react';
+import { json, useNavigate } from 'react-router-dom';
 function Registration() {
+
+  const navigate = useNavigate();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [passowrd, setPassword] = useState('');
   const [conformPassword, setConformPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [role, setRole] = useState('');
   const [managerEmail, setManagerEmail] = useState('');
@@ -24,6 +27,8 @@ function Registration() {
       errorMessage("Email is required");
     } else if (!ValidEmailregex.test(email)) {
       errorMessage("Enter a valid Email");
+    }else if(!strongPasswordRegex.test(passowrd)){
+      errorMessage("Enter a strong password")
     } else if (passowrd != conformPassword) {
       errorMessage("Password is miss matching");
     } else if (role == "employee" && managerEmail.length == 0) {
@@ -35,25 +40,31 @@ function Registration() {
 
 
     else {
+
+      const userDetails = {
+        name : name,
+        email : email,
+        password : passowrd,
+        role : role,
+        managerEmail : managerEmail
+      }
+
       const respond = await fetch("http://localhost:3001/register", {
         method: "post",
+        credentials : 'include',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          "Content-Type": "application/json"
         },
-        body: new URLSearchParams({
-          name: name,
-          email: email,
-          password: passowrd,
-          role : role,
-          managerEmail: managerEmail
-        })
+        body: JSON.stringify(userDetails)
       });
       if (respond.ok) {
+        console.log(respond);
         const data = await respond.json();
-        console.log(data)
+        console.log(data);
+        // navigate("/");
       } else {
         const data = await respond.json();
-        console.log(data.message)
+        console.log(data);
       }
     }
   }
@@ -76,11 +87,12 @@ function Registration() {
             onChange={(e) => setEmail(e.target.value)}
           />
           <input
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             placeholder="Password"
             className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             onChange={(e) => setPassword(e.target.value)}
           />
+
           <input
             type="password"
             placeholder="Confirm Password"

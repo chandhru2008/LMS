@@ -3,6 +3,7 @@ import * as Happi from '@hapi/hapi';
 import { Server } from '@hapi/hapi';
 import { dataSource } from './src/config/db/conn';
 import { employeeRoutes } from './src/routes/employeeRoutes';
+import { leaveTypeRoutes } from './src/routes/leaveTypeRoutes';
 
 
 async function init() {
@@ -16,14 +17,20 @@ async function init() {
             port: 3001,
             host: 'localhost',
             routes :{
+                state: {
+                    parse: true, // enable cookie parsing
+                    failAction: 'error',
+                  },
                 cors : {
-                    origin : ["http://localhost:5173"]
+                    origin : ["http://localhost:5173"],
+                    credentials : true
                 }
             }
         });
 
 
-        server.route(employeeRoutes);
+        server.route([...employeeRoutes,...leaveTypeRoutes]);
+        // server.route(leaveTypeRoutes);
         await server.start();
 
         console.log('Server is running on:', server.info.uri);
