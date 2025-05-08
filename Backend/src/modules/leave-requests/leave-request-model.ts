@@ -30,10 +30,10 @@ export class LeaveRequest{
     @Column({type : 'enum', enum : ['Pending', 'Approved', 'Rejected'], default: 'Pending' })
     director_approval : 'Pending' | 'Approved'| 'Rejected' 
 
-    @Column({type : 'date'})
+    @Column({type : Date})
     start_date : string;
 
-    @Column({type : 'date'})
+    @Column({type : Date})
     end_date : string
 
 }

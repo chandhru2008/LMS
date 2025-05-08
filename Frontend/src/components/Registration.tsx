@@ -1,73 +1,88 @@
-import  {  useState } from 'react';
-import { json, useNavigate } from 'react-router-dom';
-function Registration() {
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+function Registration() {
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [passowrd, setPassword] = useState('');
-  const [conformPassword, setConformPassword] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [role, setRole] = useState('');
   const [managerEmail, setManagerEmail] = useState('');
+  const [hrEmail, setHrEmail] = useState('');
+  const [directorEmail, setDirectorEmail] = useState('');
 
+  function showError(message: string) {
+    setErrorMessage(message);
+    setTimeout(() => setErrorMessage(''), 3000);
+  }
 
   async function handleSignUp() {
-    const ValidEmailregex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    function errorMessage(e: string) {
-      setTimeout(() => {
-        setErrorMessage('');
-      }, 3000)
-      setErrorMessage(e);
+    
+    const validEmailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  
+    if (!email) return showError("Email is required");
+    if (!validEmailRegex.test(email)) return showError("Enter a valid email");
+    if (!strongPasswordRegex.test(password)) return showError("Enter a strong password");
+    if (password !== confirmPassword) return showError("Passwords do not match");
+  
+    // Validate fields based on role
+    if (role === 'employee') {
+      if (!managerEmail) return showError("Manager email is required");
+      if (!hrEmail) return showError("HR email is required");
+      if (!directorEmail) return showError("Director email is required");
+      if (!validEmailRegex.test(managerEmail)) return showError("Enter a valid manager email");
+    } else if (role === 'manager') {
+      if (!hrEmail) return showError("HR email is required");
+      if (!directorEmail) return showError("Director email is required");
+      if (!validEmailRegex.test(hrEmail)) return showError("Enter a valid HR email");
+    } else if (role === 'HR') {
+      if (!directorEmail) return showError("Director email is required");
+      if (!managerEmail) return showError("Manager email is required");
+      if (!validEmailRegex.test(directorEmail)) return showError("Enter a valid director email");
     }
-    if (email.length == 0) {
-      errorMessage("Email is required");
-    } else if (!ValidEmailregex.test(email)) {
-      errorMessage("Enter a valid Email");
-    }else if(!strongPasswordRegex.test(passowrd)){
-      errorMessage("Enter a strong password")
-    } else if (passowrd != conformPassword) {
-      errorMessage("Password is miss matching");
-    } else if (role == "employee" && managerEmail.length == 0) {
-      errorMessage("Eanager email should not be empty");
-    } else if (role == "employee" && !ValidEmailregex.test(managerEmail)) {
-      errorMessage("Enter a valid manager");
-    }
-
-
-
-    else {
-
-      const userDetails = {
-        name : name,
-        email : email,
-        password : passowrd,
-        role : role,
-        managerEmail : managerEmail
-      }
-
-      const respond = await fetch("http://localhost:3001/register", {
-        method: "post",
-        credentials : 'include',
+  
+    const userDetails = {
+      name,
+      email,
+      password,
+      role,
+      managerEmail: role === 'employee' ? managerEmail : null,
+      hrEmail: role === 'manager' ? hrEmail : null,
+      directorEmail: role === 'HR' ? directorEmail : null,
+    };
+  console.log(userDetails)
+    try {
+      const response = await fetch("http://localhost:3001/register", {
+        method: "POST",
+        credentials: "include",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(userDetails)
+        body: JSON.stringify(userDetails),
       });
-      if (respond.ok) {
-        console.log(respond);
-        const data = await respond.json();
-        console.log(data);
-        // navigate("/");
+  
+      const data = await response.json();
+      
+  
+      if (response.ok) {
+        console.log("✅ Registered:", data);
+        navigate("/");  
       } else {
-        const data = await respond.json();
-        console.log(data);
+        console.log("therheuf")
       }
+    } catch (err) {
+      // Log any network or unexpected errors
+      console.error("❌ Network error:", err);
+      showError("Something went wrong. Try again.");
     }
   }
+  
 
   return (
     <div className="w-screen h-screen flex items-center justify-center bg-gray-100">
@@ -92,41 +107,95 @@ function Registration() {
             className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             onChange={(e) => setPassword(e.target.value)}
           />
-
           <input
             type="password"
             placeholder="Confirm Password"
             className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onChange={(e) => setConformPassword(e.target.value)}
+            onChange={(e) => setConfirmPassword(e.target.value)}
           />
-          <select defaultValue="" className='px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500' onChange={(e) => setRole(e.target.value)}>
-            <option value="" disabled hidden >Role</option>
+          <select
+            defaultValue=""
+            className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e) => setRole(e.target.value)}
+          >
+            <option value="" disabled hidden>Role</option>
             <option value="employee">Employee</option>
             <option value="manager">Manager</option>
-            <option value="director">Director</option>
             <option value="HR">HR</option>
-          </select>{
-            role == "employee" &&
-            <input
-              type="email"
-              placeholder="Manager Email"
-              className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onChange={(e) => setManagerEmail(e.target.value)}
-            />
-          }
+            <option value="director">Director</option>
+          </select>
+
+          {/* Conditional Email Fields */}
+          {role === 'employee' && (
+            <div>
+              <input
+                type="email"
+                placeholder="Manager Email"
+                className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => setManagerEmail(e.target.value)}
+              />
+              <input
+                type="email"
+                placeholder="HR Email"
+                className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => setHrEmail(e.target.value)}
+              />
+              <input
+                type="email"
+                placeholder="Director Email"
+                className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => setDirectorEmail(e.target.value)}
+              />
+            </div>
+          )}
+          {role === 'manager' && (
+            <div>
+              <input
+                type="email"
+                placeholder="HR Email"
+                className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => setHrEmail(e.target.value)}
+              />
+              <input
+                type="email"
+                placeholder="Director Email"
+                className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => setDirectorEmail(e.target.value)}
+              />
+            </div>
+          )}
+          {role === 'HR' && (
+            <div>
+              <input
+                type="email"
+                placeholder="Manager Email"
+                className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => setManagerEmail(e.target.value)}
+              />
+              <input
+                type="email"
+                placeholder="Director Email"
+                className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => setDirectorEmail(e.target.value)}
+              />
+            </div>
+          )}
 
           <button
             type="submit"
             className="bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
-            onClick={(e) => { e.preventDefault(), handleSignUp() }}
+            onClick={(e) => {
+              e.preventDefault();
+              handleSignUp();
+            }}
           >
             Register
           </button>
-          <span className='text-red'>{errorMessage}</span>
+          {errorMessage && <span className="text-red-600 text-sm">{"fdighjvoifsdc"}</span>}
         </form>
       </div>
     </div>
   );
-};
+}
 
 export default Registration;
