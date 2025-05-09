@@ -12,4 +12,5 @@ export class LeaveTypeService {
   async getAllLeaveTypes() {
     return this.leaveTypeRepo.findAll();
   }
+
 }

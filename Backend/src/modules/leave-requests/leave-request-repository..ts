@@ -10,38 +10,54 @@ export class LeaveRequestRepository {
   constructor() {
     this.repo = dataSource.getRepository(LeaveRequest);
   }
-
   public async createLeaveRequest(
-    employeeId: string,
-    leaveTypeId: string,
-    startDate: string,
-    endDate: string,
-    description : string
+    data: any
   ) {
-    const employeeRepo = dataSource.getRepository(Employee);
-    const leaveTypeRepo = dataSource.getRepository(LeaveType);
+    try {
+      console.log("Description in repo leayer", data.description)
+      const employeeRepo = dataSource.getRepository(Employee);
+      const leaveTypeRepo = dataSource.getRepository(LeaveType);
 
-    const employee = await employeeRepo.findOneBy({ id: employeeId });
-    const leaveType = await leaveTypeRepo.findOneBy({ id: Number(leaveTypeId) });
+      const employeeId = data.employeeId;
+      const leaveTypeName = data.leaveType
 
-    if (!employee) throw new Error("Employee not found");
-    if (!leaveType) throw new Error("Leave Type not found");
+      const employee = await employeeRepo.findOneBy({ id: employeeId });
+      const leaveType = await leaveTypeRepo.findOneBy({ name: leaveTypeName });
 
-    const leaveRequest = new LeaveRequest();
-    leaveRequest.employee = employee;
-    leaveRequest.leaveType = leaveType;
-    leaveRequest.start_date = startDate
-    leaveRequest.end_date = endDate
-    leaveRequest.description = description
-    leaveRequest.status = 'Pending';
+      if (!employee) throw new Error("Employee not found");
+      if (!leaveType) throw new Error("Leave Type not found");
 
-    return await this.repo.save(leaveRequest);
+      const leaveRequest = new LeaveRequest();
+      leaveRequest.employee = employee;
+      leaveRequest.leaveType = leaveType;
+      leaveRequest.start_date = data.startDate
+      leaveRequest.end_date = data.endDate
+      leaveRequest.description = data.description
+      leaveRequest.status = 'Pending';
+
+      return await this.repo.save(leaveRequest);
+    } catch (e) {
+      console.log("Error : ", e)
+    }
+
   }
 
-  public async findLeaveRequestById(leaveRequestId: string) {
-    return await this.repo.findOne({
-      where: { id: leaveRequestId },
-      relations: ['employee', 'leaveType'] 
-    });
+  async getLeaveHistory(employee: any) {
+
+
+    try {
+      const leaveHistory = await this.repo.find({
+        where: { employee: {id : employee}},
+        relations: ['leaveType'],
+        order: { start_date: 'DESC' },
+        
+      });
+      console.log("This is leave history", leaveHistory)
+      return leaveHistory;
+    } catch (error) {
+      console.error('Error fetching leave history:', error);
+      throw new Error('Could not fetch leave history.');
+    }
   }
+
 }

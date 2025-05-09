@@ -17,4 +17,14 @@ export class LeaveTypeRepository {
       throw new Error('Could not retrieve leave types');
     }
   }
+  async findByType(name : string){
+    try {
+      return await this.repo.findOne({
+          where: { name },
+      });
+  } catch (error) {
+      console.error('Error finding employee by email:', error);
+      throw new Error('Error retrieving employee data');
+  }
+  }
 }

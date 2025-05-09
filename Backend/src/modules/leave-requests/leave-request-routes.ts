@@ -15,6 +15,11 @@ export class LeaveRequestRoutes {
         path: '/leave-request',
         handler: this.leaveRequestController.requestLeave.bind(this.leaveRequestController) // Bind method to controller
       },
+      {
+        method : "GET",
+        path : '/leave-history',
+        handler : this.leaveRequestController.getLeaveHistory.bind(this.leaveRequestController)
+      }
     ]);
   }
 }
