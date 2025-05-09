@@ -19,10 +19,12 @@ import { LeaveRequestController } from './src/modules/leave-requests/leave-reque
 import { LeaveRequestRepository } from './src/modules/leave-requests/leave-request-repository.';
 import { LeaveRequestRoutes } from './src/modules/leave-requests/leave-request-routes';
 import { LeaveRequestService } from './src/modules/leave-requests/leave-request-service';
+
+
 import { LeaveBalanceController } from './src/modules/leave-balances/leave-balance-controller';
-import { LeaveBalance } from './src/modules/leave-balances/leave-balance-model';
 import { LeaveBalanceService } from './src/modules/leave-balances/leave-balance-service';
 import { LeaveBalanceRepository } from './src/modules/leave-balances/leave-balance-repository';
+import { LeaveBalanceRoute } from './src/modules/leave-balances/leave-balance-router';
 
 
 
@@ -67,6 +69,7 @@ async function init() {
         const leaveBalanceRepository = new LeaveBalanceRepository();
         const leaveBalanceService = new LeaveBalanceService(leaveBalanceRepository, leaveTypeRepository)
         const leaveBalanceController = new LeaveBalanceController(leaveBalanceService);
+        const leaveBalanceRoutes = new LeaveBalanceRoute(leaveBalanceController)
 
 
         const employeeRepository = new EmployeeRepository();
@@ -78,9 +81,22 @@ async function init() {
         leaveRequestRoutes.leaveRequestRoutes(server)
         leaveTypeRoutes.leaveTypeRoutes(server);
         employeeRoutes.employeeRoute(server);
+        leaveBalanceRoutes.leaveBalanceRoute(server);
         console.log('✅ Employee routes registered.');
 
         await server.start();
+
+        server.state('userSession', {
+            ttl: 24 * 60 * 60 * 1000, 
+            isSecure: false,        
+            isHttpOnly: true,
+            path: '/',
+            encoding: 'base64json',
+            clearInvalid: true,
+            strictHeader: true,
+          });
+
+          
         console.log(`Server running at: ${server.info.uri}`);
     } catch (error) {
         console.error('Initialization error:', error);

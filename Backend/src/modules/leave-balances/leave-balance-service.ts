@@ -32,7 +32,7 @@ export class LeaveBalanceService {
                 const leaveBalance = new LeaveBalance();
 
 
-                leaveBalance.employee = employeeData.id;
+                leaveBalance.employee = employeeData;
                 leaveBalance.leaveType = leaveType;
 
 
@@ -43,13 +43,22 @@ export class LeaveBalanceService {
                 await this.leaveBalanceRepository.storeDefaultLeaveBalances(leaveBalance);
                 console.log(leaveBalance);
             }
-
             console.log("Default leave balances assigned successfully.");
         } catch (e) {
             console.log(e)
         }
 
+    }
 
+    async fetchEmployeeLeaveBalance(employeeData : any) {
+        try {
+            const leaveBalance = await this.leaveBalanceRepository.fetchEmployeeLeaveBalance(employeeData);
+            return leaveBalance;
+        }catch(e){
+            console.log("Error in serivice :" , e);
+        }
 
     }
+
+
 }

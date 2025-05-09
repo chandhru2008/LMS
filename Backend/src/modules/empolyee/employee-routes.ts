@@ -13,7 +13,7 @@ export class EmployeeRoutes {
       {
         method: 'POST',
         path: '/register',
-        handler: (request, h) => {
+        handler: async (request, h) => {
           console.log("POST /register route hit");
           return this.employeeController.registerEmployee(request, h);
         }
@@ -22,10 +22,10 @@ export class EmployeeRoutes {
         method: 'POST',
         path: '/login',
         handler: (request, h) => {
-            console.log("POST /register route hit");
+          console.log("POST /login route hit");
           return this.employeeController.loginEmployee(request, h);
         }
-      }
+      },
     ]);
   }
 }

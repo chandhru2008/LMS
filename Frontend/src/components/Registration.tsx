@@ -71,16 +71,16 @@ function Registration() {
       
   
       if (response.ok) {
-        console.log("✅ Registered:", data);
+        console.log("Registered:", data);
         navigate("/");  
       } else {
         console.log("therheuf")
       }
     } catch (err) {
-      // Log any network or unexpected errors
-      console.error("❌ Network error:", err);
+      console.error("Network error:", err);
       showError("Something went wrong. Try again.");
     }
+
   }
   
 
