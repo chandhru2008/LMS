@@ -24,7 +24,6 @@ export class EmployeeController {
 
       // Setting cookie
       h.state('userSession', {
-        role: newEmployee.role,
         token: JWTToken,
       });
 
@@ -46,7 +45,6 @@ export class EmployeeController {
       const JWTToken = generateJWTToken(employee);
 
       h.state('userSession', {
-        role: employee.role,
         token: JWTToken,
       });
 
@@ -55,6 +53,7 @@ export class EmployeeController {
         JWTToken,
       }).code(200);
     } catch (e) {
+      console.log(e);
       return h.response({ message: 'Login failed', error: e }).code(400);
     }
   }

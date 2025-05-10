@@ -1,4 +1,3 @@
-import { LeaveTypeRepository } from "../leave-types/leave-repository";
 import { LeaveRequestRepository } from "./leave-request-repository.";
 
 export class LeaveRequestService {
@@ -59,6 +58,7 @@ export class LeaveRequestService {
       manager_approval: managerApproval,
       director_approval: directorApproval,
       status,
+      leaveDays
     };
   
     return await this.leaveRequestRepository.createLeaveRequest(leaveRequestPayload);

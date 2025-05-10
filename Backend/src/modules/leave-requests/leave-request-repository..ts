@@ -13,6 +13,7 @@ export class LeaveRequestRepository {
   public async createLeaveRequest(
     data: any
   ) {
+    
     try {
       console.log("Description in repo leayer", data.description)
       const employeeRepo = dataSource.getRepository(Employee);
@@ -59,5 +60,6 @@ export class LeaveRequestRepository {
       throw new Error('Could not fetch leave history.');
     }
   }
+
 
 }
