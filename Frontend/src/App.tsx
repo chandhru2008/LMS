@@ -1,6 +1,7 @@
 import Header from './components/Header'
 import './App.css'
 import LeaveBalances from './components/leave-balance'
+import LeaveHistory from './components/leave-history'
 
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
     <>
     <Header />
     <LeaveBalances />
+    <LeaveHistory  />
     </>
   )
 }

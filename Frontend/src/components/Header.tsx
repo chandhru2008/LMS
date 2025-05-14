@@ -90,7 +90,7 @@ function Header() {
                                 Logout
                             </button>
                             {
-                                role === "Manager" ? <button onClick={navigateToLeaveRequestsPage}>See my employee leave request</button> : ""
+                                role === "Manager" ? <button className='px-[15px] py-[10px] rounded-[10px] bg-blue-500 text-white text-[18px] font-semibold hover:cursor-pointer' onClick={navigateToLeaveRequestsPage}>See my employee leave request</button> : ""
                             }
                         </>
                     )}

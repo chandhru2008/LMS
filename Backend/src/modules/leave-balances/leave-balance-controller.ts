@@ -27,7 +27,7 @@ export class LeaveBalanceController {
             const employee = decoded.payload;
             console.log(employee)
           const leaveBalance = await  this.leaveBalanceService.fetchEmployeeLeaveBalance(employee);
-            return h.response({ leaveBalance: leaveBalance });
+            return h.response({  leaveBalance });
         } catch (err) {
             return h.response({ error: 'Invalid token' }).code(401);
         }

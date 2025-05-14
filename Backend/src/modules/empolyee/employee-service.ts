@@ -80,6 +80,7 @@ export class EmployeeService {
       throw new Error('Employee not found');
     }
 
+    
     const isPasswordValid = await bcrypt.compare(
       loginEmployeeData.password,
       checkEmployeeExist.password

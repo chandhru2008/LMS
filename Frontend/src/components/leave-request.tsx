@@ -6,25 +6,8 @@ type LeaveType = {
   max_allowed_days: number;
 };
 
-type LeaveHistoryItem = {
-  id: string;
-  start_date: string;
-  end_date: string;
-  description: string;
-  status: string;
-  manager_approval: string;
-  HR_approval: string;
-  director_approval: string;
-  leaveType: {
-    id: number;
-    name: string;
-    max_allowed_days: number;
-  };
-};
-
 function LeaveRequestForm() {
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
-  const [leaveHistory, setLeaveHistory] = useState<LeaveHistoryItem[]>([]);
   const [formData, setFormData] = useState({
     leaveType: "",
     fromDate: "",
@@ -38,22 +21,13 @@ function LeaveRequestForm() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [typesRes, historyRes] = await Promise.all([
-          fetch("http://localhost:3001/leave-types", {
-            method: "GET",
-            credentials: "include",
-          }),
-          fetch("http://localhost:3001/leave-history", {
-            method: "GET",
-            credentials: "include",
-          }),
-        ]);
+        const typesRes = await fetch("http://localhost:3001/leave-types", {
+          method: "GET",
+          credentials: "include",
+        });
 
         const types = await typesRes.json();
-        const history = await historyRes.json();
-
         setLeaveTypes(types);
-        setLeaveHistory(history.leaveHistory || []);
       } catch (err) {
         console.error("Error fetching data:", err);
       }
@@ -94,12 +68,6 @@ function LeaveRequestForm() {
 
     setLoading(true);
 
-    console.log({
-        leaveTypeId: formData.leaveType,
-        fromDate: formData.fromDate,
-        toDate: formData.toDate,
-        reason: formData.reason,
-      })
     try {
       const response = await fetch("http://localhost:3001/leave-request", {
         method: "POST",
@@ -118,16 +86,6 @@ function LeaveRequestForm() {
       if (response.ok) {
         setMessage("Leave request submitted successfully.");
         setFormData({ leaveType: "", fromDate: "", toDate: "", reason: "" });
-
-        // Refresh leave history
-        const historyRes = await fetch("http://localhost:3001/leave-history", {
-          method: "GET",
-          credentials: "include",
-        });
-        const historyData = await historyRes.json();
-
-        console.log(historyData);
-        setLeaveHistory(historyData.leaveHistory || []);
       } else {
         setMessage(result?.error || "Failed to submit request.");
       }
@@ -138,8 +96,6 @@ function LeaveRequestForm() {
       setLoading(false);
     }
   };
-
-
 
   return (
     <div className="max-w-4xl mx-auto mt-10 bg-white shadow-xl rounded-2xl overflow-hidden p-6">
@@ -207,9 +163,7 @@ function LeaveRequestForm() {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition ${
-            loading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+          className={`w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           {loading ? "Submitting..." : "Submit Leave Request"}
         </button>
@@ -220,46 +174,6 @@ function LeaveRequestForm() {
           </p>
         )}
       </form>
-
-      <hr className="my-8" />
-
-      <h3 className="text-lg font-semibold mb-3 text-indigo-600">Leave History</h3>
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto border border-collapse">
-          <thead>
-            <tr className="bg-gray-100 text-left">
-              <th className="border px-4 py-2">Leave Type</th>
-              <th className="border px-4 py-2">From</th>
-              <th className="border px-4 py-2">To</th>
-              <th className="border px-4 py-2">Status</th>
-              <th className="border px-4 py-2">Manager</th>
-              <th className="border px-4 py-2">HR</th>
-              <th className="border px-4 py-2">Director</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leaveHistory.length > 0 ? (
-              leaveHistory.map((item) => (
-                <tr key={item.id}>
-                  <td className="border px-4 py-2">{item.leaveType.name}</td>
-                  <td className="border px-4 py-2">{new Date(item.start_date).toLocaleDateString()}</td>
-                  <td className="border px-4 py-2">{new Date(item.end_date).toLocaleDateString()}</td>
-                  <td className="border px-4 py-2">{item.status}</td>
-                  <td className="border px-4 py-2">{item.manager_approval}</td>
-                  <td className="border px-4 py-2">{item.HR_approval}</td>
-                  <td className="border px-4 py-2">{item.director_approval}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={7} className="text-center py-4 text-gray-500">
-                  No leave history found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 }
