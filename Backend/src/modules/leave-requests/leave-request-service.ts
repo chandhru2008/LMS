@@ -1,3 +1,5 @@
+import { LeaveType } from "../leave-types/leave-type-model";
+import { dataSource } from "../../config/db/conn";
 import { LeaveRequestRepository } from "./leave-request-repository.";
 
 export class LeaveRequestService {
@@ -10,8 +12,7 @@ export class LeaveRequestService {
 
  
   public async requestLeave(data: any) {
-    console.log("Description in repo Service", data.description);
-  
+    const leaveTypeRepo = dataSource.getRepository(LeaveType);
     const startDate = new Date(data.startDate);
     const endDate = new Date(data.endDate);
   
@@ -22,42 +23,37 @@ export class LeaveRequestService {
     const timeDiff = endDate.getTime() - startDate.getTime();
     const leaveDays = Math.floor(timeDiff / (1000 * 3600 * 24)) + 1;
   
-    let hrApproval: string | null = null;
-    let managerApproval: string | null = null;
-    let directorApproval: string | null = null;
+    let hrApproval: string | "Pending";
+    let managerApproval: string | "Pending";
+    let directorApproval: string | "Pending";
+    let status : string | "Pending";
   
-    
-    const leaveType = data.leaveType?.toLowerCase();
+    const leaveType = await leaveTypeRepo.findOne({where : {id : data.leaveTypeId}});
+
+    console.log("Leave type in services : ", leaveType.name);
   
-    if (leaveType === "emergency") {
+    if (leaveType.name === "Emergency Leave") {
       hrApproval = "Approved";
       managerApproval = "Approved";
       directorApproval = "Approved";
-    } else if (leaveDays < 2) {
+      status = "Approved";
+    } else if (leaveDays <= 2) {
       hrApproval = "Approved";
       directorApproval = "Approved";
     } else if (leaveDays <= 4) {
       directorApproval = "Approved";
     } else if (leaveDays > 7) {
-      // Everyone must manually approve
     } else {
       directorApproval = "Pending";
     }
-  
-    // Overall status
-    const status =
-      hrApproval === "Approved" &&
-      (managerApproval === "Approved" || managerApproval === null) &&
-      directorApproval === "Approved"
-        ? "Approved"
-        : "Pending";
-  
+
+
     const leaveRequestPayload = {
       ...data,
       hr_approval: hrApproval,
       manager_approval: managerApproval,
       director_approval: directorApproval,
-      status,
+      status : status,
       leaveDays
     };
   
@@ -71,5 +67,8 @@ export class LeaveRequestService {
 
   }
 
-  // Additional service methods can be added here
+  async updateStatus(leaveRequestId){
+    return this,this.leaveRequestRepository.updateStatus(leaveRequestId)
+  }
+
 }

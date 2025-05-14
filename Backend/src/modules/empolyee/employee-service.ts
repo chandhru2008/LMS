@@ -23,10 +23,13 @@ export class EmployeeService {
 
     const role = employeeData.role.toLowerCase();
 
-    // Prepare supervisor emails
+
     const managerEmail = employeeData.managerEmail?.trim();
     const hrEmail = employeeData.hrEmail?.trim();
     const directorEmail = employeeData.directorEmail?.trim();
+
+
+    console.log('Looking up emails:', { managerEmail, hrEmail, directorEmail });
 
     // Lookup supervisors
     const [manager, hr, director] = await Promise.all([
@@ -34,6 +37,9 @@ export class EmployeeService {
       hrEmail ? this.employeeRepo.findByEmail(hrEmail) : null,
       directorEmail ? this.employeeRepo.findByEmail(directorEmail) : null
     ]);
+
+    console.log(managerEmail);
+    console.log(directorEmail);
 
     // Validation based on role
     if (role === 'employee') {
@@ -69,16 +75,16 @@ export class EmployeeService {
 
   async loginEmployee(loginEmployeeData: any): Promise<Employee> {
     const checkEmployeeExist = await this.employeeRepo.findByEmail(loginEmployeeData.email);
-  
+
     if (!checkEmployeeExist) {
       throw new Error('Employee not found');
     }
-  
+
     const isPasswordValid = await bcrypt.compare(
       loginEmployeeData.password,
       checkEmployeeExist.password
     );
-  
+
     if (!isPasswordValid) {
       throw new Error('Invalid password');
     }

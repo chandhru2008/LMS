@@ -1,6 +1,6 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { EmployeeService } from "./employee-service";
-import { generateJWTToken } from "../../utils/jwtUtil";
+import { generateJWTToken, verifyToken } from "../../utils/jwtUtil";
 import { LeaveBalanceController } from "../leave-balances/leave-balance-controller";
 
 export class EmployeeController {
@@ -15,11 +15,10 @@ export class EmployeeController {
   async registerEmployee(request: Request, h: ResponseToolkit) {
     try {
       const employeeData = request.payload as any;
+
+      console.log("Employee data", employeeData)
       const newEmployee = await this.employeeService.registerEmployee(employeeData);
-
       const JWTToken = generateJWTToken(newEmployee);
-
-
       await this.leaveBalanceController.assignDefaultLeaveBalances(newEmployee);
 
       // Setting cookie
@@ -57,4 +56,32 @@ export class EmployeeController {
       return h.response({ message: 'Login failed', error: e }).code(400);
     }
   }
+
+  async authenticateEmployee(request: Request, h: ResponseToolkit) {
+    try {
+
+      const token = request.state.userSession.token;
+
+      if (!token) {
+        return h.response({ message: 'JWT token must be provided- token' }).code(400);
+      }
+
+
+      const varifyEmployee = verifyToken(token);
+
+
+      console.log(varifyEmployee);
+
+      return h.response(
+        {
+          employeeName: varifyEmployee.payload.name,
+          role: varifyEmployee.payload.role
+        }
+      );
+    } catch (e) {
+      console.log("Error in verifying:", e);
+      return h.response({ message: 'Login failed', error: e }).code(400);
+    }
+  }
+
 }

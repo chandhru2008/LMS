@@ -51,10 +51,11 @@ function Registration() {
       email,
       password,
       role,
-      managerEmail: role === 'employee' ? managerEmail : null,
-      hrEmail: role === 'manager' ? hrEmail : null,
-      directorEmail: role === 'HR' ? directorEmail : null,
+      managerEmail: managerEmail,
+      hrEmail: hrEmail,
+      directorEmail: directorEmail
     };
+    
   console.log(userDetails)
     try {
       const response = await fetch("http://localhost:3001/register", {
@@ -71,7 +72,7 @@ function Registration() {
   
       if (response.ok) {
         console.log("Registered:", data);
-        navigate("/");  
+        navigate("/home");  
       } else {
         console.log("therheuf")
       }

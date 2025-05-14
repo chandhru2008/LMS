@@ -1,5 +1,6 @@
 import { Server } from '@hapi/hapi';
 import { EmployeeController } from './employee-controller';
+import { request } from 'http';
 
 export class EmployeeRoutes {
   private employeeController: EmployeeController;
@@ -24,6 +25,22 @@ export class EmployeeRoutes {
         handler: (request, h) => {
           console.log("POST /login route hit");
           return this.employeeController.loginEmployee(request, h);
+        }
+      },
+      {
+        method: 'POST',
+        path: '/log-out',
+        handler: (request, h) => {
+          return h
+            .response({ message: 'Logged out successfully' })
+            .unstate('userSession', { path: '/' });
+        }
+      },
+      {
+        method : 'GET',
+        path : '/check-auth',
+        handler: (request, h) => {
+       return this.employeeController.authenticateEmployee(request, h);
         }
       },
     ]);

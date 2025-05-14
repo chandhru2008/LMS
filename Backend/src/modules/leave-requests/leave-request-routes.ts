@@ -13,12 +13,22 @@ export class LeaveRequestRoutes {
       {
         method: 'POST',
         path: '/leave-request',
-        handler: this.leaveRequestController.requestLeave.bind(this.leaveRequestController) // Bind method to controller
+        handler: this.leaveRequestController.requestLeave.bind(this.leaveRequestController) 
       },
       {
         method : "GET",
         path : '/leave-history',
         handler : this.leaveRequestController.getLeaveHistory.bind(this.leaveRequestController)
+      },
+      {
+        method : "GET",
+        path : '/manager/leaves',
+        handler : this.leaveRequestController.getLeaveRequest.bind(this.leaveRequestController)
+      },
+      {
+        method : 'PUT',
+        path : '/leave-request/{id}/approve',
+        handler : this.leaveRequestController.updateStatus.bind(this.leaveRequestController)
       }
     ]);
   }

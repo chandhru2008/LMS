@@ -1,5 +1,6 @@
 import Header from './components/Header'
 import './App.css'
+import LeaveBalances from './components/leave-balance'
 
 
 function App() {
@@ -9,6 +10,7 @@ function App() {
   return (
     <>
     <Header />
+    <LeaveBalances />
     </>
   )
 }

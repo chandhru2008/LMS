@@ -32,7 +32,6 @@ export class LeaveBalanceController {
             return h.response({ error: 'Invalid token' }).code(401);
         }
     }
+
     
-
-
 }

@@ -30,7 +30,7 @@ function Login() {
 
       if (response.ok) {
         setErrorMessage('');
-        navigate('/');
+        navigate('/home');
       } else {
         const data = await response.json();
         setErrorMessage(data.message || 'Login failed');
