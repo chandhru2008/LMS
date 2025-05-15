@@ -7,7 +7,9 @@ import Login from './components/Login'
 import Registration from './components/Registration.tsx'
 import LeaveType from './components/LeaveType.tsx'
 import LeaveRequestForm from './components/leave-request.tsx'
-import LeaveRequestManager from './components/leave-request-manager.tsx'
+import LeaveRequestManager from './components/leave-requests/leave-request-manager.tsx'
+import LeaveRequestDirector from './components/leave-requests/leave-request-director.tsx'
+import LeaveRequestHr from './components/leave-requests/leave-requet-hr.tsx'
 
 
 
@@ -34,6 +36,14 @@ const router = createBrowserRouter([
   {
     path : "/manager/leaves",
     element : <LeaveRequestManager />
+  },
+  {
+    path : '/hr/leaves',
+    element : <LeaveRequestHr />
+  },
+  {
+    path : "/director/leaves",
+    element : <LeaveRequestDirector />
   }
 ])
 createRoot(document.getElementById('root')!).render(

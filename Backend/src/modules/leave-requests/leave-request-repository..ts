@@ -11,6 +11,19 @@ export class LeaveRequestRepository {
   constructor() {
     this.repo = dataSource.getRepository(LeaveRequest);
   }
+
+  async getAllLeaveRequests() {
+    try {
+      const allLeaveRequest = await this.repo.find({
+        relations: ['employee', 'leaveType'],
+      });
+      console.log(allLeaveRequest)
+      return allLeaveRequest;
+    } catch (e) {
+      console.log(e);
+    }
+
+  }
   public async createLeaveRequest(
     data: any
   ) {
@@ -75,36 +88,56 @@ export class LeaveRequestRepository {
 
   }
 
-  async getLeaveHistory(employee: any) {
+  async getMyLeaveRequests(employee: any) {
 
     try {
-      const leaveHistory = await this.repo.find({
+      const leaveRequest = await this.repo.find({
         where: { employee: { id: employee } },
         relations: ['leaveType'],
         order: { start_date: 'DESC' },
       });
-      return leaveHistory;
+      return leaveRequest;
     } catch (error) {
       console.error('Error fetching leave history:', error);
       throw new Error('Could not fetch leave history.');
     }
   }
 
-  async updateStatus(leaveRequestId: string) {
+  async updateStatus(leaveRequestId: string, role: string, decision: string) {
     const leaveRequestRepo = dataSource.getRepository(LeaveRequest);
     try {
       const leaveRequest = await leaveRequestRepo.findOne({ where: { id: leaveRequestId } });
 
+      console.log(role)
       if (!leaveRequest) {
         throw new Error("Leave request not found");
       }
 
-      leaveRequest.manager_approval = 'Approved';
+      if (decision == "Approve" && role == "Manager") {
+        leaveRequest.manager_approval = "Approved";
+      } else if (decision == "Approve" && role == "HR") {
+        leaveRequest.HR_approval = "Approved";
+      } else if (decision == "Approve" && role == "Director") {
+        leaveRequest.director_approval = "Approved";
+      }
 
-      if(leaveRequest.HR_approval == "Approved" && leaveRequest.director_approval=="Approved" && leaveRequest.manager_approval == "Approved"){
+      if (decision == "Reject" && role == "Manager") {
+        leaveRequest.manager_approval = "Rejected";
+      } else if (decision == "Reject" && role == "HR") {
+        leaveRequest.HR_approval = "Rejected";
+      } else if (decision == "Reject" && role == "Director") {
+        leaveRequest.director_approval = "Rejected";
+      }
+
+
+      if (leaveRequest.HR_approval == "Approved" && leaveRequest.director_approval == "Approved" && leaveRequest.manager_approval == "Approved") {
         leaveRequest.status = "Approved";
       }
- 
+
+      if(leaveRequest.HR_approval == "Rejected" || leaveRequest.director_approval == "Rejected" || leaveRequest.manager_approval == "Rejected"){
+        leaveRequest.status = "Rejected"
+      }
+
 
       await leaveRequestRepo.save(leaveRequest);
 
@@ -116,4 +149,37 @@ export class LeaveRequestRepository {
   }
 
 
+  async getRequestsByRole(role: string, eId: string) {
+    try {
+      const employeeRepo = dataSource.getRepository(Employee)
+      let employees = [];
+
+      if (role == "Manager") {
+        employees = await employeeRepo.find({
+          where: { manager: { id: eId } },
+          relations: ['manager']
+        });
+      } else if (role == "HR") {
+        employees = await employeeRepo.find({
+          where: { HR: { id: eId } },
+          relations: ['HR']
+        });
+      }
+
+      const leaveRequests = [];
+
+      for (const e of employees) {
+        const leaveHistory = await this.getMyLeaveRequests(e.id);
+        leaveRequests.push({
+          employee: e,
+          leaveHistory,
+        });
+      }
+
+      return leaveRequests;
+    } catch (e) {
+      console.log(e)
+    }
+
+  }
 }

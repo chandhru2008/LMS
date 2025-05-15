@@ -69,7 +69,7 @@ function LeaveRequestForm() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3001/leave-request", {
+      const response = await fetch("http://localhost:3001/create-leave-request", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

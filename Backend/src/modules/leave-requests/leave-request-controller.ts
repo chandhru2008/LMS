@@ -12,8 +12,30 @@ export class LeaveRequestController {
     this.leaveRequestService = leaveRequestService;
   }
 
-  
-  public requestLeave = async (request: Request, h: ResponseToolkit) => {
+
+  async getAllLeaveRequests(request: Request, h: ResponseToolkit) {
+    try {
+      const secretKey = process.env.JWT_SECRET;
+      const token = request.state.userSession.token;
+      const decoded = jwt.verify(token, secretKey);
+      const role = decoded.payload.role;
+
+      //middle ware
+      if (role == "Director") {
+        const allLeaveRequest = await this.leaveRequestService.getAllLeaveRequests();
+        return h.response(allLeaveRequest).code(201);
+      } else {
+        return h.response({ message: "Unauthorized user" }).code(400);
+      }
+
+    } catch (e) {
+      console.log(e);
+    }
+
+  }
+
+
+  public createLeaveRequest = async (request: Request, h: ResponseToolkit) => {
     try {
       const secretKey = process.env.JWT_SECRET;
       const token = request.state.userSession.token;
@@ -33,7 +55,7 @@ export class LeaveRequestController {
         description: description
       }
 
-      const leaveRequest = await this.leaveRequestService.requestLeave(data);
+      const leaveRequest = await this.leaveRequestService.createLeaveRequest(data);
 
       return h.response({ message: 'Leave request created successfully', leaveRequest }).code(201);
 
@@ -44,62 +66,62 @@ export class LeaveRequestController {
 
   };
 
-  async getLeaveHistory(request: Request, h: ResponseToolkit) {
+  async getMyLeaveRequests(request: Request, h: ResponseToolkit) {
     try {
       const secretKey = process.env.JWT_SECRET;
       const token = request.state.userSession.token;
       const decoded = jwt.verify(token, secretKey);
       const employee = decoded.payload.id;
-      const leaveHistory = await this.leaveRequestService.getLeaveHistory(employee);
-      return h.response({ leaveHistory: leaveHistory }).code(201);
+      const leaveRequest = await this.leaveRequestService.getMyLeaveRequests(employee);
+      return h.response({ leaveRequest }).code(201);
     } catch (e) {
       console.log(e);
       return h.response({ message: e }).code(500);
     }
   }
 
-  async getLeaveRequest(request: Request, h: ResponseToolkit) {
+  async getLeaveRequestsForSubordinates(request: Request, h: ResponseToolkit) {
     try {
-      const employeeRepo = dataSource.getRepository(Employee)
+
       const secretKey = process.env.JWT_SECRET;
       const token = request.state.userSession.token;
       const decoded = jwt.verify(token, secretKey);
-      const managerId = decoded.payload.id;
-      const manager = await employeeRepo.findOne({ where: { id: managerId } });
+      const role = decoded.payload.role
+      const eId = decoded.payload.id
 
-      console.log("This is manager id : ", managerId);
-
-      const employees = await employeeRepo.find({
-        where: { manager: { id: manager.id } },
-        relations: ['manager']
-      });
-
-      const leaveHistories = [];
-
-      for (const e of employees) {
-        const leaveHistory = await this.leaveRequestService.getLeaveHistory(e.id);
-        leaveHistories.push({
-          employee: e,
-          leaveHistory,
-        });
+      if (role == "Employee") {
+        return h.response({ message: "Unauthorized user" }).code(400)
       }
 
-      return h.response({ data: leaveHistories }).code(200);
-
-
+      const leaveRequestByRole = await this.leaveRequestService.getRequestsByRole(role, eId)
+      return h.response({ leaveRequestByRole }).code(200);
 
     } catch (e) {
       console.log("Error : ", e)
     }
   }
 
-  async updateStatus(request: Request, h: ResponseToolkit) {
+  async processDecision(request: Request, h: ResponseToolkit) {
     try {
+      const secretKey = process.env.JWT_SECRET;
+      const token = request.state.userSession.token;
+      const decoded = jwt.verify(token, secretKey);
+      const role = decoded.payload.role
       const leaveRequestId = request.params.id;
-      await this.leaveRequestService.updateStatus(leaveRequestId)
+      const bodyData = request.payload as any;
+      let decision = null;
+      if (role == "Manager") {
+        decision = bodyData.manager_approval
+      } else if (role == "HR") {
+        decision = bodyData.hr_approval
+      } else if (role == "Director") {
+        decision = bodyData.director_approval
+      }
+      await this.leaveRequestService.processDecision(leaveRequestId, role, decision)
       return h.response({ message: "Leave request approved" }).code(201)
     } catch (e) {
       return h.response({ Error: e }).code(400)
     }
   }
+
 }

@@ -24,13 +24,13 @@ function LeaveHistory() {
   useEffect(() => {
     async function fetchLeaveHistory() {
       try {
-        const response = await fetch("http://localhost:3001/leave-history", {
+        const response = await fetch("http://localhost:3001/leave-requests/my", {
           method: "GET",
           credentials: "include",
         });
         if (response.ok) {
           const result = await response.json();
-          setData(result.leaveHistory || []);
+          setData(result.leaveRequest || []);
           console.log("Leave History:", result);
         }
       } catch (error) {

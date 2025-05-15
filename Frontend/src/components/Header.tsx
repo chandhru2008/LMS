@@ -59,8 +59,17 @@ function Header() {
             console.error('Error logging out:', error);
         }
     };
-    function navigateToLeaveRequestsPage() {
-        navigate("/manager/leaves")
+
+    function navigateToLeaveRequestsPage(role: string) {
+        if (role == "Manager") {
+            navigate("/manager/leaves");
+        } else if (role == "HR") {
+            navigate("/hr/leaves");
+        } else if (role == "Director") {
+            navigate("/director/leaves");
+        } else {
+            console.log("Role is miss mar=tching");
+        }
     }
 
     return (
@@ -90,8 +99,16 @@ function Header() {
                                 Logout
                             </button>
                             {
-                                role === "Manager" ? <button className='px-[15px] py-[10px] rounded-[10px] bg-blue-500 text-white text-[18px] font-semibold hover:cursor-pointer' onClick={navigateToLeaveRequestsPage}>See my employee leave request</button> : ""
+                                ["Manager", "HR", "Director"].includes(role) && (
+                                    <button
+                                        className="px-[15px] py-[10px] rounded-[10px] bg-blue-500 text-white text-[18px] font-semibold hover:cursor-pointer"
+                                        onClick={() => navigateToLeaveRequestsPage(role)}
+                                    >
+                                        Leave requests
+                                    </button>
+                                )
                             }
+
                         </>
                     )}
                 </div>
