@@ -8,7 +8,7 @@ function Registration() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  // const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [role, setRole] = useState('');
   const [managerEmail, setManagerEmail] = useState('');
@@ -102,7 +102,7 @@ function Registration() {
             onChange={(e) => setEmail(e.target.value)}
           />
           <input
-            type={showPassword ? 'text' : 'password'}
+            type= 'password'
             placeholder="Password"
             className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             onChange={(e) => setPassword(e.target.value)}
