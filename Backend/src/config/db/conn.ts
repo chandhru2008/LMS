@@ -4,6 +4,10 @@ import { LeaveType } from "../../modules/leave-types/leave-type-model";
 import { LeaveRequest } from "../../modules/leave-requests/leave-request-model";
 import { LeaveBalance } from "../../modules/leave-balances/leave-balance-model";
 
+import * as dotenv from 'dotenv';
+import path from "path";
+dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
+
 
 const dataSource = new DataSource({
     type : "mysql",
