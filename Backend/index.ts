@@ -32,7 +32,7 @@ async function init() {
     try {
         console.log('Initializing database...');
         await dataSource.initialize();
-        console.log('✅ Database initialized.');
+        console.log(' Database initialized.');
 
         const server: Server = Hapi.server({
             port: 3001,

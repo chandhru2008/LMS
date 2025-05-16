@@ -36,14 +36,28 @@ export class LeaveRequestRepository {
       const employeeId = data.employeeId;
       const leaveTypeName = data.leaveTypeId
 
-      console.log(leaveTypeName)
-
       const employee = await employeeRepo.findOneBy({ id: employeeId });
       const leaveType = await leaveTypeRepo.findOneBy({ id: leaveTypeName });
 
 
+      const employeeLeaveRequests = await this.repo.find({ where: { employee: { id: employeeId } }, relations: ['employee'] });
 
-      console.log("Leave type name in leave repos : ", leaveType)
+      const newStart = new Date(data.startDate);
+      const newEnd = new Date(data.endDate);
+
+      for (let lr of employeeLeaveRequests) {
+        const existingStart = new Date(lr.start_date);
+        const existingEnd = new Date(lr.end_date);
+
+        // Check for overlap
+        const overlaps =
+          (newStart <= existingEnd) && (newEnd >= existingStart);
+
+        if (overlaps) {
+          throw new Error("Leave request overlaps with an existing leave.");
+        }
+      }
+
 
       if (!employee) throw new Error("Employee not found");
       if (!leaveType) throw new Error("Leave Type not found");
@@ -67,7 +81,6 @@ export class LeaveRequestRepository {
         relations: ['employee', 'leaveType'],
       });
 
-      console.log("This is leave balance in repo : ", leaveBalance)
 
       if (!leaveBalance) throw new Error("Leave balance not found");
 
@@ -79,9 +92,9 @@ export class LeaveRequestRepository {
       leaveBalance.remaining_leaves -= data.leaveDays
 
       await leaveBalanceRepo.save(leaveBalance);
-
-
-      return await this.repo.save(leaveRequest);
+      await this.repo.save(leaveRequest);
+      return "Leave request submitted successfully";
+      
     } catch (e) {
       console.log("Error : ", e)
     }
@@ -96,7 +109,9 @@ export class LeaveRequestRepository {
         relations: ['leaveType'],
         order: { start_date: 'DESC' },
       });
+
       return leaveRequest;
+
     } catch (error) {
       console.error('Error fetching leave history:', error);
       throw new Error('Could not fetch leave history.');
@@ -134,7 +149,7 @@ export class LeaveRequestRepository {
         leaveRequest.status = "Approved";
       }
 
-      if(leaveRequest.HR_approval == "Rejected" || leaveRequest.director_approval == "Rejected" || leaveRequest.manager_approval == "Rejected"){
+      if (leaveRequest.HR_approval == "Rejected" || leaveRequest.director_approval == "Rejected" || leaveRequest.manager_approval == "Rejected") {
         leaveRequest.status = "Rejected"
       }
 
@@ -152,7 +167,7 @@ export class LeaveRequestRepository {
   async getRequestsByRole(role: string, eId: string) {
     try {
       const employeeRepo = dataSource.getRepository(Employee)
-      let employees = [];
+      let employees: any = [];
 
       if (role == "Manager") {
         employees = await employeeRepo.find({

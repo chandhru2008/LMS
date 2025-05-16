@@ -14,7 +14,10 @@ const dataSource = new DataSource({
     database: process.env.DB_NAME,
     synchronize : true,
     driver: require('mysql2'),
-    entities : [Employee, LeaveType, LeaveRequest, LeaveBalance]
+    entities : [Employee, LeaveType, LeaveRequest, LeaveBalance],
+      ssl: {
+    rejectUnauthorized: false, // Aiven requires SSL
+  },
 });
 
 

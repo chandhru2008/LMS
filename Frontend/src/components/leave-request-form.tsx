@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import 'react-datepicker/dist/react-datepicker.css'
 
 type LeaveType = {
   id: number;
@@ -49,11 +50,18 @@ function LeaveRequestForm() {
 
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
-    if (!formData.leaveType) newErrors.leaveType = "Leave type is required.";
-    if (!formData.fromDate) newErrors.fromDate = "From date is required.";
-    if (!formData.toDate) newErrors.toDate = "To date is required.";
-    if (formData.reason.trim().length < 5)
+    if (!formData.leaveType) {
+      newErrors.leaveType = "Leave type is required.";
+    }
+    if (!formData.fromDate) {
+      newErrors.fromDate = "From date is required.";
+    }
+    if (!formData.toDate) {
+      newErrors.toDate = "To date is required.";
+    }
+    if (formData.reason.trim().length < 5) {
       newErrors.reason = "Reason must be at least 5 characters.";
+    }
     return newErrors;
   };
 
@@ -83,6 +91,8 @@ function LeaveRequestForm() {
 
       const result = await response.json();
 
+      console.log("Resopne ok : ", response.ok)
+
       if (response.ok) {
         setMessage("Leave request submitted successfully.");
         setFormData({ leaveType: "", fromDate: "", toDate: "", reason: "" });
@@ -96,6 +106,7 @@ function LeaveRequestForm() {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="max-w-4xl mx-auto mt-10 bg-white shadow-xl rounded-2xl overflow-hidden p-6">
@@ -125,6 +136,7 @@ function LeaveRequestForm() {
             <input
               type="date"
               name="fromDate"
+              min={new Date().toISOString().split("T")[0]}
               value={formData.fromDate}
               onChange={handleChange}
               className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
@@ -136,6 +148,7 @@ function LeaveRequestForm() {
             <input
               type="date"
               name="toDate"
+              min={new Date().toISOString().split("T")[0]}
               value={formData.toDate}
               onChange={handleChange}
               className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
@@ -177,5 +190,6 @@ function LeaveRequestForm() {
     </div>
   );
 }
+
 
 export default LeaveRequestForm;

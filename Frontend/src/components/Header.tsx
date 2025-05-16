@@ -75,7 +75,7 @@ function Header() {
     return (
         <div className="w-screen h-[80px] bg-gray-100 shadow-md">
             <div className="w-[85%] h-full mx-auto flex justify-between items-center">
-                <h1>LMS</h1>
+                <h1 className='font-bold text-[20px]'>LMS</h1>
                 <div className='flex items-center gap-[10px]'>
                     {!isLoggedIn ? (
                         <button

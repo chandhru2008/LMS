@@ -6,7 +6,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Login from './components/Login'
 import Registration from './components/Registration.tsx'
 import LeaveType from './components/LeaveType.tsx'
-import LeaveRequestForm from './components/leave-request.tsx'
+import LeaveRequestForm from './components/leave-request-form.tsx'
 import LeaveRequestManager from './components/leave-requests/leave-request-manager.tsx'
 import LeaveRequestDirector from './components/leave-requests/leave-request-director.tsx'
 import LeaveRequestHr from './components/leave-requests/leave-requet-hr.tsx'
@@ -22,7 +22,7 @@ const router = createBrowserRouter([
     element: <Registration />
   },
   {
-    path: "/home",
+    path: "/",
     element: <App />
   },
   {

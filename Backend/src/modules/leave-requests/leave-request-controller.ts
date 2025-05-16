@@ -57,11 +57,15 @@ export class LeaveRequestController {
 
       const leaveRequest = await this.leaveRequestService.createLeaveRequest(data);
 
+      if(!leaveRequest){
+          return h.response({ message: 'Error creating leave request' }).code(400);
+      }
+
       return h.response({ message: 'Leave request created successfully', leaveRequest }).code(201);
 
     } catch (error) {
       console.error('Error creating leave request:', error);
-      return h.response({ message: 'Error creating leave request' }).code(500);
+      return h.response({ message: 'Error creating leave request' }).code(400);
     }
 
   };
