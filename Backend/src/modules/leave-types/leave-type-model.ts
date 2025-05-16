@@ -5,17 +5,17 @@ import { LeaveBalance } from "../leave-balances/leave-balance-model";
 @Entity()
 export class LeaveType{
     @PrimaryGeneratedColumn()
-    id : number;
+    id! : number;
 
     @Column()
-    name : String;
+    name! : string;
 
     @OneToMany(() => LeaveRequest, leaveRequest => leaveRequest.leaveType)
-    leaveRequests: LeaveRequest[];
+    leaveRequests!: LeaveRequest[];
 
     @OneToMany(()=> LeaveBalance, leaveBalance => leaveBalance.leaveType)
-    leaveBalances : LeaveBalance[];
+    leaveBalances! : LeaveBalance[];
 
     @Column()
-    max_allowed_days : number;
+    max_allowed_days! : number;
 }

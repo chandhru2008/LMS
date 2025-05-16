@@ -66,9 +66,9 @@ export class EmployeeService {
     employee.role = role;
 
     // Set supervisor references
-    employee.manager = manager
-    employee.HR = hr
-    employee.director = director
+    if (manager) employee.manager = manager;
+    if (hr) employee.HR = hr;
+    if (director) employee.director = director;
 
     return await this.employeeRepo.create(employee);
   }
@@ -80,7 +80,7 @@ export class EmployeeService {
       throw new Error('Employee not found');
     }
 
-    
+
     const isPasswordValid = await bcrypt.compare(
       loginEmployeeData.password,
       checkEmployeeExist.password

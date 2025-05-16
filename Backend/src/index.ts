@@ -1,30 +1,31 @@
 require('dotenv').config({ path: '../.env' });
 import * as Hapi from '@hapi/hapi';
 import { Server } from '@hapi/hapi';
-import { dataSource } from './src/config/db/conn';
+import { dataSource } from './config/db/conn';
+import "reflect-metadata";
 
 // Employee module classes
-import { EmployeeController } from './src/modules/empolyee/employee-controller';
-import { EmployeeService } from './src/modules/empolyee/employee-service';
-import { EmployeeRepository } from './src/modules/empolyee/employee-repository';
-import { EmployeeRoutes } from './src/modules/empolyee/employee-routes';
+import { EmployeeController } from './modules/empolyee/employee-controller';
+import { EmployeeService } from './modules/empolyee/employee-service';
+import { EmployeeRepository } from './modules/empolyee/employee-repository';
+import { EmployeeRoutes } from './modules/empolyee/employee-routes';
 
-import { LeaveTypeRepository } from './src/modules/leave-types/leave-repository';
-import { LeaveTypeService } from './src/modules/leave-types/leave-type-service';
-import { LeaveTypeController } from './src/modules/leave-types/leave-type-controller';
-import { LeaveTypeRoutes } from './src/modules/leave-types/leave-routes';
-
-
-import { LeaveRequestController } from './src/modules/leave-requests/leave-request-controller';
-import { LeaveRequestRepository } from './src/modules/leave-requests/leave-request-repository.';
-import { LeaveRequestRoutes } from './src/modules/leave-requests/leave-request-routes';
-import { LeaveRequestService } from './src/modules/leave-requests/leave-request-service';
+import { LeaveTypeRepository } from './modules/leave-types/leave-repository';
+import { LeaveTypeService } from './modules/leave-types/leave-type-service';
+import { LeaveTypeController } from './modules/leave-types/leave-type-controller';
+import { LeaveTypeRoutes } from './modules/leave-types/leave-routes';
 
 
-import { LeaveBalanceController } from './src/modules/leave-balances/leave-balance-controller';
-import { LeaveBalanceService } from './src/modules/leave-balances/leave-balance-service';
-import { LeaveBalanceRepository } from './src/modules/leave-balances/leave-balance-repository';
-import { LeaveBalanceRoute } from './src/modules/leave-balances/leave-balance-router';
+import { LeaveRequestController } from './modules/leave-requests/leave-request-controller';
+import { LeaveRequestRepository } from './modules/leave-requests/leave-request-repository.';
+import { LeaveRequestRoutes } from './modules/leave-requests/leave-request-routes';
+import { LeaveRequestService } from './modules/leave-requests/leave-request-service';
+
+
+import { LeaveBalanceController } from './modules/leave-balances/leave-balance-controller';
+import { LeaveBalanceService } from './modules/leave-balances/leave-balance-service';
+import { LeaveBalanceRepository } from './modules/leave-balances/leave-balance-repository';
+import { LeaveBalanceRoute } from './modules/leave-balances/leave-balance-router';
 
 
 

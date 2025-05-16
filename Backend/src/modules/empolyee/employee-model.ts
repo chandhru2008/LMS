@@ -6,20 +6,20 @@ import { LeaveBalance } from "../leave-balances/leave-balance-model";
 export class Employee {
 
     @PrimaryGeneratedColumn("uuid")
-    id: string;
+    id!: string;
 
     @Column()
-    name: string;
+    name!: string;
 
     @Column({unique:true})
-    email: string;
+    email!: string;
 
     @Column()
-    password: string;
+    password!: string;
 
 
     @Column({ type: 'enum', enum: ['Employee', 'Manager', 'HR', 'Director'], default: 'Employee' })
-    role: 'Employee' | 'Manager' | 'HR' | 'Director';
+    role!: 'Employee' | 'Manager' | 'HR' | 'Director';
 
 
     @ManyToOne(() => Employee)
@@ -36,16 +36,16 @@ export class Employee {
     director?: Employee;
 
     @CreateDateColumn()
-    created_at: Date;
+    created_at!: Date;
 
     @UpdateDateColumn()
-    updated_at: Date;
+    updated_at!: Date;
 
     @OneToMany(()=>LeaveRequest, leaveRequest=> leaveRequest.employee)
-    leaveRequests : LeaveRequest[];
+    leaveRequests! : LeaveRequest[];
 
     @OneToMany(()=> LeaveBalance , leaveBalance => leaveBalance.employee)
-    leaveBalances : LeaveBalance[];
+    leaveBalances! : LeaveBalance[];
 
 
 }
