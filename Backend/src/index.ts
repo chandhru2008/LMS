@@ -53,7 +53,7 @@ console.log("port :", process.env.DB_PORT)
         cors: {
           origin:
             process.env.NODE_ENV === 'production'
-              ? ['https://leave-management-app-2025.netlify.app/'] 
+              ? ['https://leave-management-app-2025.netlify.app'] 
               : ['http://localhost:5173'],
           credentials: true,
         },
