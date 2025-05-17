@@ -28,7 +28,7 @@ function LeaveRequestDirector() {
   useEffect(() => {
     async function fetchAllLeaveRequest() {
       try {
-        const response = await fetch("http://localhost:3001/all-leave-requests", {
+        const response = await fetch("https://lms-zwod.onrender.com/all-leave-requests", {
           method: 'GET',
           credentials: 'include'
         });

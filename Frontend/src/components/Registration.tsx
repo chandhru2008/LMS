@@ -58,7 +58,7 @@ function Registration() {
     
   console.log(userDetails)
     try {
-      const response = await fetch("http://localhost:3001/register", {
+      const response = await fetch("https://lms-zwod.onrender.com/register", {
         method: "POST",
         credentials: "include",
         headers: {

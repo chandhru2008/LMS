@@ -4,7 +4,7 @@ function LeaveType(): any {
     useEffect(() => {
         async function handleLeaveType() {
 
-            const respond = await fetch("http://localhost:3001/leave-type", {
+            const respond = await fetch("https://lms-zwod.onrender.com/leave-type", {
                 method: "GET"
             });
             if (respond.ok) {

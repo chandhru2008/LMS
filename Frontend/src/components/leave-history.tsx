@@ -24,7 +24,7 @@ function LeaveHistory() {
   useEffect(() => {
     async function fetchLeaveHistory() {
       try {
-        const response = await fetch("http://localhost:3001/leave-requests/my", {
+        const response = await fetch("https://lms-zwod.onrender.com/leave-requests/my", {
           method: "GET",
           credentials: "include",
         });

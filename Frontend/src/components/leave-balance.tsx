@@ -13,7 +13,7 @@ function LeaveBalances() {
   useEffect(() => {
     async function fetchLeaveBalances(): Promise<void> {
       try {
-        const response = await fetch("http://localhost:3001/leave-balances", {
+        const response = await fetch("https://lms-zwod.onrender.com/leave-balances", {
           method: 'GET',
           credentials: 'include',
         });
