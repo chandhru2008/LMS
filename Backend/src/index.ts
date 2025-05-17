@@ -33,9 +33,9 @@ async function init() {
   try {
 
     console.log('DB_USERNAME:', process.env.DB_USERNAME);
-console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
-console.log('DB_HOST:', process.env.DB_HOST);
-console.log("port :", process.env.DB_PORT)
+    console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
+    console.log('DB_HOST:', process.env.DB_HOST);
+    console.log("port :", process.env.DB_PORT)
 
 
     console.log('Initializing database...');
@@ -53,7 +53,7 @@ console.log("port :", process.env.DB_PORT)
         cors: {
           origin:
             process.env.NODE_ENV === 'production'
-              ? ['https://leave-management-app-2025.netlify.app'] 
+              ? ['https://leave-management-app-2025.netlify.app']
               : ['http://localhost:5173'],
           credentials: true,
         },
@@ -100,8 +100,10 @@ console.log("port :", process.env.DB_PORT)
     // Cookie config for userSession
     server.state('userSession', {
       ttl: 24 * 60 * 60 * 1000, // 1 day
-      isSecure: process.env.NODE_ENV === 'production', // secure cookies in prod
+      isSecure: process.env.NODE_ENV === 'production',
       isHttpOnly: true,
+      isSameSite: 'None',
+      domain : 'leave-management-app-2025.netlify.app',
       path: '/',
       encoding: 'base64json',
       clearInvalid: true,
