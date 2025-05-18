@@ -25,7 +25,7 @@ export class LeaveBalanceController {
         try {
             const decoded = jwt.verify(token, secretKey)
             const employee = decoded.payload;
-            console.log(employee)
+            console.log("Employee : ", employee)
           const leaveBalance = await  this.leaveBalanceService.fetchEmployeeLeaveBalance(employee);
             return h.response({  leaveBalance });
         } catch (err) {

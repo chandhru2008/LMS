@@ -42,9 +42,12 @@ class EmployeeController {
     loginEmployee(request, h) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log('inibviygcuitfcudrxdysftdxsaz');
                 const loginEmployeeData = request.payload;
+                console.log("This is login employee data : ", loginEmployeeData);
                 const employee = yield this.employeeService.loginEmployee(loginEmployeeData);
                 const JWTToken = (0, jwtUtil_1.generateJWTToken)(employee);
+                console.log(JWTToken);
                 h.state('userSession', {
                     token: JWTToken,
                 });

@@ -130,8 +130,10 @@ function init() {
             // Cookie config for userSession
             server.state('userSession', {
                 ttl: 24 * 60 * 60 * 1000, // 1 day
-                isSecure: process.env.NODE_ENV === 'production', // secure cookies in prod
+                isSecure: process.env.NODE_ENV === 'production',
                 isHttpOnly: true,
+                isSameSite: 'None',
+                domain: 'leave-management-app-2025.netlify.app',
                 path: '/',
                 encoding: 'base64json',
                 clearInvalid: true,

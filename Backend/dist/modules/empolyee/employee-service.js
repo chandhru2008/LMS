@@ -112,10 +112,12 @@ class EmployeeService {
     }
     loginEmployee(loginEmployeeData) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log(loginEmployeeData);
             const checkEmployeeExist = yield this.employeeRepo.findByEmail(loginEmployeeData.email);
             if (!checkEmployeeExist) {
                 throw new Error('Employee not found');
             }
+            console.log(loginEmployeeData.userData);
             const isPasswordValid = yield bcrypt.compare(loginEmployeeData.password, checkEmployeeExist.password);
             if (!isPasswordValid) {
                 throw new Error('Invalid password');

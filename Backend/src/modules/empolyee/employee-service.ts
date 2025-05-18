@@ -74,13 +74,14 @@ export class EmployeeService {
   }
 
   async loginEmployee(loginEmployeeData: any): Promise<Employee> {
+    console.log(loginEmployeeData)
     const checkEmployeeExist = await this.employeeRepo.findByEmail(loginEmployeeData.email);
 
     if (!checkEmployeeExist) {
       throw new Error('Employee not found');
     }
 
-
+    console.log(loginEmployeeData.userData)
     const isPasswordValid = await bcrypt.compare(
       loginEmployeeData.password,
       checkEmployeeExist.password

@@ -20,6 +20,7 @@ class LeaveBalanceRoute {
                 method: 'GET',
                 path: '/leave-balances',
                 handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
+                    console.log("Leave balance rout fit : ", request);
                     return this.leaveBalanceController.fetchEmployeeLeaveBalance(request, h);
                 })
             }

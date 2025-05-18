@@ -39,10 +39,13 @@ export class EmployeeController {
 
   async loginEmployee(request: Request, h: ResponseToolkit) {
     try {
+      console.log('inibviygcuitfcudrxdysftdxsaz');
       const loginEmployeeData = request.payload as any;
+      console.log("This is login employee data : ", loginEmployeeData)
       const employee = await this.employeeService.loginEmployee(loginEmployeeData);
       const JWTToken = generateJWTToken(employee);
-
+      
+      console.log(JWTToken)
       h.state('userSession', {
         token: JWTToken,
       });
@@ -63,6 +66,7 @@ export class EmployeeController {
       const token = request.state.userSession.token;
 
       if (!token) {
+
         return h.response({ message: 'JWT token must be provided- token' }).code(400);
       }
 

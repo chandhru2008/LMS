@@ -29,7 +29,7 @@ class EmployeeRoutes {
                 path: '/login',
                 handler: (request, h) => {
                     console.log("POST /login route hit");
-                    return this.employeeController.loginEmployee(request, h);
+                    return this.employeeController.loginEmployee.bind(this.employeeController.loginEmployee(request, h));
                 }
             },
             {
@@ -45,6 +45,7 @@ class EmployeeRoutes {
                 method: 'GET',
                 path: '/check-auth',
                 handler: (request, h) => {
+                    console.log("routes hit");
                     return this.employeeController.authenticateEmployee(request, h);
                 }
             },
