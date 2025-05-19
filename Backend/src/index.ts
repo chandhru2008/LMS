@@ -51,12 +51,9 @@ async function init() {
           failAction: 'error',
         },
         cors: {
-          origin:
-            process.env.NODE_ENV === 'production'
-              ? ['https://leave-management-app-2025.netlify.app']
-              : ['http://localhost:5173'],
-          credentials: true,
-        },
+          origin: ['https://leave-management-app-2025.netlify.app'],
+          credentials: true // Allow cookies
+        }
       },
     });
 
@@ -103,7 +100,7 @@ async function init() {
       isSecure: process.env.NODE_ENV === 'production',
       isHttpOnly: true,
       isSameSite: 'None',
-      domain : 'leave-management-app-2025.netlify.app',
+      domain: 'leave-management-app-2025.netlify.app',
       path: '/',
       encoding: 'base64json',
       clearInvalid: true,
