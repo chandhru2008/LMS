@@ -117,7 +117,7 @@ class EmployeeService {
             if (!checkEmployeeExist) {
                 throw new Error('Employee not found');
             }
-            console.log(loginEmployeeData.userData);
+            console.log(loginEmployeeData.password);
             const isPasswordValid = yield bcrypt.compare(loginEmployeeData.password, checkEmployeeExist.password);
             if (!isPasswordValid) {
                 throw new Error('Invalid password');

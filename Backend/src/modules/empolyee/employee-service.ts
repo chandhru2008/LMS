@@ -81,7 +81,8 @@ export class EmployeeService {
       throw new Error('Employee not found');
     }
 
-    console.log(loginEmployeeData.userData)
+    console.log(loginEmployeeData.password)
+    
     const isPasswordValid = await bcrypt.compare(
       loginEmployeeData.password,
       checkEmployeeExist.password

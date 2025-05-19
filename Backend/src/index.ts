@@ -1,5 +1,6 @@
 // index.ts
 import 'reflect-metadata'; // Required by TypeORM
+import * as Hapi from '@hapi/hapi';
 import * as dotenv from 'dotenv';
 import { Server } from '@hapi/hapi';
 import { dataSource } from './config/db/conn';
@@ -42,9 +43,9 @@ async function init() {
     await dataSource.initialize();
     console.log('✅ Database initialized.');
 
-    const server = new Server({
-      port: Number(process.env.PORT) || 3001,
-      host: process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost',
+    const server: Server = Hapi.server({
+      port: 3001,
+      host: '0.0.0.0',
       routes: {
         state: {
           parse: true,
@@ -57,7 +58,7 @@ async function init() {
       },
     });
 
-    console.log('Setting up dependencies and routes...');
+    console.log('Setting up dependencies and routes...')
 
     // Setup LeaveType module
     const leaveTypeRepository = new LeaveTypeRepository();
@@ -83,6 +84,7 @@ async function init() {
     leaveBalanceRoutes.leaveBalanceRoute(server);
     console.log('✅ LeaveBalance routes registered.');
 
+    console.log('jb')
     // Setup Employee module
     const employeeRepository = new EmployeeRepository();
     const employeeService = new EmployeeService(employeeRepository);
@@ -97,17 +99,16 @@ async function init() {
     // Cookie config for userSession
     server.state('userSession', {
       ttl: 24 * 60 * 60 * 1000, // 1 day
-      isSecure: process.env.NODE_ENV === 'production',
+      isSecure: true,
       isHttpOnly: true,
-      isSameSite: 'None',
       domain: 'leave-management-app-2025.netlify.app',
       path: '/',
-      encoding: 'base64json',
+      isSameSite: 'None',
       clearInvalid: true,
       strictHeader: true,
     });
 
-    console.log(`🚀 Server running at: ${server.info.uri}`);
+    console.log("Server running at:", server.info.uri);
   } catch (error) {
     console.error('Initialization error:', error);
     process.exit(1);

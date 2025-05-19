@@ -47,8 +47,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // index.ts
 require("reflect-metadata"); // Required by TypeORM
+const Hapi = __importStar(require("@hapi/hapi"));
 const dotenv = __importStar(require("dotenv"));
-const hapi_1 = require("@hapi/hapi");
 const conn_1 = require("./config/db/conn");
 // Import your modules (update paths if needed)
 const employee_controller_1 = require("./modules/empolyee/employee-controller");
@@ -80,20 +80,18 @@ function init() {
             console.log('Initializing database...');
             yield conn_1.dataSource.initialize();
             console.log('✅ Database initialized.');
-            const server = new hapi_1.Server({
-                port: Number(process.env.PORT) || 3001,
-                host: process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost',
+            const server = Hapi.server({
+                port: 3001,
+                host: '0.0.0.0',
                 routes: {
                     state: {
                         parse: true,
                         failAction: 'error',
                     },
                     cors: {
-                        origin: process.env.NODE_ENV === 'production'
-                            ? ['https://leave-management-app-2025.netlify.app']
-                            : ['http://localhost:5173'],
-                        credentials: true,
-                    },
+                        origin: ['https://leave-management-app-2025.netlify.app'],
+                        credentials: true // Allow cookies
+                    }
                 },
             });
             console.log('Setting up dependencies and routes...');
@@ -118,6 +116,7 @@ function init() {
             const leaveBalanceRoutes = new leave_balance_router_1.LeaveBalanceRoute(leaveBalanceController);
             leaveBalanceRoutes.leaveBalanceRoute(server);
             console.log('✅ LeaveBalance routes registered.');
+            console.log('jb');
             // Setup Employee module
             const employeeRepository = new employee_repository_1.EmployeeRepository();
             const employeeService = new employee_service_1.EmployeeService(employeeRepository);
@@ -130,16 +129,15 @@ function init() {
             // Cookie config for userSession
             server.state('userSession', {
                 ttl: 24 * 60 * 60 * 1000, // 1 day
-                isSecure: process.env.NODE_ENV === 'production',
+                isSecure: true,
                 isHttpOnly: true,
-                isSameSite: 'None',
                 domain: 'leave-management-app-2025.netlify.app',
                 path: '/',
-                encoding: 'base64json',
+                isSameSite: 'None',
                 clearInvalid: true,
                 strictHeader: true,
             });
-            console.log(`🚀 Server running at: ${server.info.uri}`);
+            console.log("Server running at:", server.info.uri);
         }
         catch (error) {
             console.error('Initialization error:', error);
