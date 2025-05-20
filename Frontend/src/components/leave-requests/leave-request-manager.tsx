@@ -56,7 +56,7 @@ function LeaveRequestManager() {
       });
 
       if (res.ok) {
-        showError(`Leave ${decision.toLowerCase()}d successfully!`);
+        alert(`Leave ${decision.toLowerCase()}d successfully!`);
         window.location.reload();
       } else {
         console.error("Action failed");

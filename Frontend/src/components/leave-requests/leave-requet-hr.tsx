@@ -6,7 +6,7 @@ interface LeaveRequest {
     employeeEmail: string;
   };
   leaveDetails: {
-    leaveRequestId : string,
+    leaveRequestId: string;
     leaveType: string;
     leaveStartDate: string;
     leaveEndDate: string;
@@ -31,7 +31,7 @@ function LeaveRequestHr() {
           credentials: "include",
         });
         const json = await res.json();
-        console.log(json)
+        console.log(json);
         setLeaveRequests(json.leaveRequestByRole || []);
       } catch (err) {
         console.error("Error fetching leave requests:", err);
@@ -43,8 +43,8 @@ function LeaveRequestHr() {
 
   async function handleAction(id: string, decision: "Approve" | "Reject") {
     try {
-        console.log("Sending decision for leave ID:", id);
-      const res = await fetch("http://localhost:3001/leave-requests/"+ id+ "/decision", {
+      console.log("Sending decision for leave ID:", id);
+      const res = await fetch(`http://localhost:3001/leave-requests/${id}/decision`, {
         method: "PUT",
         credentials: "include",
         headers: {
@@ -56,7 +56,7 @@ function LeaveRequestHr() {
       });
 
       if (res.ok) {
-        showError(`Leave ${decision.toLowerCase()}d successfully!`);
+        alert(`Leave ${decision.toLowerCase()}d successfully!`);
         window.location.reload();
       } else {
         console.error("Action failed");
@@ -120,13 +120,13 @@ function LeaveRequestHr() {
                           onClick={() => handleAction(req.leaveDetails.leaveRequestId, "Approve")}
                           className="bg-green-600 text-white px-3 py-1 rounded-md text-xs hover:bg-green-700"
                         >
-                           Approve
+                          Approve
                         </button>
                         <button
                           onClick={() => handleAction(req.leaveDetails.leaveRequestId, "Reject")}
                           className="bg-red-500 text-white px-3 py-1 rounded-md text-xs hover:bg-red-600"
                         >
-                           Reject
+                          Reject
                         </button>
                       </div>
                     )}
@@ -142,7 +142,3 @@ function LeaveRequestHr() {
 }
 
 export default LeaveRequestHr;
-
-function showError(arg0: string) {
-  throw new Error("Function not implemented.");
-}
