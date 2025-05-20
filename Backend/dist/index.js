@@ -86,7 +86,10 @@ function init() {
                 routes: {
                     state: {
                         parse: true,
-                        failAction: 'error',
+                        failAction: (request, h, err) => __awaiter(this, void 0, void 0, function* () {
+                            console.warn('Invalid cookie received:', err === null || err === void 0 ? void 0 : err.message);
+                            return h.continue;
+                        })
                     },
                     cors: {
                         origin: ['https://leave-management-app-2025.netlify.app'],
@@ -116,7 +119,6 @@ function init() {
             const leaveBalanceRoutes = new leave_balance_router_1.LeaveBalanceRoute(leaveBalanceController);
             leaveBalanceRoutes.leaveBalanceRoute(server);
             console.log('✅ LeaveBalance routes registered.');
-            console.log('jb');
             // Setup Employee module
             const employeeRepository = new employee_repository_1.EmployeeRepository();
             const employeeService = new employee_service_1.EmployeeService(employeeRepository);
@@ -124,20 +126,20 @@ function init() {
             const employeeRoutes = new employee_routes_1.EmployeeRoutes(employeeController);
             employeeRoutes.employeeRoute(server);
             console.log('✅ Employee routes registered.');
-            // Start the server
-            yield server.start();
             // Cookie config for userSession
             server.state('userSession', {
-                ttl: 24 * 60 * 60 * 1000, // 1 day
+                ttl: 24 * 60 * 60 * 1000,
                 isSecure: true,
                 isHttpOnly: true,
-                domain: 'leave-management-app-2025.netlify.app',
-                path: '/',
                 isSameSite: 'None',
+                domain: 'lms-zwod.onrender.com',
+                path: '/',
+                encoding: 'base64json',
                 clearInvalid: true,
                 strictHeader: true,
             });
-            console.log("Server running at:", server.info.uri);
+            yield server.start();
+            console.log('server is running on', server.info.uri);
         }
         catch (error) {
             console.error('Initialization error:', error);

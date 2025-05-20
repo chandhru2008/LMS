@@ -17,8 +17,12 @@ class LeaveBalanceController {
     }
     assignDefaultLeaveBalances(employeeData) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Leave balance controller called successfully");
-            this.leaveBalanceService.assignDefaultLeaveBalances(employeeData);
+            try {
+                this.leaveBalanceService.assignDefaultLeaveBalances(employeeData);
+            }
+            catch (e) {
+                throw new Error(e.message);
+            }
         });
     }
     fetchEmployeeLeaveBalance(request, h) {
@@ -28,9 +32,8 @@ class LeaveBalanceController {
             try {
                 const decoded = jwt.verify(token, secretKey);
                 const employee = decoded.payload;
-                console.log("Employee : ", employee);
                 const leaveBalance = yield this.leaveBalanceService.fetchEmployeeLeaveBalance(employee);
-                return h.response({ leaveBalance });
+                return h.response({ leaveBalance }).code(200);
             }
             catch (err) {
                 return h.response({ error: 'Invalid token' }).code(401);

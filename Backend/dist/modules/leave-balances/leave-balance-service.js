@@ -22,7 +22,6 @@ class LeaveBalanceService {
             try {
                 // Geting  all leave types
                 const allLeaveTypes = yield this.leaveTypeRepository.findAll();
-                console.log(allLeaveTypes);
                 // Loop through each leave type and create a leave balance entry
                 for (let leaveType of allLeaveTypes) {
                     const leaveBalance = new leave_balance_model_1.LeaveBalance();
@@ -34,10 +33,9 @@ class LeaveBalanceService {
                     yield this.leaveBalanceRepository.storeDefaultLeaveBalances(leaveBalance);
                     console.log(leaveBalance);
                 }
-                console.log("Default leave balances assigned successfully.");
             }
             catch (e) {
-                console.log(e);
+                throw new Error(e.message);
             }
         });
     }

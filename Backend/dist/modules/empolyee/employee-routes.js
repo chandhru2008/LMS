@@ -28,8 +28,7 @@ class EmployeeRoutes {
                 method: 'POST',
                 path: '/login',
                 handler: (request, h) => {
-                    console.log("POST /login route hit");
-                    return this.employeeController.loginEmployee.bind(this.employeeController.loginEmployee(request, h));
+                    return this.employeeController.loginEmployee(request, h);
                 }
             },
             {
