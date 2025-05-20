@@ -11,20 +11,23 @@ function Header() {
     useEffect(() => {
         async function checkAuth() {
             try {
-                const res = await fetch("https://lms-zwod.onrender.com/check-auth", {
+                const respond = await fetch("https://lms-zwod.onrender.com/check-auth", {
                     method: "GET",
                     credentials: "include",
                 });
-                if (res.ok) {
-                    setIsLoggedIn(true);
-                    console.log(res);
-                    const data = await res.json();
-                    console.log(data)
-                    setRole(data.role);
-                    console.log(data.role)
+                if (!respond.ok) {
+                    setIsLoggedIn(false);
+                    const errorData = await respond.json();
+                    if(errorData.message === 'Invalid or expired token'){
+                        console.log(errorData.message)
+                    }
                 } else {
-                    console.log("Something went wrong");
+                    setIsLoggedIn(true);
+                    console.log(respond);
+                    const data = await respond.json();
+                    setRole(data.role);
                 }
+
             } catch (err) {
                 console.error("Auth check failed:", err);
                 setIsLoggedIn(false);
@@ -106,6 +109,13 @@ function Header() {
                                     >
                                         Leave requests
                                     </button>
+                                )
+                            }
+
+                            {
+                                role === 'HR' && (
+                                    <button onClick={() => navigate('/register-employee')}
+                                    >Register a employee</button>
                                 )
                             }
 

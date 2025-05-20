@@ -19,14 +19,15 @@ export class EmployeeRoutes {
           return this.employeeController.registerEmployee(request, h);
         }
       },
+
       {
         method: 'POST',
         path: '/login',
         handler: (request, h) => {
-          console.log("POST /login route hit");
-          return this.employeeController.loginEmployee.bind(this.employeeController.loginEmployee(request, h));
+          return this.employeeController.loginEmployee(request, h);
         }
       },
+
       {
         method: 'POST',
         path: '/log-out',
@@ -36,14 +37,16 @@ export class EmployeeRoutes {
             .unstate('userSession', { path: '/' });
         }
       },
+
       {
-        method : 'GET',
-        path : '/check-auth',
+        method: 'GET',
+        path: '/check-auth',
         handler: (request, h) => {
           console.log("routes hit")
-       return this.employeeController.authenticateEmployee(request, h);
+          return this.employeeController.authenticateEmployee(request, h);
         }
       },
+
     ]);
   }
 }

@@ -24,8 +24,6 @@ export class LeaveBalanceService {
             const allLeaveTypes = await this.leaveTypeRepository.findAll();
 
 
-            console.log(allLeaveTypes);
-
             // Loop through each leave type and create a leave balance entry
             for (let leaveType of allLeaveTypes) {
 
@@ -43,19 +41,19 @@ export class LeaveBalanceService {
                 await this.leaveBalanceRepository.storeDefaultLeaveBalances(leaveBalance);
                 console.log(leaveBalance);
             }
-            console.log("Default leave balances assigned successfully.");
-        } catch (e) {
-            console.log(e)
+
+        } catch (e: any) {
+            throw new Error(e.message)
         }
 
     }
 
-    async fetchEmployeeLeaveBalance(employeeData : any) {
+    async fetchEmployeeLeaveBalance(employeeData: any) {
         try {
             const leaveBalance = await this.leaveBalanceRepository.fetchEmployeeLeaveBalance(employeeData);
             return leaveBalance;
-        }catch(e){
-            console.log("Error in serivice :" , e);
+        } catch (e) {
+            console.log("Error in serivice :", e);
         }
 
     }

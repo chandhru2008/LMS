@@ -10,39 +10,36 @@ export class LeaveBalanceRepository {
     async storeDefaultLeaveBalances(leaveBalanceRecord: LeaveBalance) {
         try {
             // Create a new leave balance record
-            console.log("Leave balance saved coming.");
             const leaveBalance = this.repo.create(leaveBalanceRecord);
-            console.log("THis is leave balance", leaveBalance)
 
             // Save it to the database
             await this.repo.save(leaveBalance);
-            console.log("Leave balance saved successfully.");
-        } catch (error) {
-            console.error("Error saving leave balance:", error);
-            throw error;
+
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 
-    async fetchEmployeeLeaveBalance(employeeData : any) {
-        try{
+    async fetchEmployeeLeaveBalance(employeeData: any) {
+        try {
             console.log("Employee in repo ", employeeData)
             const leaveBalance = await this.repo.find({
                 where: { employee: { id: employeeData.id } },
-                relations: ['employee', 'leaveType'] 
-              });
+                relations: ['employee', 'leaveType']
+            });
 
-              console.log(leaveBalance);
+            console.log(leaveBalance);
 
-              const data = leaveBalance.map((item) => ({
+            const data = leaveBalance.map((item) => ({
                 type: item.leaveType.name,
                 used: item.used_leaves,
                 remaining: item.remaining_leaves
-              }));
+            }));
 
-              console.log(data);
-           
+            console.log(data);
+
             return data;
-        }catch(e){
+        } catch (e) {
             console.log("Error : ", e);
         }
 

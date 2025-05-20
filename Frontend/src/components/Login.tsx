@@ -28,13 +28,17 @@ function Login() {
         body: JSON.stringify(userData),
       });
 
-      if (response.ok) {
-        setErrorMessage('');
-        navigate('/');
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.message === 'Invaild password' || errorData.message === 'Employee not found') {
+          setErrorMessage(errorData.message);
+        } else {
+          setErrorMessage(errorData.message);
+        }
       } else {
-        const data = await response.json();
-        setErrorMessage(data.message || 'Login failed');
+        navigate('/')
       }
+
     } catch (err) {
       console.log('Error:', err);
       setErrorMessage('Something went wrong. Please try again.');
@@ -70,12 +74,6 @@ function Login() {
         {errorMessage && (
           <p className="text-red-600 text-sm text-center mt-2">{errorMessage}</p>
         )}
-        <p className="text-center text-sm text-gray-500 mt-4">
-          Don't have an account?{' '}
-          <Link to="/sign-up" className="text-blue-600 hover:underline">
-            Sign up
-          </Link>
-        </p>
       </div>
     </div>
   );

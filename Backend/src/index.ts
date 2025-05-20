@@ -49,7 +49,10 @@ async function init() {
       routes: {
         state: {
           parse: true,
-          failAction: 'error',
+          failAction: async (request, h, err) => {
+            console.warn('Invalid cookie received:', err?.message);
+            return h.continue;
+          }
         },
         cors: {
           origin: ['https://leave-management-app-2025.netlify.app'],
@@ -84,7 +87,6 @@ async function init() {
     leaveBalanceRoutes.leaveBalanceRoute(server);
     console.log('✅ LeaveBalance routes registered.');
 
-    console.log('jb')
     // Setup Employee module
     const employeeRepository = new EmployeeRepository();
     const employeeService = new EmployeeService(employeeRepository);
@@ -93,22 +95,22 @@ async function init() {
     employeeRoutes.employeeRoute(server);
     console.log('✅ Employee routes registered.');
 
-    // Start the server
-    await server.start();
-
     // Cookie config for userSession
     server.state('userSession', {
-      ttl: 24 * 60 * 60 * 1000, // 1 day
+      ttl: 24 * 60 * 60 * 1000,
       isSecure: true,
       isHttpOnly: true,
-      domain: 'leave-management-app-2025.netlify.app',
-      path: '/',
       isSameSite: 'None',
+      domain: 'lms-zwod.onrender.com',
+      path: '/',
+      encoding: 'base64json',
       clearInvalid: true,
       strictHeader: true,
     });
 
-    console.log("Server running at:", server.info.uri);
+    await server.start();
+    console.log('server is running on', server.info.uri);
+
   } catch (error) {
     console.error('Initialization error:', error);
     process.exit(1);

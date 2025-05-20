@@ -11,7 +11,6 @@ export class EmployeeRepository {
                 where: { email },
             });
         } catch (error) {
-            console.error('Error finding employee by email:', error);
             throw new Error('Error retrieving employee data');
         }
     }

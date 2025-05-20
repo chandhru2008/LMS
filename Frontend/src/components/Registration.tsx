@@ -1,19 +1,17 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 function Registration() {
-  const navigate = useNavigate();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  // const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [role, setRole] = useState('');
   const [managerEmail, setManagerEmail] = useState('');
   const [hrEmail, setHrEmail] = useState('');
   const [directorEmail, setDirectorEmail] = useState('');
+
 
   function showError(message: string) {
     setErrorMessage(message);
@@ -21,16 +19,14 @@ function Registration() {
   }
 
   async function handleSignUp() {
-    
     const validEmailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const strongPasswordRegex =  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-  
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
     if (!email) return showError("Email is required");
     if (!validEmailRegex.test(email)) return showError("Enter a valid email");
     if (!strongPasswordRegex.test(password)) return showError("Enter a strong password");
     if (password !== confirmPassword) return showError("Passwords do not match");
-  
-    // Validate fields based on role
+
     if (role === 'employee') {
       if (!managerEmail) return showError("Manager email is required");
       if (!hrEmail) return showError("HR email is required");
@@ -45,18 +41,17 @@ function Registration() {
       if (!managerEmail) return showError("Manager email is required");
       if (!validEmailRegex.test(directorEmail)) return showError("Enter a valid director email");
     }
-  
+
     const userDetails = {
       name,
       email,
       password,
       role,
-      managerEmail: managerEmail,
-      hrEmail: hrEmail,
-      directorEmail: directorEmail
+      managerEmail,
+      hrEmail,
+      directorEmail
     };
-    
-  console.log(userDetails)
+
     try {
       const response = await fetch("https://lms-zwod.onrender.com/register", {
         method: "POST",
@@ -66,23 +61,40 @@ function Registration() {
         },
         body: JSON.stringify(userDetails),
       });
-  
-      const data = await response.json();
-      
-  
-      if (response.ok) {
-        console.log("Registered:", data);
-        navigate("/home");  
-      } else {
-        console.log("therheuf")
+
+      if (!response.ok) {
+        const result = await response.json();
+        switch (result.message) {
+          case 'Enter a valid email':
+            showError('Please enter a valid email address.');
+            break;
+          case 'Email already exists':
+            showError('This email is already registered.');
+            break;
+          case 'Manager does not exist':
+            showError('Specified manager does not exist.');
+            break;
+          case 'HR does not exist':
+            showError('Specified HR does not exist.');
+            break;
+          case 'Director does not exist':
+            showError('Specified director does not exist.');
+            break;
+          default:
+            showError(`Error: ${result.message}`);
+        }
+        return;
       }
+
+
+
     } catch (err) {
       console.error("Network error:", err);
       showError("Something went wrong. Try again.");
     }
-
   }
-  
+
+
 
   return (
     <div className="w-screen h-screen flex items-center justify-center bg-gray-100">
@@ -102,7 +114,7 @@ function Registration() {
             onChange={(e) => setEmail(e.target.value)}
           />
           <input
-            type= 'password'
+            type="password"
             placeholder="Password"
             className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             onChange={(e) => setPassword(e.target.value)}
@@ -127,7 +139,7 @@ function Registration() {
 
           {/* Conditional Email Fields */}
           {role === 'employee' && (
-            <div>
+            <>
               <input
                 type="email"
                 placeholder="Manager Email"
@@ -146,10 +158,10 @@ function Registration() {
                 className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onChange={(e) => setDirectorEmail(e.target.value)}
               />
-            </div>
+            </>
           )}
           {role === 'manager' && (
-            <div>
+            <>
               <input
                 type="email"
                 placeholder="HR Email"
@@ -162,10 +174,10 @@ function Registration() {
                 className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onChange={(e) => setDirectorEmail(e.target.value)}
               />
-            </div>
+            </>
           )}
           {role === 'HR' && (
-            <div>
+            <>
               <input
                 type="email"
                 placeholder="Manager Email"
@@ -178,7 +190,7 @@ function Registration() {
                 className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onChange={(e) => setDirectorEmail(e.target.value)}
               />
-            </div>
+            </>
           )}
 
           <button
@@ -191,7 +203,8 @@ function Registration() {
           >
             Register
           </button>
-          {errorMessage && <span className="text-red-600 text-sm">{"fdighjvoifsdc"}</span>}
+
+          {errorMessage && <span className="text-red-600 text-sm">{errorMessage}</span>}
         </form>
       </div>
     </div>

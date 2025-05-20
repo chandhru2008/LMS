@@ -56,7 +56,7 @@ function LeaveRequestHr() {
       });
 
       if (res.ok) {
-        alert(`Leave ${decision.toLowerCase()}d successfully!`);
+        showError(`Leave ${decision.toLowerCase()}d successfully!`);
         window.location.reload();
       } else {
         console.error("Action failed");
@@ -142,3 +142,7 @@ function LeaveRequestHr() {
 }
 
 export default LeaveRequestHr;
+
+function showError(arg0: string) {
+  throw new Error("Function not implemented.");
+}

@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, redirect, RouterProvider } from 'react-router-dom'
 import Login from './components/Login'
 import Registration from './components/Registration.tsx'
 import LeaveType from './components/LeaveType.tsx'
@@ -18,10 +18,35 @@ const router = createBrowserRouter([
     path: "/login",
     element: <Login />
   }, {
-    path: "/sign-up",
-    element: <Registration />
+    path: "/register-employee",
+    element: <Registration />,
+    loader: async () => {
+      try {
+        const res = await fetch('http://localhost:3001/check-auth',{
+          method : 'GET',
+          credentials : 'include'
+        });
+
+        if (!res.ok) {
+          throw new Error('Authentication check failed');
+        }
+
+        const data = await res.json();
+
+        console.log(data);
+
+        if (data.role != 'HR') {
+          throw redirect('/'); 
+        }
+
+        return null;
+      } catch (error) {
+        console.error('Auth check error:', error);
+        throw redirect('/'); // Redirect to login on any error
+      }
+    }
   },
-  {
+{
     path: "/",
     element: <App />
   },
@@ -34,20 +59,18 @@ const router = createBrowserRouter([
     element: <LeaveRequestForm />
   },
   {
-    path : "/manager/leaves",
-    element : <LeaveRequestManager />
+    path: "/manager/leaves",
+    element: <LeaveRequestManager />
   },
   {
-    path : '/hr/leaves',
-    element : <LeaveRequestHr />
+    path: '/hr/leaves',
+    element: <LeaveRequestHr />
   },
   {
-    path : "/director/leaves",
-    element : <LeaveRequestDirector />
+    path: "/director/leaves",
+    element: <LeaveRequestDirector />
   }
 ])
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>,
+  <RouterProvider router={router} />
 )
