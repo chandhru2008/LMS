@@ -35,7 +35,7 @@ function LeaveRequestHr() {
   useEffect(() => {
     async function fetchLeaveRequests() {
       try {
-        const res = await fetch("http://localhost:3001/leave-requests/subordinates", {
+        const res = await fetch("https://lms-zwod.onrender.com/leave-requests/subordinates", {
           method: "GET",
           credentials: "include",
         });
@@ -51,7 +51,7 @@ function LeaveRequestHr() {
 
   async function handleAction(id: string, decision: "Approve" | "Reject") {
     try {
-      const res = await fetch(`http://localhost:3001/leave-requests/${id}/decision`, {
+      const res = await fetch(`https://lms-zwod.onrender.com/leave-requests/${id}/decision`, {
         method: "PUT",
         credentials: "include",
         headers: {
