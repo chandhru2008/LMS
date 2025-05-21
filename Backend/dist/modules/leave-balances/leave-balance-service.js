@@ -28,7 +28,7 @@ class LeaveBalanceService {
                     leaveBalance.employee = employeeData;
                     leaveBalance.leaveType = leaveType;
                     leaveBalance.used_leaves = 0;
-                    leaveBalance.remaining_leaves = 10;
+                    leaveBalance.remaining_leaves = leaveType.max_allowed_days;
                     // Saving  the leave balance entry
                     yield this.leaveBalanceRepository.storeDefaultLeaveBalances(leaveBalance);
                     console.log(leaveBalance);
@@ -46,7 +46,7 @@ class LeaveBalanceService {
                 return leaveBalance;
             }
             catch (e) {
-                console.log("Error in serivice :", e);
+                throw new Error(e.message);
             }
         });
     }

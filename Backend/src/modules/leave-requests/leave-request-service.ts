@@ -57,40 +57,50 @@ export class LeaveRequestService {
 
       const leaveType = await leaveTypeRepo.findOne({ where: { id: data.leaveTypeId } });
 
+      let hrApproval: string = "Pending";
+      let managerApproval: string = "Pending";
+      let directorApproval: string = "Pending";
+      let status: string = "Pending";
 
-      let hrApproval, managerApproval = "Pending", directorApproval, status;
+      const isAutoApprovedType = leaveType?.name === "Emergency Leave" || leaveType?.name === "Sick Leave";
 
-      if (leaveType?.name === "Emergency Leave") {
-        hrApproval = "Approved";
+      if (isAutoApprovedType) {
+        hrApproval = managerApproval = directorApproval = status = "Approved";
+      } else if (data.employeeRole === "director" || data.employeRepo === "hr_manager") {
+        hrApproval = managerApproval = directorApproval = status = "Approved";
+      } else if (data.role === "manager" && leaveDays <= 7) {
         managerApproval = "Approved";
-        directorApproval = "Approved";
-        status = "Approved";
-      } else if (leaveDays <= 2) {
+      } else if (data.role === "HR" && leaveDays <= 7) {
         hrApproval = "Approved";
-        directorApproval = "Approved";
-      } else if (leaveDays <= 4) {
-        directorApproval = "Approved";
-      } else if (leaveDays > 7) {
-
       } else {
-        directorApproval = "Pending";
+        if (leaveDays <= 2) {
+          hrApproval = "Approved";
+          directorApproval = "Approved";
+        } else if (leaveDays <= 4) {
+          directorApproval = "Approved";
+        }
+      }
+
+      // Update overall status if all approvals are done
+      if (hrApproval === "Approved" && managerApproval === "Approved" && directorApproval === "Approved") {
+        status = "Approved";
       }
 
       const leaveRequestPayload = {
         ...data,
         hr_approval: hrApproval,
-        manager_approval: managerApproval, // Now has a default value if unassigned
+        manager_approval: managerApproval,
         director_approval: directorApproval,
-        status: status,
+        status,
         leaveDays
       };
 
       await this.leaveRequestRepository.createLeaveRequest(leaveRequestPayload);
-      return "Leave request submitted succesfully";
+      return "Leave request submitted successfully";
+    } catch (e: any) {
+      throw new Error(e.message);
     }
-    catch (e) {
-      console.log(e);
-    }
+
 
   }
 
@@ -135,7 +145,8 @@ export class LeaveRequestService {
             },
             employeeDetails: {
               employeeName: employee.name,
-              employeeEmail: employee.email
+              employeeEmail: employee.email,
+              employeeRole : employee.role
             }
           });
         }

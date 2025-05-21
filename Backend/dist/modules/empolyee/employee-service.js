@@ -51,7 +51,7 @@ class EmployeeService {
     }
     registerEmployee(employeeData) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c;
+            var _a, _b, _c, _d;
             try {
                 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
                 if (!emailRegex.test(employeeData.email)) {
@@ -62,52 +62,59 @@ class EmployeeService {
                     throw new Error("Email already exists");
                 }
                 const role = employeeData.role.toLowerCase();
+                // Supervisor emails from frontend
                 const managerEmail = (_a = employeeData.managerEmail) === null || _a === void 0 ? void 0 : _a.trim();
                 const hrEmail = (_b = employeeData.hrEmail) === null || _b === void 0 ? void 0 : _b.trim();
-                const directorEmail = (_c = employeeData.directorEmail) === null || _c === void 0 ? void 0 : _c.trim();
+                const hrManagerEmail = (_c = employeeData.hrManagerEmail) === null || _c === void 0 ? void 0 : _c.trim();
+                const directorEmail = (_d = employeeData.directorEmail) === null || _d === void 0 ? void 0 : _d.trim();
                 // Lookup supervisors
-                const [manager, hr, director] = yield Promise.all([
-                    managerEmail ? this.employeeRepo.findByEmail(managerEmail) : null,
-                    hrEmail ? this.employeeRepo.findByEmail(hrEmail) : null,
-                    directorEmail ? this.employeeRepo.findByEmail(directorEmail) : null
-                ]);
-                // Validation based on role
+                const manager = managerEmail ? yield this.employeeRepo.findByEmail(managerEmail) : null;
+                const hr = hrEmail ? yield this.employeeRepo.findByEmail(hrEmail) : null;
+                const hrManager = hrManagerEmail ? yield this.employeeRepo.findByEmail(hrManagerEmail) : null;
+                const director = directorEmail ? yield this.employeeRepo.findByEmail(directorEmail) : null;
+                // Validation based on the exact rules you gave
                 if (role === 'employee') {
                     if (!manager)
                         throw new Error("Manager does not exist");
+                }
+                else if (role === 'manager') {
                     if (!hr)
                         throw new Error("HR does not exist");
-                    if (!director)
-                        throw new Error("Director does not exist");
                 }
-                if (role === 'manager') {
-                    if (!hr)
-                        throw new Error("HR does not exist");
-                    if (!director)
-                        throw new Error("Director does not exist");
+                else if (role === 'hr') {
+                    if (!hrManager)
+                        throw new Error("HR Manager does not exist");
                 }
-                if (role === 'hr') {
-                    if (!manager)
-                        throw new Error("Manager does not exist");
-                    if (!director)
-                        throw new Error("Director does not exist");
+                else if (role === 'hr_manager')
+                    [
+                    //
+                    ];
+                else if (role === 'director') {
+                    // No supervisor required
                 }
-                // Create and populate employee entity
+                else {
+                    throw new Error("Invalid role");
+                }
+                // Create employee entity
                 const employee = new employee_model_1.Employee();
                 employee.name = employeeData.name;
                 employee.email = employeeData.email;
                 employee.password = yield bcrypt.hash(employeeData.password, 10);
                 employee.role = role;
-                // Set supervisor references
-                if (manager)
+                // Set supervisor relations based on role
+                if (role === 'employee') {
                     employee.manager = manager;
-                if (hr)
-                    employee.HR = hr;
-                if (director)
-                    employee.director = director;
+                }
+                else if (role === 'manager') {
+                    employee.hr = hr;
+                }
+                else if (role === 'hr') {
+                    employee.hrManager = hrManager;
+                }
                 return yield this.employeeRepo.create(employee);
             }
             catch (e) {
+                console.log("Error in service : ", e);
                 throw new Error(e.message);
             }
         });

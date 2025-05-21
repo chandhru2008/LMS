@@ -93,10 +93,11 @@ export class LeaveRequestRepository {
 
       await leaveBalanceRepo.save(leaveBalance);
       await this.repo.save(leaveRequest);
+      console.log('leaveRequest submitted successfully');
       return "Leave request submitted successfully";
-      
-    } catch (e) {
-      console.log("Error : ", e)
+
+    } catch (e: any) {
+      throw new Error(e.message)
     }
 
   }
@@ -128,19 +129,19 @@ export class LeaveRequestRepository {
         throw new Error("Leave request not found");
       }
 
-      if (decision == "Approve" && role == "Manager") {
+      if (decision == "Approve" && role == "manager") {
         leaveRequest.manager_approval = "Approved";
       } else if (decision == "Approve" && role == "HR") {
         leaveRequest.HR_approval = "Approved";
-      } else if (decision == "Approve" && role == "Director") {
+      } else if (decision == "Approve" && role == "director") {
         leaveRequest.director_approval = "Approved";
       }
 
-      if (decision == "Reject" && role == "Manager") {
+      if (decision == "Reject" && role == "manager") {
         leaveRequest.manager_approval = "Rejected";
       } else if (decision == "Reject" && role == "HR") {
         leaveRequest.HR_approval = "Rejected";
-      } else if (decision == "Reject" && role == "Director") {
+      } else if (decision == "Reject" && role == "director") {
         leaveRequest.director_approval = "Rejected";
       }
 
@@ -169,14 +170,14 @@ export class LeaveRequestRepository {
       const employeeRepo = dataSource.getRepository(Employee)
       let employees: any = [];
 
-      if (role == "Manager") {
+      if (role == "manager") {
         employees = await employeeRepo.find({
           where: { manager: { id: eId } },
           relations: ['manager']
         });
       } else if (role == "HR") {
         employees = await employeeRepo.find({
-          where: { HR: { id: eId } },
+          where: { hr: { id: eId } },
           relations: ['HR']
         });
       }

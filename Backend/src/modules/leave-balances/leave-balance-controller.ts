@@ -28,7 +28,7 @@ export class LeaveBalanceController {
             const decoded = jwt.verify(token, secretKey)
             const employee = decoded.payload;
             const leaveBalance = await this.leaveBalanceService.fetchEmployeeLeaveBalance(employee);
-            return h.response({ leaveBalance }).code(200);
+            return h.response(leaveBalance).code(200);
         } catch (err) {
             return h.response({ error: 'Invalid token' }).code(401);
         }

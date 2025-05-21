@@ -33,21 +33,30 @@ __decorate([
     __metadata("design:type", String)
 ], Employee.prototype, "password", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: ['Employee', 'Manager', 'HR', 'Director'], default: 'Employee' }),
+    (0, typeorm_1.Column)({
+        type: "enum",
+        enum: ["employee", "manager", "HR", "hr_manager", "director"],
+        default: "employee",
+    }),
     __metadata("design:type", String)
 ], Employee.prototype, "role", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Employee),
+    (0, typeorm_1.ManyToOne)(() => Employee, { nullable: true }),
     (0, typeorm_1.JoinColumn)({ name: "manager_id" }),
     __metadata("design:type", Employee)
 ], Employee.prototype, "manager", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Employee),
-    (0, typeorm_1.JoinColumn)({ name: "Hr_id" }),
+    (0, typeorm_1.ManyToOne)(() => Employee, { nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: "hr_id" }),
     __metadata("design:type", Employee)
-], Employee.prototype, "HR", void 0);
+], Employee.prototype, "hr", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Employee),
+    (0, typeorm_1.ManyToOne)(() => Employee, { nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: "hr_manager_id" }),
+    __metadata("design:type", Employee)
+], Employee.prototype, "hrManager", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => Employee, { nullable: true }),
     (0, typeorm_1.JoinColumn)({ name: "director_id" }),
     __metadata("design:type", Employee)
 ], Employee.prototype, "director", void 0);
@@ -60,11 +69,11 @@ __decorate([
     __metadata("design:type", Date)
 ], Employee.prototype, "updated_at", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => leave_request_model_1.LeaveRequest, leaveRequest => leaveRequest.employee),
+    (0, typeorm_1.OneToMany)(() => leave_request_model_1.LeaveRequest, (leaveRequest) => leaveRequest.employee),
     __metadata("design:type", Array)
 ], Employee.prototype, "leaveRequests", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => leave_balance_model_1.LeaveBalance, leaveBalance => leaveBalance.employee),
+    (0, typeorm_1.OneToMany)(() => leave_balance_model_1.LeaveBalance, (leaveBalance) => leaveBalance.employee),
     __metadata("design:type", Array)
 ], Employee.prototype, "leaveBalances", void 0);
 exports.Employee = Employee = __decorate([

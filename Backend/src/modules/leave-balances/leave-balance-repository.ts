@@ -22,25 +22,23 @@ export class LeaveBalanceRepository {
 
     async fetchEmployeeLeaveBalance(employeeData: any) {
         try {
-            console.log("Employee in repo ", employeeData)
+
             const leaveBalance = await this.repo.find({
                 where: { employee: { id: employeeData.id } },
                 relations: ['employee', 'leaveType']
             });
 
-            console.log(leaveBalance);
-
             const data = leaveBalance.map((item) => ({
                 type: item.leaveType.name,
                 used: item.used_leaves,
-                remaining: item.remaining_leaves
+                remaining: item.remaining_leaves,
+                maxDaysAllowed: item.leaveType.max_allowed_days
             }));
 
-            console.log(data);
-
             return data;
-        } catch (e) {
-            console.log("Error : ", e);
+
+        } catch (e: any) {
+            throw new Error(e.message)
         }
 
     }

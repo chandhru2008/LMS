@@ -20,13 +20,13 @@ class EmployeeController {
     registerEmployee(request, h) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const secretKey = process.env.JWT_SECRET;
-                const JWTtoken = request.state.userSession.token;
-                const decode = jwt.verify(JWTtoken, secretKey);
-                const role = decode.payload.role;
-                if (role != 'Hr') {
-                    return h.response({ message: 'Unauthorized user' }).code(401);
-                }
+                // const secretKey = process.env.JWT_SECRET
+                // const JWTtoken = request.state.userSession.token;
+                // const decode = jwt.verify(JWTtoken, secretKey);
+                // const role = decode.payload.role;
+                // if(role != 'HR'){
+                //   return h.response({message : 'Unauthorized user'}).code(401);
+                // }
                 const employeeData = request.payload;
                 const newEmployee = yield this.employeeService.registerEmployee(employeeData);
                 yield this.leaveBalanceController.assignDefaultLeaveBalances(newEmployee);
@@ -35,6 +35,7 @@ class EmployeeController {
                 }).code(200);
             }
             catch (e) {
+                console.log("Error in controller : ", e);
                 return h.response({ message: e.message }).code(400);
             }
         });

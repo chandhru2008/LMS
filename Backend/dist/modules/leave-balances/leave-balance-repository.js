@@ -33,22 +33,20 @@ class LeaveBalanceRepository {
     fetchEmployeeLeaveBalance(employeeData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("Employee in repo ", employeeData);
                 const leaveBalance = yield this.repo.find({
                     where: { employee: { id: employeeData.id } },
                     relations: ['employee', 'leaveType']
                 });
-                console.log(leaveBalance);
                 const data = leaveBalance.map((item) => ({
                     type: item.leaveType.name,
                     used: item.used_leaves,
-                    remaining: item.remaining_leaves
+                    remaining: item.remaining_leaves,
+                    maxDaysAllowed: item.leaveType.max_allowed_days
                 }));
-                console.log(data);
                 return data;
             }
             catch (e) {
-                console.log("Error : ", e);
+                throw new Error(e.message);
             }
         });
     }

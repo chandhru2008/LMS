@@ -21,7 +21,7 @@ export class LeaveRequestController {
       const role = decoded.payload.role;
 
       //middle ware
-      if (role == "Director") {
+      if (role === "director" || role === "hr_manager" || role === "HR") {
         const allLeaveRequest = await this.leaveRequestService.getAllLeaveRequests();
         return h.response(allLeaveRequest).code(201);
       } else {
@@ -46,26 +46,27 @@ export class LeaveRequestController {
       const endDate = bodyData.toDate;
       const description = bodyData.reason;
       const employeeId = decoded.payload.id;
+      const employeeRole = decoded.payload.role
 
       const data = {
         leaveTypeId: leaveTypeId,
         startDate: startDate,
         endDate: endDate,
         employeeId: employeeId,
+        employeRole: employeeRole,
         description: description
       }
 
       const leaveRequest = await this.leaveRequestService.createLeaveRequest(data);
 
-      if(!leaveRequest){
-          return h.response({ message: 'Error creating leave request' }).code(400);
+      if (!leaveRequest) {
+        return h.response({ message: 'Error creating leave request' }).code(400);
       }
 
       return h.response({ message: 'Leave request created successfully', leaveRequest }).code(201);
 
-    } catch (error) {
-      console.error('Error creating leave request:', error);
-      return h.response({ message: 'Error creating leave request' }).code(400);
+    } catch (error: any) {
+      return h.response({ message: error.message }).code(400);
     }
 
   };
@@ -114,11 +115,12 @@ export class LeaveRequestController {
       const leaveRequestId = request.params.id;
       const bodyData = request.payload as any;
       let decision = null;
-      if (role == "Manager") {
+      console.log(role)
+      if (role == "manager") {
         decision = bodyData.manager_approval
       } else if (role == "HR") {
         decision = bodyData.hr_approval
-      } else if (role == "Director") {
+      } else if (role == "director") {
         decision = bodyData.director_approval
       }
       await this.leaveRequestService.processDecision(leaveRequestId, role, decision)

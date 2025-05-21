@@ -81,8 +81,8 @@ function init() {
             yield conn_1.dataSource.initialize();
             console.log('✅ Database initialized.');
             const server = Hapi.server({
-                port: 3001,
-                host: '0.0.0.0',
+                port: 3002,
+                host: 'localhost',
                 routes: {
                     state: {
                         parse: true,
@@ -92,7 +92,7 @@ function init() {
                         })
                     },
                     cors: {
-                        origin: ['https://leave-management-app-2025.netlify.app'],
+                        origin: ['http://localhost:5173'],
                         credentials: true // Allow cookies
                     }
                 },
@@ -129,10 +129,8 @@ function init() {
             // Cookie config for userSession
             server.state('userSession', {
                 ttl: 24 * 60 * 60 * 1000,
-                isSecure: true,
+                isSecure: false,
                 isHttpOnly: true,
-                isSameSite: 'None',
-                domain: 'lms-zwod.onrender.com',
                 path: '/',
                 encoding: 'base64json',
                 clearInvalid: true,

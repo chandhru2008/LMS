@@ -10,7 +10,6 @@ export class EmployeeService {
   }
 
   async registerEmployee(employeeData: any): Promise<Employee> {
-
     try {
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -25,54 +24,58 @@ export class EmployeeService {
 
       const role = employeeData.role.toLowerCase();
 
+      // Supervisor emails from frontend
       const managerEmail = employeeData.managerEmail?.trim();
       const hrEmail = employeeData.hrEmail?.trim();
+      const hrManagerEmail = employeeData.hrManagerEmail?.trim();
       const directorEmail = employeeData.directorEmail?.trim();
 
       // Lookup supervisors
-      const [manager, hr, director] = await Promise.all([
-        managerEmail ? this.employeeRepo.findByEmail(managerEmail) : null,
-        hrEmail ? this.employeeRepo.findByEmail(hrEmail) : null,
-        directorEmail ? this.employeeRepo.findByEmail(directorEmail) : null
-      ]);
+      const manager = managerEmail ? await this.employeeRepo.findByEmail(managerEmail) : null;
+      const hr = hrEmail ? await this.employeeRepo.findByEmail(hrEmail) : null;
+      const hrManager = hrManagerEmail ? await this.employeeRepo.findByEmail(hrManagerEmail) : null;
+      const director = directorEmail ? await this.employeeRepo.findByEmail(directorEmail) : null;
 
-
-      // Validation based on role
+      // Validation based on the exact rules you gave
       if (role === 'employee') {
         if (!manager) throw new Error("Manager does not exist");
+      } else if (role === 'manager') {
         if (!hr) throw new Error("HR does not exist");
-        if (!director) throw new Error("Director does not exist");
+      } else if (role === 'hr') {
+        if (!hrManager) throw new Error("HR Manager does not exist");
+      }else if(role === 'hr_manager')[
+        //
+      ]
+       else if (role === 'director') {
+        // No supervisor required
+      } else {
+        throw new Error("Invalid role");
       }
 
-      if (role === 'manager') {
-        if (!hr) throw new Error("HR does not exist");
-        if (!director) throw new Error("Director does not exist");
-      }
-
-      if (role === 'hr') {
-        if (!manager) throw new Error("Manager does not exist");
-        if (!director) throw new Error("Director does not exist");
-      }
-
-      // Create and populate employee entity
+      // Create employee entity
       const employee = new Employee();
       employee.name = employeeData.name;
       employee.email = employeeData.email;
       employee.password = await bcrypt.hash(employeeData.password, 10);
       employee.role = role;
 
-      // Set supervisor references
-      if (manager) employee.manager = manager;
-      if (hr) employee.HR = hr;
-      if (director) employee.director = director;
+      // Set supervisor relations based on role
+      if (role === 'employee') {
+        employee.manager = manager!;
+      } else if (role === 'manager') {
+        employee.hr = hr!;
+      } else if (role === 'hr') {
+        employee.hrManager = hrManager!;
+      }
 
       return await this.employeeRepo.create(employee);
-    }catch(e : any){
+
+    } catch (e: any) {
+      console.log("Error in service : ", e )
       throw new Error(e.message);
     }
-    
-
   }
+
 
 
   async loginEmployee(loginEmployeeData: { email: string; password: string }): Promise<Employee> {

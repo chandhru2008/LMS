@@ -58,31 +58,43 @@ class LeaveRequestService {
                 const timeDiff = endDate.getTime() - startDate.getTime();
                 const leaveDays = Math.floor(timeDiff / (1000 * 3600 * 24)) + 1;
                 const leaveType = yield leaveTypeRepo.findOne({ where: { id: data.leaveTypeId } });
-                let hrApproval, managerApproval = "Pending", directorApproval, status;
-                if ((leaveType === null || leaveType === void 0 ? void 0 : leaveType.name) === "Emergency Leave") {
-                    hrApproval = "Approved";
+                let hrApproval = "Pending";
+                let managerApproval = "Pending";
+                let directorApproval = "Pending";
+                let status = "Pending";
+                const isAutoApprovedType = (leaveType === null || leaveType === void 0 ? void 0 : leaveType.name) === "Emergency Leave" || (leaveType === null || leaveType === void 0 ? void 0 : leaveType.name) === "Sick Leave";
+                if (isAutoApprovedType) {
+                    hrApproval = managerApproval = directorApproval = status = "Approved";
+                }
+                else if (data.employeeRole === "director" || data.employeRepo === "hr_manager") {
+                    hrApproval = managerApproval = directorApproval = status = "Approved";
+                }
+                else if (data.role === "manager" && leaveDays <= 7) {
                     managerApproval = "Approved";
-                    directorApproval = "Approved";
-                    status = "Approved";
                 }
-                else if (leaveDays <= 2) {
+                else if (data.role === "HR" && leaveDays <= 7) {
                     hrApproval = "Approved";
-                    directorApproval = "Approved";
-                }
-                else if (leaveDays <= 4) {
-                    directorApproval = "Approved";
-                }
-                else if (leaveDays > 7) {
                 }
                 else {
-                    directorApproval = "Pending";
+                    if (leaveDays <= 2) {
+                        hrApproval = "Approved";
+                        directorApproval = "Approved";
+                    }
+                    else if (leaveDays <= 4) {
+                        directorApproval = "Approved";
+                    }
                 }
-                const leaveRequestPayload = Object.assign(Object.assign({}, data), { hr_approval: hrApproval, manager_approval: managerApproval, director_approval: directorApproval, status: status, leaveDays });
+                // Update overall status if all approvals are done
+                if (hrApproval === "Approved" && managerApproval === "Approved" && directorApproval === "Approved") {
+                    status = "Approved";
+                }
+                const leaveRequestPayload = Object.assign(Object.assign({}, data), { hr_approval: hrApproval, manager_approval: managerApproval, director_approval: directorApproval, status,
+                    leaveDays });
                 yield this.leaveRequestRepository.createLeaveRequest(leaveRequestPayload);
-                return "Leave request submitted succesfully";
+                return "Leave request submitted successfully";
             }
             catch (e) {
-                console.log(e);
+                throw new Error(e.message);
             }
         });
     }
@@ -125,7 +137,8 @@ class LeaveRequestService {
                             },
                             employeeDetails: {
                                 employeeName: employee.name,
-                                employeeEmail: employee.email
+                                employeeEmail: employee.email,
+                                employeeRole: employee.role
                             }
                         });
                     }

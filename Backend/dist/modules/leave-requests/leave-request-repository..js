@@ -85,10 +85,11 @@ class LeaveRequestRepository {
                 leaveBalance.remaining_leaves -= data.leaveDays;
                 yield leaveBalanceRepo.save(leaveBalance);
                 yield this.repo.save(leaveRequest);
+                console.log('leaveRequest submitted successfully');
                 return "Leave request submitted successfully";
             }
             catch (e) {
-                console.log("Error : ", e);
+                throw new Error(e.message);
             }
         });
     }
@@ -117,22 +118,22 @@ class LeaveRequestRepository {
                 if (!leaveRequest) {
                     throw new Error("Leave request not found");
                 }
-                if (decision == "Approve" && role == "Manager") {
+                if (decision == "Approve" && role == "manager") {
                     leaveRequest.manager_approval = "Approved";
                 }
                 else if (decision == "Approve" && role == "HR") {
                     leaveRequest.HR_approval = "Approved";
                 }
-                else if (decision == "Approve" && role == "Director") {
+                else if (decision == "Approve" && role == "director") {
                     leaveRequest.director_approval = "Approved";
                 }
-                if (decision == "Reject" && role == "Manager") {
+                if (decision == "Reject" && role == "manager") {
                     leaveRequest.manager_approval = "Rejected";
                 }
                 else if (decision == "Reject" && role == "HR") {
                     leaveRequest.HR_approval = "Rejected";
                 }
-                else if (decision == "Reject" && role == "Director") {
+                else if (decision == "Reject" && role == "director") {
                     leaveRequest.director_approval = "Rejected";
                 }
                 if (leaveRequest.HR_approval == "Approved" && leaveRequest.director_approval == "Approved" && leaveRequest.manager_approval == "Approved") {
@@ -155,7 +156,7 @@ class LeaveRequestRepository {
             try {
                 const employeeRepo = conn_1.dataSource.getRepository(employee_model_1.Employee);
                 let employees = [];
-                if (role == "Manager") {
+                if (role == "manager") {
                     employees = yield employeeRepo.find({
                         where: { manager: { id: eId } },
                         relations: ['manager']
@@ -163,7 +164,7 @@ class LeaveRequestRepository {
                 }
                 else if (role == "HR") {
                     employees = yield employeeRepo.find({
-                        where: { HR: { id: eId } },
+                        where: { hr: { id: eId } },
                         relations: ['HR']
                     });
                 }

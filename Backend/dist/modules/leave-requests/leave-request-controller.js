@@ -24,11 +24,13 @@ class LeaveRequestController {
                 const endDate = bodyData.toDate;
                 const description = bodyData.reason;
                 const employeeId = decoded.payload.id;
+                const employeeRole = decoded.payload.role;
                 const data = {
                     leaveTypeId: leaveTypeId,
                     startDate: startDate,
                     endDate: endDate,
                     employeeId: employeeId,
+                    employeRole: employeeRole,
                     description: description
                 };
                 const leaveRequest = yield this.leaveRequestService.createLeaveRequest(data);
@@ -38,8 +40,7 @@ class LeaveRequestController {
                 return h.response({ message: 'Leave request created successfully', leaveRequest }).code(201);
             }
             catch (error) {
-                console.error('Error creating leave request:', error);
-                return h.response({ message: 'Error creating leave request' }).code(400);
+                return h.response({ message: error.message }).code(400);
             }
         });
         this.leaveRequestService = leaveRequestService;
@@ -52,7 +53,7 @@ class LeaveRequestController {
                 const decoded = jwt.verify(token, secretKey);
                 const role = decoded.payload.role;
                 //middle ware
-                if (role == "Director") {
+                if (role === "director" || role === "hr_manager" || role === "HR") {
                     const allLeaveRequest = yield this.leaveRequestService.getAllLeaveRequests();
                     return h.response(allLeaveRequest).code(201);
                 }
@@ -110,13 +111,14 @@ class LeaveRequestController {
                 const leaveRequestId = request.params.id;
                 const bodyData = request.payload;
                 let decision = null;
-                if (role == "Manager") {
+                console.log(role);
+                if (role == "manager") {
                     decision = bodyData.manager_approval;
                 }
                 else if (role == "HR") {
                     decision = bodyData.hr_approval;
                 }
-                else if (role == "Director") {
+                else if (role == "director") {
                     decision = bodyData.director_approval;
                 }
                 yield this.leaveRequestService.processDecision(leaveRequestId, role, decision);

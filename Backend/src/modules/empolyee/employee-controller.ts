@@ -15,14 +15,15 @@ export class EmployeeController {
 
   async registerEmployee(request: Request, h: ResponseToolkit) {
     try {
-      const secretKey = process.env.JWT_SECRET
-      const JWTtoken = request.state.userSession.token;
-      const decode = jwt.verify(JWTtoken, secretKey);
-      const role = decode.payload.role;
+      // const secretKey = process.env.JWT_SECRET
+      // const JWTtoken = request.state.userSession.token;
+      // const decode = jwt.verify(JWTtoken, secretKey);
+      // const role = decode.payload.role;
 
-      if(role != 'Hr'){
-        return h.response({message : 'Unauthorized user'}).code(401);
-      }
+
+      // if(role != 'HR'){
+      //   return h.response({message : 'Unauthorized user'}).code(401);
+      // }
       
       const employeeData = request.payload as any;
       const newEmployee = await this.employeeService.registerEmployee(employeeData);
@@ -33,6 +34,7 @@ export class EmployeeController {
       }).code(200);
 
     } catch (e : any) {
+      console.log("Error in controller : ", e )
       return h.response({ message:  e.message }).code(400);
     }
   }

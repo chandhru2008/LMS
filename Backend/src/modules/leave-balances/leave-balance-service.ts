@@ -35,7 +35,7 @@ export class LeaveBalanceService {
 
 
                 leaveBalance.used_leaves = 0;
-                leaveBalance.remaining_leaves = 10;
+                leaveBalance.remaining_leaves = leaveType.max_allowed_days;
 
                 // Saving  the leave balance entry
                 await this.leaveBalanceRepository.storeDefaultLeaveBalances(leaveBalance);
@@ -52,8 +52,8 @@ export class LeaveBalanceService {
         try {
             const leaveBalance = await this.leaveBalanceRepository.fetchEmployeeLeaveBalance(employeeData);
             return leaveBalance;
-        } catch (e) {
-            console.log("Error in serivice :", e);
+        } catch (e: any) {
+            throw new Error(e.message);
         }
 
     }
