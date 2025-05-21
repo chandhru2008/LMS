@@ -44,8 +44,8 @@ async function init() {
     console.log('✅ Database initialized.');
 
     const server: Server = Hapi.server({
-      port: 3002,
-      host: 'localhost',
+      port: 3001,
+      host: '0.0.0.0',
       routes: {
         state: {
           parse: true,
@@ -55,7 +55,7 @@ async function init() {
           }
         },
         cors: {
-          origin: ['http://localhost:5173'],
+          origin: ['https://leave-management-app-2025.netlify.app'],
           credentials: true // Allow cookies
         }
       },
@@ -98,8 +98,10 @@ async function init() {
     // Cookie config for userSession
     server.state('userSession', {
       ttl: 24 * 60 * 60 * 1000,
-      isSecure: false,
+      isSecure: true,
+      isSameSite: 'None',
       isHttpOnly: true,
+      domain: 'leave-management-app-2025.netlify.app',
       path: '/',
       encoding: 'base64json',
       clearInvalid: true,
