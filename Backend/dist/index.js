@@ -132,7 +132,7 @@ function init() {
                 isSecure: true,
                 isSameSite: 'None',
                 isHttpOnly: true,
-                domain: 'leave-management-app-2025.netlify.app',
+                domain: 'lms-zwod.onrender.com',
                 path: '/',
                 encoding: 'base64json',
                 clearInvalid: true,
