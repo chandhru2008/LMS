@@ -5,10 +5,10 @@ import { createBrowserRouter, redirect, RouterProvider } from 'react-router-dom'
 import Login from './components/Login'
 import Registration from './components/Registration.tsx'
 import LeaveType from './components/LeaveType.tsx'
-import LeaveRequestForm from './components/leave-request-form.tsx'
-import LeaveRequestManager from './components/leave-requests/leave-request-manager.tsx'
-import LeaveRequestDirector from './components/leave-requests/leave-request-director.tsx'
-import LeaveRequestHr from './components/leave-requests/leave-requet-hr.tsx'
+import LeaveRequestForm from './components/LeaveRequestForm.tsx'
+import LeaveRequestManager from './components/LeaveRequestsComponents/LeaveRequestManager.tsx'
+import LeaveRequestDirector from './components/LeaveRequestsComponents/LeaveRequestDirector.tsx'
+import LeaveRequestHr from './components/LeaveRequestsComponents/LeaveRequetHr.tsx'
 
 
 
@@ -21,7 +21,7 @@ const router = createBrowserRouter([
     element: <Registration />,
     loader: async () => {
       try {
-        const res = await fetch('http://localhost:3001/check-auth',{
+        const res = await fetch('https://lms-zwod.onrender.com/check-auth',{
           method : 'GET',
           credentials : 'include'
         });
@@ -34,7 +34,7 @@ const router = createBrowserRouter([
 
         console.log(data);
 
-        if (data.role != 'HR') {
+        if (data.role != 'HR' || data.role !='hr_manager') {
           throw redirect('/'); 
         }
 

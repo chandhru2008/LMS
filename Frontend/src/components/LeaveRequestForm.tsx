@@ -91,13 +91,12 @@ function LeaveRequestForm() {
 
       const result = await response.json();
 
-      console.log("Resopne ok : ", response.ok)
 
       if (response.ok) {
         setMessage("Leave request submitted successfully.");
         setFormData({ leaveType: "", fromDate: "", toDate: "", reason: "" });
       } else {
-        setMessage(result?.error || "Failed to submit request.");
+        setMessage(result.message);
       }
     } catch (err) {
       console.error(err);

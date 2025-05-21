@@ -1,51 +1,40 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 
 function Header() {
     const navigate = useNavigate();
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isLogin, setIsLogIn] = useState(false);
+    const [data, setData] = useState<{ employeeName: string; role: string } | null>(null);
 
-    const [role, setRole] = useState('');
-
-    // Check auth status on load
     useEffect(() => {
         async function checkAuth() {
             try {
-                const respond = await fetch("https://lms-zwod.onrender.com/check-auth", {
+                const response = await fetch("https://lms-zwod.onrender.com/check-auth", {
                     method: "GET",
                     credentials: "include",
                 });
-                if (!respond.ok) {
-                    setIsLoggedIn(false);
-                    const errorData = await respond.json();
-                    if(errorData.message === 'Invalid or expired token'){
-                        console.log(errorData.message)
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    setIsLogIn(false);
+                    if (result.message === "Invalid or expired token") {
+                        console.log(result.message);
                     }
                 } else {
-                    setIsLoggedIn(true);
-                    console.log(respond);
-                    const data = await respond.json();
-                    setRole(data.role);
+                    setIsLogIn(true);
+                    setData(result);
                 }
-
             } catch (err) {
                 console.error("Auth check failed:", err);
-                setIsLoggedIn(false);
+                setIsLogIn(false);
             }
         }
 
         checkAuth();
     }, []);
 
-    function navigateToLoginPage() {
-        navigate("/login");
-    }
-
-    function navigateToLeaveRequestpage() {
-        navigate("/leave-request");
-    }
-
-    const handleLogout = async () => {
+        const handleLogout = async () => {
         try {
             const response = await fetch('https://lms-zwod.onrender.com/log-out', {
                 method: 'POST',
@@ -53,7 +42,7 @@ function Header() {
             });
 
             if (response.ok) {
-                setIsLoggedIn(false);
+                setIsLogIn(false);
                 navigate("/login");
             } else {
                 console.error('Logout failed');
@@ -63,66 +52,25 @@ function Header() {
         }
     };
 
-    function navigateToLeaveRequestsPage(role: string) {
-        if (role == "Manager") {
-            navigate("/manager/leaves");
-        } else if (role == "HR") {
-            navigate("/hr/leaves");
-        } else if (role == "Director") {
-            navigate("/director/leaves");
-        } else {
-            console.log("Role is miss mar=tching");
-        }
-    }
-
     return (
-        <div className="w-screen h-[80px] bg-gray-100 shadow-md">
-            <div className="w-[85%] h-full mx-auto flex justify-between items-center">
-                <h1 className='font-bold text-[20px]'>LMS</h1>
-                <div className='flex items-center gap-[10px]'>
-                    {!isLoggedIn ? (
-                        <button
-                            onClick={navigateToLoginPage}
-                            className="px-[15px] py-[10px] rounded-[10px] bg-blue-500 text-white text-[18px] font-semibold hover:cursor-pointer"
-                        >
-                            Login
+        <div className="w-full h-[80px] bg-[#005a9c] shadow-md flex items-center justify-between">
+            <div className="w-[70%] h-[100%] flex justify-between items-center mx-auto">
+                <h1 className="text-xl font-bold text-white">Leave Management System</h1>
+                {isLogin && data ? (
+                    <div className="flex items-center space-x-4 text-gray-700 font-medium">
+                        <div className="text-white">
+                            <div>{data.employeeName}</div>
+                            <div className="text-sm">{data.role}</div>
+                        </div>
+
+                        <button className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600" onClick={()=>handleLogout()}>
+                            Log out
                         </button>
-                    ) : (
-                        <>
-                            <button
-                                onClick={navigateToLeaveRequestpage}
-                                className="px-[15px] py-[10px] rounded-[10px] bg-green-500 text-white text-[18px] font-semibold hover:cursor-pointer"
-                            >
-                                Request a Leave
-                            </button>
-                            <button
-                                onClick={handleLogout}
-                                className="px-[15px] py-[10px] rounded-[10px] bg-red-500 text-white text-[18px] font-semibold hover:cursor-pointer"
-                            >
-                                Logout
-                            </button>
-                            {
-                                ["Manager", "HR", "Director"].includes(role) && (
-                                    <button
-                                        className="px-[15px] py-[10px] rounded-[10px] bg-blue-500 text-white text-[18px] font-semibold hover:cursor-pointer"
-                                        onClick={() => navigateToLeaveRequestsPage(role)}
-                                    >
-                                        Leave requests
-                                    </button>
-                                )
-                            }
+                    </div>
+                ) : (
+                    <div className="px-[15px] py-[8px] bg-[#ffffff] text-blue-500 rounded-[5px] hover:cursor-pointer" onClick={()=>navigate('/login')}>Login</div>
+                )}</div>
 
-                            {
-                                role === 'HR' && (
-                                    <button onClick={() => navigate('/register-employee')}
-                                    >Register a employee</button>
-                                )
-                            }
-
-                        </>
-                    )}
-                </div>
-            </div>
         </div>
     );
 }

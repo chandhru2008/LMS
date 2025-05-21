@@ -42,9 +42,9 @@ function LeaveHistory() {
   }, []);
 
   return (
-    <div className="mt-10">
+    <div className="mt-10  mx-auto">
       <h2 className="text-3xl font-semibold text-center my-[15px]">Leave History</h2>
-      <div className="overflow-x-auto rounded-lg shadow-lg border border-gray-200 w-[80%] mx-auto">
+      <div className="overflow-x-auto rounded-lg shadow-lg border border-gray-200 w-[70%] mx-auto">
         <table className="min-w-full bg-white">
           <thead className="bg-indigo-600 text-white">
             <tr>

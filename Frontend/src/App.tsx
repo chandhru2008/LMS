@@ -1,7 +1,6 @@
 import Header from './components/Header'
 import './App.css'
-import LeaveBalances from './components/leave-balance'
-import LeaveHistory from './components/leave-history'
+import DashBoard from './components/DashBoard'
 
 
 function App() {
@@ -11,8 +10,7 @@ function App() {
   return (
     <>
     <Header />
-    <LeaveBalances />
-    <LeaveHistory  />
+    <DashBoard />
     </>
   )
 }
