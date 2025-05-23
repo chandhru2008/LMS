@@ -20,4 +20,7 @@ export class LeaveBalance {
 
   @Column({ type: "int", default: 0 })
   remaining_leaves!: number;
+
+  @Column({type : 'int', default : 0})
+  total! : number
 }

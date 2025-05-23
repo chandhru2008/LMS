@@ -12,16 +12,18 @@ import LeaveRequestHr from './components/LeaveRequestsComponents/LeaveRequetHr.t
 
 
 
+
 const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />
-  }, {
+  }, 
+  {
     path: "/register-employee",
     element: <Registration />,
     loader: async () => {
       try {
-        const res = await fetch('https://lms-zwod.onrender.com/check-auth',{
+        const res = await fetch('http://localhost:3002/check-auth',{
           method : 'GET',
           credentials : 'include'
         });

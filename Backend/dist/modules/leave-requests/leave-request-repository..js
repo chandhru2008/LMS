@@ -67,7 +67,7 @@ class LeaveRequestRepository {
                 leaveRequest.description = data.description;
                 leaveRequest.manager_approval = data.manager_approval;
                 leaveRequest.HR_approval = data.hr_approval;
-                leaveRequest.director_approval = data.director_approval;
+                // leaveRequest.director_approval = data.director_approval;
                 leaveRequest.status = data.status;
                 const leaveBalance = yield leaveBalanceRepo.findOne({
                     where: {

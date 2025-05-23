@@ -15,7 +15,7 @@ function DashBoard() {
     useEffect(() => {
         async function checkAuth() {
             try {
-                const res = await fetch('https://lms-zwod.onrender.com/check-auth', {
+                const res = await fetch('http://localhost:3002/check-auth', {
                     method: 'GET',
                     credentials: 'include'
                 });

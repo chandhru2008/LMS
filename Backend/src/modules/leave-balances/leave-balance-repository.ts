@@ -32,7 +32,7 @@ export class LeaveBalanceRepository {
                 type: item.leaveType.name,
                 used: item.used_leaves,
                 remaining: item.remaining_leaves,
-                maxDaysAllowed: item.leaveType.max_allowed_days
+                total : item.total
             }));
 
             return data;

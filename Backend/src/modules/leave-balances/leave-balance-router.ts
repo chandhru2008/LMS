@@ -16,7 +16,6 @@ export class LeaveBalanceRoute {
                 method: 'GET',
                 path: '/leave-balances',
                 handler: async (request, h) => {
-                    console.log("Leave balance rout fit : ", request)
                     return this.leaveBalanceController.fetchEmployeeLeaveBalance(request, h)
                 }
             }

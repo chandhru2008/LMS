@@ -8,7 +8,6 @@ export class LeaveTypeController {
 
     async getAllLeaveTypes() {
 
-        console.log("Hey")
         try {
             const leaveTypes = await this.leaveTypeService.getAllLeaveTypes();
             return leaveTypes

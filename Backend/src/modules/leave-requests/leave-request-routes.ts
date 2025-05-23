@@ -25,21 +25,10 @@ export class LeaveRequestRoutes {
         path: '/leave-requests/my',
         handler: this.leaveRequestController.getMyLeaveRequests.bind(this.leaveRequestController)
       },
-      {
-        method: "GET",
-        path: '/leave-requests/subordinates',
-        handler: this.leaveRequestController.getLeaveRequestsForSubordinates.bind(this.leaveRequestController)
-      },
-      {
-        method: 'PUT',
-        path: '/leave-requests/{id}/decision',
-        options: {
-          cors: {
-            origin: ['http://localhost:5173'],
-            credentials: true,
-          }
-        },
-        handler: this.leaveRequestController.processDecision.bind(this.leaveRequestController)
+       {
+        method : 'PUT',
+        path : '/leave-requests/cancel',
+        handler : this.leaveRequestController.cancelLeaveRequest.bind(this.leaveRequestController)
       }
     ]);
   }

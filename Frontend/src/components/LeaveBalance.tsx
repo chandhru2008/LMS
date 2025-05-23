@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 interface LeaveBalance {
-  maxDaysAllowed: number;
+  total: number;
   type: string;
   used: number;
   remaining: number;
@@ -24,7 +24,7 @@ function LeaveBalances() {
     async function fetchLeaveBalances(): Promise<void> {
       try {
         setIsLoading(true);
-        const response = await fetch("https://lms-zwod.onrender.com/leave-balances", {
+        const response = await fetch("http://localhost:3002/leave-balances", {
           method: "GET",
           credentials: "include",
         });
@@ -94,7 +94,7 @@ function LeaveBalances() {
                   <div className="text-sm space-y-1 text-gray-600 mt-4">
                     <div className="flex justify-between">
                       <span>Total Allowed</span>
-                      <span className="font-medium text-gray-800">{balance.maxDaysAllowed} days</span>
+                      <span className="font-medium text-gray-800">{balance.total} days</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Used</span>
@@ -105,7 +105,7 @@ function LeaveBalances() {
                     <div
                       className="h-full rounded-full transition-all duration-700"
                       style={{
-                        width: `${(balance.used / balance.maxDaysAllowed) * 100}%`,
+                        width: `${(balance.used / balance.total) * 100}%`,
                         backgroundColor: color,
                       }}
                     ></div>

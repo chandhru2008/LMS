@@ -1,6 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  OneToMany,
+} from "typeorm";
 import { LeaveType } from "../leave-types/leave-type-model";
 import { Employee } from "../empolyee/employee-model";
+import { LeaveApproval } from "../leave-approval/leave-approval-model";
+
+export type ApprovalStatus = "Pending" | "Approved" | "Rejected" | "Cancelled";
 
 @Entity()
 export class LeaveRequest {
@@ -23,32 +34,20 @@ export class LeaveRequest {
     enum: ["Pending", "Approved", "Rejected", "Cancelled"],
     default: "Pending",
   })
-  status!: "Pending" | "Approved" | "Rejected" | "Cancelled";
+  status!: ApprovalStatus;
 
-  @Column({
-    type: "enum",
-    enum: ["Pending", "Approved", "Rejected"],
-    default: "Pending",
-  })
-  manager_approval!: "Pending" | "Approved" | "Rejected";
-
-  @Column({
-    type: "enum",
-    enum: ["Pending", "Approved", "Rejected"],
-    default: "Pending",
-  })
-  HR_approval!: "Pending" | "Approved" | "Rejected";
-
-  @Column({
-    type: "enum",
-    enum: ["Pending", "Approved", "Rejected"],
-    default: "Pending",
-  })
-  director_approval!: "Pending" | "Approved" | "Rejected";
-
+  
   @Column({ type: "date" })
   start_date!: string;
 
   @Column({ type: "date" })
   end_date!: string;
+
+  @CreateDateColumn()
+  created_at!: Date;
+
+  @OneToMany(() => LeaveApproval, approval => approval.leaveRequest, {
+    cascade: true,
+  })
+  approvals!: LeaveApproval[];
 }

@@ -43,10 +43,7 @@ export class EmployeeService {
         if (!hr) throw new Error("HR does not exist");
       } else if (role === 'hr') {
         if (!hrManager) throw new Error("HR Manager does not exist");
-      }else if(role === 'hr_manager')[
-        //
-      ]
-       else if (role === 'director') {
+      } else if (role === 'hr_manager' || role === 'director') {
         // No supervisor required
       } else {
         throw new Error("Invalid role");
@@ -56,6 +53,8 @@ export class EmployeeService {
       const employee = new Employee();
       employee.name = employeeData.name;
       employee.email = employeeData.email;
+      employee.gender = employeeData.gender;
+      employee.maritalStatus = employeeData.maritalStatus
       employee.password = await bcrypt.hash(employeeData.password, 10);
       employee.role = role;
 
@@ -67,11 +66,11 @@ export class EmployeeService {
       } else if (role === 'hr') {
         employee.hrManager = hrManager!;
       }
-
+      
       return await this.employeeRepo.create(employee);
 
     } catch (e: any) {
-      console.log("Error in service : ", e )
+      console.log("Error in service : ", e)
       throw new Error(e.message);
     }
   }

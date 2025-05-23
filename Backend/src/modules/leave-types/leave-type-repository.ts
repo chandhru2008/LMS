@@ -10,7 +10,6 @@ export class LeaveTypeRepository {
   async findAll(): Promise<LeaveType[]> {
     try {
       const data =  await this.repo.find();
-      console.log(data)
       return data;
     } catch (error) {
       console.error('Error retrieving leave types:', error);

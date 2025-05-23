@@ -6,6 +6,8 @@ import { LeaveBalance } from "../../modules/leave-balances/leave-balance-model";
 
 import * as dotenv from 'dotenv';
 import path from "path";
+import { DefaultLeaveEntitlement } from "../../modules/default-leave-entitlement/default-leave-entitlement-model";
+import { LeaveApproval } from "../../modules/leave-approval/leave-approval-model";
 dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
 
 
@@ -18,7 +20,7 @@ const dataSource = new DataSource({
     database: process.env.DB_NAME,
     synchronize : true,
     driver: require('mysql2'),
-    entities : [Employee, LeaveType, LeaveRequest, LeaveBalance],
+    entities : [Employee, LeaveType, LeaveRequest, LeaveBalance, DefaultLeaveEntitlement, LeaveApproval],
       ssl: {
     rejectUnauthorized: false, // Aiven requires SSL
   },

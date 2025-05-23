@@ -1,5 +1,5 @@
 // services/leave-type-service.ts
-import { LeaveTypeRepository } from './leave-repository';
+import { LeaveTypeRepository } from './leave-type-repository';
 import { LeaveType } from './leave-type-model';
 
 export class LeaveTypeService {

@@ -15,89 +15,12 @@ export class LeaveRequestRepository {
   async getAllLeaveRequests() {
     try {
       const allLeaveRequest = await this.repo.find({
-        relations: ['employee', 'leaveType'],
+        relations: ['employee', 'leaveType', 'approvals'],
       });
-      console.log(allLeaveRequest)
+     
       return allLeaveRequest;
     } catch (e) {
       console.log(e);
-    }
-
-  }
-  public async createLeaveRequest(
-    data: any
-  ) {
-
-    try {
-      const employeeRepo = dataSource.getRepository(Employee);
-      const leaveTypeRepo = dataSource.getRepository(LeaveType);
-      const leaveBalanceRepo = dataSource.getRepository(LeaveBalance);
-
-      const employeeId = data.employeeId;
-      const leaveTypeName = data.leaveTypeId
-
-      const employee = await employeeRepo.findOneBy({ id: employeeId });
-      const leaveType = await leaveTypeRepo.findOneBy({ id: leaveTypeName });
-
-
-      const employeeLeaveRequests = await this.repo.find({ where: { employee: { id: employeeId } }, relations: ['employee'] });
-
-      const newStart = new Date(data.startDate);
-      const newEnd = new Date(data.endDate);
-
-      for (let lr of employeeLeaveRequests) {
-        const existingStart = new Date(lr.start_date);
-        const existingEnd = new Date(lr.end_date);
-
-        // Check for overlap
-        const overlaps =
-          (newStart <= existingEnd) && (newEnd >= existingStart);
-
-        if (overlaps) {
-          throw new Error("Leave request overlaps with an existing leave.");
-        }
-      }
-
-
-      if (!employee) throw new Error("Employee not found");
-      if (!leaveType) throw new Error("Leave Type not found");
-
-      const leaveRequest = new LeaveRequest();
-      leaveRequest.employee = employee;
-      leaveRequest.leaveType = leaveType;
-      leaveRequest.start_date = data.startDate
-      leaveRequest.end_date = data.endDate
-      leaveRequest.description = data.description
-      leaveRequest.manager_approval = data.manager_approval
-      leaveRequest.HR_approval = data.hr_approval
-      leaveRequest.director_approval = data.director_approval;
-      leaveRequest.status = data.status
-
-      const leaveBalance = await leaveBalanceRepo.findOne({
-        where: {
-          employee: { id: employee.id },
-          leaveType: { id: leaveType.id },
-        },
-        relations: ['employee', 'leaveType'],
-      });
-
-
-      if (!leaveBalance) throw new Error("Leave balance not found");
-
-      if (leaveBalance.remaining_leaves < data.leaveDays) {
-        throw new Error("Insufficient leave balance");
-      }
-
-      leaveBalance.used_leaves += data.leaveDays;
-      leaveBalance.remaining_leaves -= data.leaveDays
-
-      await leaveBalanceRepo.save(leaveBalance);
-      await this.repo.save(leaveRequest);
-      console.log('leaveRequest submitted successfully');
-      return "Leave request submitted successfully";
-
-    } catch (e: any) {
-      throw new Error(e.message)
     }
 
   }
@@ -107,7 +30,7 @@ export class LeaveRequestRepository {
     try {
       const leaveRequest = await this.repo.find({
         where: { employee: { id: employee } },
-        relations: ['leaveType'],
+        relations: ['leaveType', 'approvals'],
         order: { start_date: 'DESC' },
       });
 
@@ -119,50 +42,7 @@ export class LeaveRequestRepository {
     }
   }
 
-  async updateStatus(leaveRequestId: string, role: string, decision: string) {
-    const leaveRequestRepo = dataSource.getRepository(LeaveRequest);
-    try {
-      const leaveRequest = await leaveRequestRepo.findOne({ where: { id: leaveRequestId } });
-
-      console.log(role)
-      if (!leaveRequest) {
-        throw new Error("Leave request not found");
-      }
-
-      if (decision == "Approve" && role == "manager") {
-        leaveRequest.manager_approval = "Approved";
-      } else if (decision == "Approve" && role == "HR") {
-        leaveRequest.HR_approval = "Approved";
-      } else if (decision == "Approve" && role == "director") {
-        leaveRequest.director_approval = "Approved";
-      }
-
-      if (decision == "Reject" && role == "manager") {
-        leaveRequest.manager_approval = "Rejected";
-      } else if (decision == "Reject" && role == "HR") {
-        leaveRequest.HR_approval = "Rejected";
-      } else if (decision == "Reject" && role == "director") {
-        leaveRequest.director_approval = "Rejected";
-      }
-
-
-      if (leaveRequest.HR_approval == "Approved" && leaveRequest.director_approval == "Approved" && leaveRequest.manager_approval == "Approved") {
-        leaveRequest.status = "Approved";
-      }
-
-      if (leaveRequest.HR_approval == "Rejected" || leaveRequest.director_approval == "Rejected" || leaveRequest.manager_approval == "Rejected") {
-        leaveRequest.status = "Rejected"
-      }
-
-
-      await leaveRequestRepo.save(leaveRequest);
-
-      return ({ message: 'Leave approved successfully' });
-    } catch (error) {
-      console.error('Error approving leave:', error);
-      return ({ message: 'Failed to approve leave', error })
-    }
-  }
+  
 
 
   async getRequestsByRole(role: string, eId: string) {
@@ -178,7 +58,7 @@ export class LeaveRequestRepository {
       } else if (role == "HR") {
         employees = await employeeRepo.find({
           where: { hr: { id: eId } },
-          relations: ['HR']
+          relations: ['hr']
         });
       }
 
@@ -197,5 +77,17 @@ export class LeaveRequestRepository {
       console.log(e)
     }
 
+  }
+
+  async findById(id: string): Promise<LeaveRequest | null> {
+    return await this.repo.findOne({
+      where: { id },
+      relations: ['employee', 'leaveType', 'approvals'], // include relations if needed
+    });
+  }
+
+  async updateStatusByUser(id: string, status: "Cancelled"): Promise<LeaveRequest> {
+    await this.repo.update(id, { status });
+    return this.findById(id) as Promise<LeaveRequest>;
   }
 }

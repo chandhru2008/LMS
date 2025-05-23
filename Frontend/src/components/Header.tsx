@@ -9,7 +9,7 @@ function Header() {
     useEffect(() => {
         async function checkAuth() {
             try {
-                const response = await fetch("https://lms-zwod.onrender.com/check-auth", {
+                const response = await fetch("http://localhost:3002/check-auth", {
                     method: "GET",
                     credentials: "include",
                 });
@@ -36,7 +36,7 @@ function Header() {
 
         const handleLogout = async () => {
         try {
-            const response = await fetch('https://lms-zwod.onrender.com/log-out', {
+            const response = await fetch('http://localhost:3002/log-out', {
                 method: 'POST',
                 credentials: 'include',
             });

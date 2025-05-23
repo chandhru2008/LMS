@@ -1,52 +1,49 @@
 import { LeaveBalanceRepository } from "./leave-balance-repository";
-import { LeaveTypeRepository } from "../leave-types/leave-repository";
-import { LeaveType } from "../leave-types/leave-type-model";
 import { LeaveBalance } from "./leave-balance-model";
+import { DefaultLeaveEntitlementRepository } from "../default-leave-entitlement/default-leave-entitlement-repository";
 
 export class LeaveBalanceService {
     private leaveBalanceRepository: LeaveBalanceRepository;
-    private leaveTypeRepository: LeaveTypeRepository;
-
+    private defaultLeaveEntitlementRepository: DefaultLeaveEntitlementRepository
 
     constructor(
         leaveBalanceRepository: LeaveBalanceRepository,
-        leaveTypeRepository: LeaveTypeRepository
+        defaultLeaveEntitlementRepository: DefaultLeaveEntitlementRepository
+
     ) {
         this.leaveBalanceRepository = leaveBalanceRepository;
-        this.leaveTypeRepository = leaveTypeRepository;
+        this.defaultLeaveEntitlementRepository = defaultLeaveEntitlementRepository
     }
 
     // Assignign default leave balances to an employee
     async assignDefaultLeaveBalances(employeeData: any) {
-
         try {
-            // Geting  all leave types
-            const allLeaveTypes = await this.leaveTypeRepository.findAll();
-
-
-            // Loop through each leave type and create a leave balance entry
-            for (let leaveType of allLeaveTypes) {
-
-                const leaveBalance = new LeaveBalance();
-
-
-                leaveBalance.employee = employeeData;
-                leaveBalance.leaveType = leaveType;
-
-
-                leaveBalance.used_leaves = 0;
-                leaveBalance.remaining_leaves = leaveType.max_allowed_days;
-
-                // Saving  the leave balance entry
-                await this.leaveBalanceRepository.storeDefaultLeaveBalances(leaveBalance);
-                console.log(leaveBalance);
+            const role = employeeData.role?.toLowerCase();
+            if (!role) {
+                throw new Error("Role is missing in employee data");
             }
+           
+            // Get default entitlements based on role
+            const defaultEntitlements = await this.defaultLeaveEntitlementRepository.findByRole(role);
 
+            for (let entitlement of defaultEntitlements) {
+                const leaveBalance = new LeaveBalance();
+                leaveBalance.employee = employeeData;
+                leaveBalance.leaveType = entitlement.leaveType;
+                leaveBalance.used_leaves = 0;
+
+                leaveBalance.total = entitlement.defaultDays
+
+                // If defaultDays is null (like for director), you can choose a logic here
+                leaveBalance.remaining_leaves = entitlement.defaultDays ?? 9999;
+
+                await this.leaveBalanceRepository.storeDefaultLeaveBalances(leaveBalance);
+            }
         } catch (e: any) {
-            throw new Error(e.message)
+            throw new Error(`Failed to assign leave balances: ${e.message}`);
         }
-
     }
+
 
     async fetchEmployeeLeaveBalance(employeeData: any) {
         try {
@@ -57,6 +54,4 @@ export class LeaveBalanceService {
         }
 
     }
-
-
 }

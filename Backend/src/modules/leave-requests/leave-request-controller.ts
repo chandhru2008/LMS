@@ -1,9 +1,7 @@
 const jwt = require('jsonwebtoken');
 import { Request, ResponseToolkit } from '@hapi/hapi';
 import { LeaveRequestService } from './leave-request-service';
-import { describe } from 'node:test';
-import { dataSource } from '../../config/db/conn';
-import { Employee } from '../empolyee/employee-model';
+
 
 export class LeaveRequestController {
   private leaveRequestService: LeaveRequestService;
@@ -53,7 +51,7 @@ export class LeaveRequestController {
         startDate: startDate,
         endDate: endDate,
         employeeId: employeeId,
-        employeRole: employeeRole,
+        employeeRole: employeeRole,
         description: description
       }
 
@@ -80,53 +78,34 @@ export class LeaveRequestController {
       const leaveRequest = await this.leaveRequestService.getMyLeaveRequests(employee);
       return h.response({ leaveRequest }).code(201);
     } catch (e) {
-      console.log(e);
       return h.response({ message: e }).code(500);
     }
   }
 
-  async getLeaveRequestsForSubordinates(request: Request, h: ResponseToolkit) {
-    try {
 
-      const secretKey = process.env.JWT_SECRET;
-      const token = request.state.userSession.token;
-      const decoded = jwt.verify(token, secretKey);
-      const role = decoded.payload.role
-      const eId = decoded.payload.id
 
-      if (role == "Employee") {
-        return h.response({ message: "Unauthorized user" }).code(400)
-      }
+  
 
-      const leaveRequestByRole = await this.leaveRequestService.getRequestsByRole(role, eId)
-      return h.response({ leaveRequestByRole }).code(200);
+  async cancelLeaveRequest(req: Request, h: ResponseToolkit) {
+    const secretKey = process.env.JWT_SECRET;
+    const token = req.state.userSession.token;
+    const decoded = jwt.verify(token, secretKey);
+    const eId = decoded.payload.id;
+    const body = req.payload as any;
+    const leaveRequestId = body.id
 
-    } catch (e) {
-      console.log("Error : ", e)
+
+
+    if (!leaveRequestId) {
+      return h.response({ message: "Leave request ID is required." }).code(400);
     }
-  }
 
-  async processDecision(request: Request, h: ResponseToolkit) {
     try {
-      const secretKey = process.env.JWT_SECRET;
-      const token = request.state.userSession.token;
-      const decoded = jwt.verify(token, secretKey);
-      const role = decoded.payload.role
-      const leaveRequestId = request.params.id;
-      const bodyData = request.payload as any;
-      let decision = null;
-      console.log(role)
-      if (role == "manager") {
-        decision = bodyData.manager_approval
-      } else if (role == "HR") {
-        decision = bodyData.hr_approval
-      } else if (role == "director") {
-        decision = bodyData.director_approval
-      }
-      await this.leaveRequestService.processDecision(leaveRequestId, role, decision)
-      return h.response({ message: "Leave request approved" }).code(201)
-    } catch (e) {
-      return h.response({ Error: e }).code(400)
+      const result = await this.leaveRequestService.cancelLeaveRequest(leaveRequestId, eId);
+      return h.response({ message: "Leave request cancelled successfully.", result }).code(200);
+    } catch (err) {
+      console.error("Error cancelling leave:", err);
+      return h.response({ message: "error " }).code(400);
     }
   }
 
