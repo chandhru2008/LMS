@@ -1,22 +1,25 @@
 // routes/default-leave-entitlement-routes.ts
 import { Server } from '@hapi/hapi';
 import { DefaultLeaveEntitlementController } from './default-leave-entitlement-controller';
+import { request } from 'http';
 
-export class DefaultLeaveEntitlementRoutes {
-  constructor(private controller: DefaultLeaveEntitlementController) {}
 
-  public registerRoutes(server: Server) {
-    server.route([
-      {
-        method: 'GET',
-        path: '/default-leaves',
-        handler: this.controller.getAll.bind(this.controller),
-      },
-      {
-        method: 'GET',
-        path: '/default-leaves/{role}',
-        handler: this.controller.getByRole.bind(this.controller),
-      },
-    ]);
-  }
+export function registerRoutes(server: Server, defaultLeaveEntitlementController: DefaultLeaveEntitlementController) {
+  server.route([
+    {
+      method: 'GET',
+      path: '/default-leaves',
+      handler: async (request, h) => {
+        return defaultLeaveEntitlementController.getAll(request, h);
+      }
+    },
+    {
+      method: 'GET',
+      path: '/default-leaves/{role}',
+      handler: async (request, h) => {
+        return defaultLeaveEntitlementController.getByRole(request, h);
+      }
+    },
+  ]);
 }
+

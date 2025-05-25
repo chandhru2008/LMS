@@ -7,7 +7,7 @@ import {
   OneToMany
 } from 'typeorm';
 import { LeaveRequest } from '../leave-requests/leave-request-model';
-import { Employee } from '../empolyee/employee-model';
+import { Employee } from '../empolyee/employee-entity';
 
 @Entity('leave_approvals')
 export class LeaveApproval {

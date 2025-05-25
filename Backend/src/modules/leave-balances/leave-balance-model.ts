@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
-import { Employee } from "../empolyee/employee-model";
+import { Employee } from "../empolyee/employee-entity";
 import { LeaveType } from "../leave-types/leave-type-model";
 
 @Entity()

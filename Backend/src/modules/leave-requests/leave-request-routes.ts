@@ -1,35 +1,31 @@
 import { Server } from '@hapi/hapi';
 import { LeaveRequestController } from './leave-request-controller';
+import { Request, ResponseToolkit } from '@hapi/hapi';
 
-export class LeaveRequestRoutes {
-  private leaveRequestController: LeaveRequestController;
 
-  constructor(leaveRequestController: LeaveRequestController) {
-    this.leaveRequestController = leaveRequestController;
-  }
 
-  public leaveRequestRoutes(server: Server) {
+  export function leaveRequestRoutes(server: Server, leaveRequestController: LeaveRequestController) {
     server.route([
       {
         method: 'GET',
         path: '/all-leave-requests',
-        handler: this.leaveRequestController.getAllLeaveRequests.bind(this.leaveRequestController)
+        handler: async (request : Request, response : ResponseToolkit) => await leaveRequestController.getAllLeaveRequests(request, response)
       },
       {
         method: 'POST',
         path: '/create-leave-request',
-        handler: this.leaveRequestController.createLeaveRequest.bind(this.leaveRequestController)
+        handler: async (request : Request, response : ResponseToolkit) => await leaveRequestController.createLeaveRequest(request, response)
       },
       {
         method: "GET",
         path: '/leave-requests/my',
-        handler: this.leaveRequestController.getMyLeaveRequests.bind(this.leaveRequestController)
+        handler: async (request : Request, response : ResponseToolkit) => await leaveRequestController.getMyLeaveRequests(request, response)
       },
        {
         method : 'PUT',
         path : '/leave-requests/cancel',
-        handler : this.leaveRequestController.cancelLeaveRequest.bind(this.leaveRequestController)
+        handler :async (request : Request, response : ResponseToolkit)  => await leaveRequestController.cancelLeaveRequest(request, response)
       }
     ]);
   }
-}
+

@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { LeaveRequest } from "../leave-requests/leave-request-model";
 import { LeaveBalance } from "../leave-balances/leave-balance-model";
-import { DefaultLeaveEntitlement } from "../default-leave-entitlement/default-leave-entitlement-model";
+import { DefaultLeaveEntitlement } from "../default-leave-entitlement/default-leave-entitlement-entity";
 
 @Entity()
 export class LeaveType {

@@ -1,21 +1,19 @@
-import { Server } from '@hapi/hapi';
+import { ResponseToolkit, Server, Request } from '@hapi/hapi';
 import { LeaveApprovalController } from './leave-approval-controller';
 
-export class LeaveApprovalRoutes {
-  constructor(private controller: LeaveApprovalController) {}
 
-  register(server: Server) {
+
+ export function leaveApproveRoutes(server: Server, leaveApprovalController : LeaveApprovalController) {
     server.route([
       {
         method: 'GET',
         path: '/approvals',
-        handler: this.controller.getMyApprovals.bind(this.controller),
+        handler: async (request : Request, response : ResponseToolkit) => await leaveApprovalController.getMyApprovals(request, response)
       },
       {
         method: 'PUT',
         path: '/approvals/decision',
-        handler: this.controller.handleApproval.bind(this.controller),
+         handler: async (request : Request, response : ResponseToolkit) => await leaveApprovalController.handleApproval(request, response)
       },
     ]);
   }
-}

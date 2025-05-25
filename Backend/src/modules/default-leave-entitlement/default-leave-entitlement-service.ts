@@ -1,13 +1,30 @@
-import { DefaultLeaveEntitlementRepository } from "./default-leave-entitlement-repository";
+import { Server, ServerApplicationState } from "@hapi/hapi";
+import { dataSource } from "../../config/db/conn";
+import { DefaultLeaveEntitlementController } from "./default-leave-entitlement-controller";
+import { DefaultLeaveEntitlement } from "./default-leave-entitlement-entity";
+
+
+const defaultLeaveEntitlementRepo = dataSource.getRepository(DefaultLeaveEntitlement);
+
 
 export class DefaultLeaveEntitlementService {
-  constructor(private repo: DefaultLeaveEntitlementRepository) {}
+  registerRoutes(server: Server<ServerApplicationState>, defaultLeaveEntitlementController: DefaultLeaveEntitlementController) {
+    throw new Error('Method not implemented.');
+  }
+  
 
   async getEntitlementsByRole(role: string) {
-    return await this.repo.findByRole(role);
+    try {
+      return await defaultLeaveEntitlementRepo.find({
+        where: { role },
+        relations: ['leaveType'],
+      });
+    } catch (error) {
+      throw new Error('Error retrieving default leave entitlements');
+    }
   }
 
   async getAllEntitlements() {
-    return await this.repo.findAll();
+    return await defaultLeaveEntitlementRepo.find();
   }
 }

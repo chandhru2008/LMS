@@ -1,29 +1,21 @@
 import { Server } from '@hapi/hapi';
 import { EmployeeController } from './employee-controller';
-import { request } from 'http';
 
-export class EmployeeRoutes {
-  private employeeController: EmployeeController;
-
-  constructor(employeeController: EmployeeController) {
-    this.employeeController = employeeController;
-  }
-
-  public employeeRoute(server: Server) {
+  export function employeeRoute(server: Server, employeeController : EmployeeController) {
     server.route([
       {
         method: 'POST',
         path: '/register',
         handler: async (request, h) => {
-          return this.employeeController.registerEmployee(request, h);
+          return await employeeController.registerEmployee(request, h);
         }
       },
 
       {
         method: 'POST',
         path: '/login',
-        handler: (request, h) => {
-          return this.employeeController.loginEmployee(request, h);
+        handler: async (request, h) => {
+          return await employeeController.loginEmployee(request, h);
         }
       },
 
@@ -41,10 +33,9 @@ export class EmployeeRoutes {
         method: 'GET',
         path: '/check-auth',
         handler: (request, h) => {
-          return this.employeeController.authenticateEmployee(request, h);
+          return employeeController.authenticateEmployee(request, h);
         }
       },
 
     ]);
   }
-}

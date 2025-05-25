@@ -1,14 +1,20 @@
-import { Employee } from "./employee-model";
-import { EmployeeRepository } from "./employee-repository";
+import { dataSource } from "../../config/db/conn";
+import { Employee } from "./employee-entity";
 import * as bcrypt from 'bcrypt';
 
 export class EmployeeService {
-  private employeeRepo: EmployeeRepository;
+  private repo = dataSource.getRepository(Employee);
 
-  constructor(employeeRepo: EmployeeRepository) {
-    this.employeeRepo = employeeRepo;
+  // Find employee by email
+  async findByEmail(email: string): Promise<Employee | null> {
+    try {
+      return await this.repo.findOne({ where: { email } });
+    } catch (error) {
+      throw new Error('Error retrieving employee data');
+    }
   }
 
+  // Create a new employee record with business validation
   async registerEmployee(employeeData: any): Promise<Employee> {
     try {
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -17,26 +23,26 @@ export class EmployeeService {
         throw new Error("Enter a valid email");
       }
 
-      const existingEmployee = await this.employeeRepo.findByEmail(employeeData.email);
+      const existingEmployee = await this.findByEmail(employeeData.email);
       if (existingEmployee) {
         throw new Error("Email already exists");
       }
 
       const role = employeeData.role.toLowerCase();
 
-      // Supervisor emails from frontend
+      // Supervisor emails 
       const managerEmail = employeeData.managerEmail?.trim();
       const hrEmail = employeeData.hrEmail?.trim();
       const hrManagerEmail = employeeData.hrManagerEmail?.trim();
       const directorEmail = employeeData.directorEmail?.trim();
 
       // Lookup supervisors
-      const manager = managerEmail ? await this.employeeRepo.findByEmail(managerEmail) : null;
-      const hr = hrEmail ? await this.employeeRepo.findByEmail(hrEmail) : null;
-      const hrManager = hrManagerEmail ? await this.employeeRepo.findByEmail(hrManagerEmail) : null;
-      const director = directorEmail ? await this.employeeRepo.findByEmail(directorEmail) : null;
+      const manager = managerEmail ? await this.findByEmail(managerEmail) : null;
+      const hr = hrEmail ? await this.findByEmail(hrEmail) : null;
+      const hrManager = hrManagerEmail ? await this.findByEmail(hrManagerEmail) : null;
+      const director = directorEmail ? await this.findByEmail(directorEmail) : null;
 
-      // Validation based on the exact rules you gave
+      // Validation based on role
       if (role === 'employee') {
         if (!manager) throw new Error("Manager does not exist");
       } else if (role === 'manager') {
@@ -54,11 +60,11 @@ export class EmployeeService {
       employee.name = employeeData.name;
       employee.email = employeeData.email;
       employee.gender = employeeData.gender;
-      employee.maritalStatus = employeeData.maritalStatus
+      employee.maritalStatus = employeeData.maritalStatus;
       employee.password = await bcrypt.hash(employeeData.password, 10);
       employee.role = role;
 
-      // Set supervisor relations based on role
+      // Set supervisor relations
       if (role === 'employee') {
         employee.manager = manager!;
       } else if (role === 'manager') {
@@ -66,40 +72,36 @@ export class EmployeeService {
       } else if (role === 'hr') {
         employee.hrManager = hrManager!;
       }
-      
-      return await this.employeeRepo.create(employee);
+
+      return await this.repo.save(employee);
 
     } catch (e: any) {
-      console.log("Error in service : ", e)
+      console.log("Error in EmployeeManager:", e);
       throw new Error(e.message);
     }
   }
 
-
-
+  // Login employee
   async loginEmployee(loginEmployeeData: { email: string; password: string }): Promise<Employee> {
-
     try {
+      const employee = await this.findByEmail(loginEmployeeData.email);
 
-      const checkEmployeeExist = await this.employeeRepo.findByEmail(loginEmployeeData.email);
-
-      if (!checkEmployeeExist) {
+      if (!employee) {
         throw new Error('Employee not found');
       }
 
       const isPasswordValid = await bcrypt.compare(
         loginEmployeeData.password,
-        checkEmployeeExist.password
+        employee.password
       );
 
       if (!isPasswordValid) {
         throw new Error('Invalid password');
       }
 
-      return checkEmployeeExist;
+      return employee;
     } catch (e: any) {
       throw new Error(e.message);
     }
-
   }
 }

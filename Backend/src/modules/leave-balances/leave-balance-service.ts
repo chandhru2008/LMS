@@ -1,57 +1,57 @@
-import { LeaveBalanceRepository } from "./leave-balance-repository";
-import { LeaveBalance } from "./leave-balance-model";
-import { DefaultLeaveEntitlementRepository } from "../default-leave-entitlement/default-leave-entitlement-repository";
+import { dataSource } from '../../config/db/conn';
+import { LeaveBalance } from './leave-balance-model';
+import { DefaultLeaveEntitlementService } from '../default-leave-entitlement/default-leave-entitlement-service';
 
 export class LeaveBalanceService {
-    private leaveBalanceRepository: LeaveBalanceRepository;
-    private defaultLeaveEntitlementRepository: DefaultLeaveEntitlementRepository
+  private repo = dataSource.getRepository(LeaveBalance);
+  private defaultLeaveEntitlementService: DefaultLeaveEntitlementService;
 
-    constructor(
-        leaveBalanceRepository: LeaveBalanceRepository,
-        defaultLeaveEntitlementRepository: DefaultLeaveEntitlementRepository
+  constructor(defaultLeaveEntitlementService: DefaultLeaveEntitlementService) {
+    this.defaultLeaveEntitlementService = defaultLeaveEntitlementService;
+  }
 
-    ) {
-        this.leaveBalanceRepository = leaveBalanceRepository;
-        this.defaultLeaveEntitlementRepository = defaultLeaveEntitlementRepository
+  // Assign default leave balances to an employee
+  async assignDefaultLeaveBalances(employeeData: any) {
+    try {
+      const role = employeeData.role?.toLowerCase();
+      if (!role) {
+        throw new Error('Role is missing in employee data');
+      }
+
+      const defaultEntitlements = await this.defaultLeaveEntitlementService.getEntitlementsByRole(role);
+
+      for (let entitlement of defaultEntitlements) {
+        const leaveBalance = new LeaveBalance();
+        leaveBalance.employee = employeeData;
+        leaveBalance.leaveType = entitlement.leaveType;
+        leaveBalance.used_leaves = 0;
+        leaveBalance.total = entitlement.defaultDays;
+        leaveBalance.remaining_leaves = entitlement.defaultDays ?? 9999;
+
+        const newRecord = this.repo.create(leaveBalance);
+        await this.repo.save(newRecord);
+      }
+    } catch (e: any) {
+      throw new Error(`Failed to assign leave balances: ${e.message}`);
     }
+  }
 
-    // Assignign default leave balances to an employee
-    async assignDefaultLeaveBalances(employeeData: any) {
-        try {
-            const role = employeeData.role?.toLowerCase();
-            if (!role) {
-                throw new Error("Role is missing in employee data");
-            }
-           
-            // Get default entitlements based on role
-            const defaultEntitlements = await this.defaultLeaveEntitlementRepository.findByRole(role);
+  // Get leave balance for an employee
+  async fetchEmployeeLeaveBalance(employeeData: any) {
+    try {
+      const leaveBalance = await this.repo.find({
+        where: { employee: { id: employeeData.id } },
+        relations: ['employee', 'leaveType'],
+      });
 
-            for (let entitlement of defaultEntitlements) {
-                const leaveBalance = new LeaveBalance();
-                leaveBalance.employee = employeeData;
-                leaveBalance.leaveType = entitlement.leaveType;
-                leaveBalance.used_leaves = 0;
-
-                leaveBalance.total = entitlement.defaultDays
-
-                // If defaultDays is null (like for director), you can choose a logic here
-                leaveBalance.remaining_leaves = entitlement.defaultDays ?? 9999;
-
-                await this.leaveBalanceRepository.storeDefaultLeaveBalances(leaveBalance);
-            }
-        } catch (e: any) {
-            throw new Error(`Failed to assign leave balances: ${e.message}`);
-        }
+      return leaveBalance.map(item => ({
+        type: item.leaveType.name,
+        used: item.used_leaves,
+        remaining: item.remaining_leaves,
+        total: item.total,
+      }));
+    } catch (e: any) {
+      throw new Error(e.message);
     }
-
-
-    async fetchEmployeeLeaveBalance(employeeData: any) {
-        try {
-            const leaveBalance = await this.leaveBalanceRepository.fetchEmployeeLeaveBalance(employeeData);
-            return leaveBalance;
-        } catch (e: any) {
-            throw new Error(e.message);
-        }
-
-    }
+  }
 }

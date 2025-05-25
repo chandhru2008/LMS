@@ -1,22 +1,18 @@
 import { Server } from '@hapi/hapi'; 
 import { LeaveTypeController } from "./leave-type-controller";
+import { Request, ResponseToolkit } from '@hapi/hapi';
 
 
-export class LeaveTypeRoutes{
-    private leaveTypeController : LeaveTypeController;
-    constructor(leaveTypeController : LeaveTypeController){
-        this.leaveTypeController = leaveTypeController;
-    }
-    public leaveTypeRoutes(server : Server){
+
+    export function leaveTypeRoutes(server : Server, leaveTypeController : LeaveTypeController){
 
         server.route([
             {
                 method : 'GET',
                 path : "/leave-types",
-                handler : this.leaveTypeController.getAllLeaveTypes.bind(this.leaveTypeController)
+                handler : async (request : Request, response : ResponseToolkit) => await leaveTypeController.getAllLeaveTypes(request , response)
 
             }
         ])
 
     }
-}
