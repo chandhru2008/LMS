@@ -172,8 +172,6 @@ const LeaveCalendar: React.FC = () => {
     }, []);
 
 
-
-    console.log(filteredEmail)
     function eventStyleGetter(event: LeaveEvent) {
         const backgroundColor = leaveTypeColors[event.leaveTypeName] || '#777';
         const isHighlighted = !filteredEmail || event.email === filteredEmail;

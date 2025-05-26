@@ -39,7 +39,6 @@ const [decision, setDecision] = useState('')
         if (response.ok) {
           const result = await response.json();
           setData(result.leaveRequest || []);
-          console.log(result.leaveRequest)
         }
       } catch (error) {
         console.error("Error fetching leave history:", error);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { FaUserCircle } from "react-icons/fa"; // install with: npm i react-icons
+
 
 function Header() {
     const navigate = useNavigate();
@@ -65,7 +65,7 @@ function Header() {
                             className="flex items-center space-x-2 text-white cursor-pointer"
                             onClick={() => setShowProfile(prev => !prev)}
                         >
-                            <FaUserCircle size={32} />
+                           <h1>{data.employeeName[0]}</h1>
                             
                         </div>
 

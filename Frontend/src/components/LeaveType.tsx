@@ -8,9 +8,8 @@ function LeaveType(): any {
                 method: "GET"
             });
             if (respond.ok) {
-                console.log(respond);
                 const data = await respond.json();
-                console.log(data);
+
             } else {
                 console.log("There is som rror")
             }

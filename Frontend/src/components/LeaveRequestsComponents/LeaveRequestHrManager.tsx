@@ -65,7 +65,6 @@ function LeaveRequestHrManager() {
         }));
 
         setLeaveRequests(mappedData);
-        console.log(mappedData)
       } catch (err) {
         console.error("Error fetching leave requests:", err);
       }

@@ -32,11 +32,7 @@ const router = createBrowserRouter([
         if (!res.ok) {
           throw new Error('Authentication check failed');
         }
-
         const data = await res.json();
-
-        console.log(data);
-
         if (data.role != 'HR' || data.role !='hr_manager') {
           throw redirect('/'); 
         }

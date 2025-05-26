@@ -31,7 +31,7 @@ function LeaveBalances() {
         if (response.ok) {
           const result = await response.json();
           setData(result);
-          console.log(result)
+          
         } else {
           console.log("Failed to fetch leave balances");
         }

@@ -41,7 +41,7 @@ function LeaveRequestHr() {
         });
         const rawData = await res.json();
 
-  console.log(rawData)
+
 
         // Map raw backend data to LeaveRequest interface shape
         const mappedData: LeaveRequest[] = rawData.map((item: any) => ({
@@ -106,7 +106,7 @@ function LeaveRequestHr() {
     Rejected: "bg-red-300 text-red-900",
   };
 
-console.log(leaveRequests)
+
 
   return (
     <div className="w-[70%] mx-auto my-6">

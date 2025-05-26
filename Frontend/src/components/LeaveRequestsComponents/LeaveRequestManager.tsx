@@ -41,7 +41,6 @@ function LeaveRequestManager() {
         });
         const rawData = await res.json();
 
-        console.log(rawData)
 
         const mappedData: LeaveRequest[] = rawData.map((item: any) => ({
           employeeDetails: {
@@ -105,7 +104,6 @@ function LeaveRequestManager() {
     Rejected: "bg-red-300 text-red-900",
   };
 
-  console.log(leaveRequests)
 
   return (
     <div className="w-[70%] mx-auto my-6">
