@@ -32,7 +32,7 @@ const [decision, setDecision] = useState('')
     async function fetchLeaveHistory() {
     
       try {
-        const response = await fetch("http://localhost:3002/leave-requests/my", {
+        const response = await fetch("https://leave-management-app-2025.netlify.app/leave-requests/my", {
           method: "GET",
           credentials: "include",
         });
@@ -60,7 +60,7 @@ const [decision, setDecision] = useState('')
     if (!confirmCancel) return;
 
     try {
-      const res = await fetch(`http://localhost:3002/leave-requests/cancel`, {
+      const res = await fetch(`https://leave-management-app-2025.netlify.app/leave-requests/cancel`, {
         method: "PUT",
         credentials: "include",
         headers: {
@@ -86,7 +86,7 @@ const [decision, setDecision] = useState('')
   return (
     <div className="mt-10 mx-auto">
       <h2 className="text-3xl font-semibold text-center my-[15px]">Leave History</h2>
-      <div className="overflow-x-auto rounded-lg shadow-lg border border-gray-200 w-[90%] mx-auto">
+      <div className="overflow-x-auto rounded-lg shadow-lg border border-gray-200 w-[70%] mx-auto">
         <table className="min-w-full bg-white">
           <thead className="bg-indigo-600 text-white">
             <tr>

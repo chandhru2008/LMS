@@ -35,7 +35,7 @@ function LeaveRequestHr() {
   useEffect(() => {
     async function fetchLeaveRequests() {
       try {
-        const res = await fetch("http://localhost:3002/approvals", {
+        const res = await fetch("https://leave-management-app-2025.netlify.app/approvals", {
           method: "GET",
           credentials: "include",
         });
@@ -76,7 +76,7 @@ function LeaveRequestHr() {
 
   async function handleAction(id: string, decision: "Approve" | "Reject") {
     try {
-      const res = await fetch(`http://localhost:3002/approvals/decision`, {
+      const res = await fetch(`https://leave-management-app-2025.netlify.app/approvals/decision`, {
         method: "PUT",
         credentials: "include",
         headers: {

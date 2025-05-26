@@ -35,7 +35,7 @@ function LeaveRequestDirector() {
   useEffect(() => {
     async function fetchLeaveRequests() {
       try {
-        const res = await fetch("http://localhost:3002/approvals", {
+        const res = await fetch("https://leave-management-app-2025.netlify.app/approvals", {
           method: "GET",
           credentials: "include",
         });
@@ -73,7 +73,7 @@ function LeaveRequestDirector() {
 
   async function handleAction(id: string, decision: "Approve" | "Reject") {
     try {
-      const res = await fetch(`http://localhost:3002/approvals/decision`, {
+      const res = await fetch(`https://leave-management-app-2025.netlify.app/approvals/decision`, {
         method: "PUT",
         credentials: "include",
         headers: {
@@ -106,7 +106,7 @@ function LeaveRequestDirector() {
   return (
     <div className="w-[70%] mx-auto my-6">
       <div className="flex justify-between items-center mb-6 px-2">
-        <h2 className="text-2xl font-semibold text-gray-800">Pending Leave Requests (Director)</h2>
+        <h2 className="text-2xl font-semibold text-gray-800">Pending Leave Requests Director</h2>
       </div>
 
       <div className="flex flex-col gap-4">

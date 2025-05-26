@@ -9,6 +9,7 @@ import LeaveRequestForm from './components/LeaveRequestForm.tsx'
 import LeaveRequestManager from './components/LeaveRequestsComponents/LeaveRequestManager.tsx'
 import LeaveRequestDirector from './components/LeaveRequestsComponents/LeaveRequestDirector.tsx'
 import LeaveRequestHr from './components/LeaveRequestsComponents/LeaveRequetHr.tsx'
+import LeaveCalendar from './components/LeaveCalendar/LeaveCalendarBody.tsx'
 
 
 
@@ -23,7 +24,7 @@ const router = createBrowserRouter([
     element: <Registration />,
     loader: async () => {
       try {
-        const res = await fetch('http://localhost:3002/check-auth',{
+        const res = await fetch('https://leave-management-app-2025.netlify.app/check-auth',{
           method : 'GET',
           credentials : 'include'
         });
@@ -70,6 +71,9 @@ const router = createBrowserRouter([
   {
     path: "/director/leaves",
     element: <LeaveRequestDirector />
+  }, {
+    path : "Calender",
+    element : <LeaveCalendar />
   }
 ])
 createRoot(document.getElementById('root')!).render(

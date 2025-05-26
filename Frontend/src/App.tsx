@@ -1,7 +1,6 @@
 import Header from './components/Header'
 import './App.css'
 import DashBoard from './components/DashBoard'
-import LeaveCalendar from './components/LeaveCalendar'
 
 
 function App() {
@@ -12,7 +11,6 @@ function App() {
     <>
     <Header />
     <DashBoard />
-    <LeaveCalendar />
     </>
   )
 }

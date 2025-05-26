@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useNavigate } from 'react-router-dom';
 import LeaveRequestForm from "./LeaveRequestForm";
 import LeaveHistory from "./LeaveHistory";
 import LeaveBalances from "./LeaveBalance";
@@ -6,8 +7,11 @@ import LeaveRequestDirector from "./LeaveRequestsComponents/LeaveRequestDirector
 import LeaveRequestHr from "./LeaveRequestsComponents/LeaveRequetHr";
 import LeaveRequestManager from "./LeaveRequestsComponents/LeaveRequestManager";
 import Registration from "./Registration";
+import LeaveRequestHrManager from "./LeaveRequestsComponents/LeaveRequestHrManager";
 
 function DashBoard() {
+
+    const navigate = useNavigate();
 
     const [role, setRole] = useState('');
     const [dashBoardContent, setDashBoardContent] = useState('leaveRequest');
@@ -15,13 +19,13 @@ function DashBoard() {
     useEffect(() => {
         async function checkAuth() {
             try {
-                const res = await fetch('http://localhost:3002/check-auth', {
+                const res = await fetch('https://leave-management-app-2025.netlify.app/check-auth', {
                     method: 'GET',
                     credentials: 'include'
                 });
 
                 if (!res.ok) {
-                    throw new Error('Authentication check failed');
+                    navigate('/login');
                 } else {
                     const data = await res.json();
                     setRole(data.role);
@@ -37,7 +41,7 @@ function DashBoard() {
     function handledashBoardContent(dbc: string) {
         setDashBoardContent(dbc);
     }
-    console.log(role)
+
     return (
         <div className="w-full h-full">
             <div className="w-[70%] h-[100px] flex gap-[20px] mx-auto border-b border-gray-300 items-end">
@@ -53,14 +57,14 @@ function DashBoard() {
                     }`}>Leave History</button>
 
                 {
-                    (role === 'manager' || role === 'HR' || role === 'director') && (
+                    (role === 'manager' || role === 'HR' || role === 'director' || role === 'hr_manager') && (
                         <button onClick={() => handledashBoardContent("view")} className={`py-[10px] px-[15px] border-b-3 mb-[7px] ${dashBoardContent === 'view' ? 'border-[#4f39f6]-300 text-[#4f39f6]' : 'border-transparent text-[#00000]'
-                            }`}>{role} View</button>
+                            }`}>{role === 'HR' ? 'HR' : role === 'director' ? 'Director' : role === 'hr_manager' ? 'HR Manager' : 'Manager'} View</button>
                     )
                 }
                 {
                     (
-                       ( role === 'HR' || role === 'hr_manager') && (
+                        (role === 'HR' || role === 'hr_manager') && (
                             <button onClick={() => handledashBoardContent("registerEmployee")} className={`py-[10px] px-[15px] border-b-3 mb-[7px] ${dashBoardContent === 'registerEmployee' ? 'border-[#4f39f6]-300 text-[#4f39f6]' : 'border-transparent text-[#00000]'
                                 }`}> Register Employee</button>
                         )
@@ -89,6 +93,11 @@ function DashBoard() {
                 (dashBoardContent === 'view' && role === 'HR') && (
                     <LeaveRequestHr />
 
+                )
+            }
+            {
+                (dashBoardContent === 'view' && role === 'hr_manager') && (
+                    <LeaveRequestHrManager />
                 )
             }
             {

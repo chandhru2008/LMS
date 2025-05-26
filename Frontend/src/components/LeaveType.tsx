@@ -4,7 +4,7 @@ function LeaveType(): any {
     useEffect(() => {
         async function handleLeaveType() {
 
-            const respond = await fetch("http://localhost:3002/leave-type", {
+            const respond = await fetch("https://leave-management-app-2025.netlify.app/leave-type", {
                 method: "GET"
             });
             if (respond.ok) {

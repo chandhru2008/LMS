@@ -7,9 +7,7 @@ function Registration() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState('');
   const [managerEmail, setManagerEmail] = useState('');
-  const [hrEmail, setHrEmail] = useState('');
   const [hrManagerEmail, setHrManagerEmail] = useState('');
-  const [directorEmail, setDirectorEmail] = useState('');
   const [gender, setGender] = useState('');
   const [maritalStatus, setMaritalStatus] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -36,15 +34,9 @@ function Registration() {
     if (role === 'employee') {
       if (!managerEmail || !validEmailRegex.test(managerEmail))
         return showError('Enter a valid manager email');
-    } else if (role === 'manager') {
-      if (!hrEmail || !validEmailRegex.test(hrEmail))
-        return showError('Enter a valid HR email');
     } else if (role === 'HR') {
       if (!hrManagerEmail || !validEmailRegex.test(hrManagerEmail))
         return showError('Enter a valid HR Manager email');
-    } else if (role === 'hr_manager') {
-      if (!directorEmail || !validEmailRegex.test(directorEmail))
-        return showError('Enter a valid Director email');
     }
 
     const userDetails: any = {
@@ -58,12 +50,11 @@ function Registration() {
 
     // Add only the relevant supervisor email
     if (role === 'employee') userDetails.managerEmail = managerEmail;
-    if (role === 'manager') userDetails.hrEmail = hrEmail;
     if (role === 'HR') userDetails.hrManagerEmail = hrManagerEmail;
-    if (role === 'hr_manager') userDetails.directorEmail = directorEmail;
+
 
     try {
-      const response = await fetch('http://localhost:3002/register', {
+      const response = await fetch('https://leave-management-app-2025.netlify.app/register', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -181,28 +172,12 @@ function Registration() {
                     onChange={(e) => setManagerEmail(e.target.value)}
                   />
                 )}
-                {role === 'manager' && (
-                  <input
-                    type="email"
-                    placeholder="HR Email"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    onChange={(e) => setHrEmail(e.target.value)}
-                  />
-                )}
                 {role === 'HR' && (
                   <input
                     type="email"
                     placeholder="HR Manager Email"
                     className="w-full px-4 py-2 border rounded-lg"
                     onChange={(e) => setHrManagerEmail(e.target.value)}
-                  />
-                )}
-                {role === 'hr_manager' && (
-                  <input
-                    type="email"
-                    placeholder="Director Email"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    onChange={(e) => setDirectorEmail(e.target.value)}
                   />
                 )}
               </div>

@@ -22,7 +22,7 @@ function LeaveRequestForm() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const typesRes = await fetch("http://localhost:3002/leave-types", {
+        const typesRes = await fetch("https://leave-management-app-2025.netlify.app/leave-types", {
           method: "GET",
           credentials: "include",
         });
@@ -77,7 +77,7 @@ function LeaveRequestForm() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3002/create-leave-request", {
+      const response = await fetch("https://leave-management-app-2025.netlify.app/create-leave-request", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
