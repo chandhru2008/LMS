@@ -61,8 +61,8 @@ dotenv_1.default.config({ path: path_1.default.resolve(__dirname, '../../../.env
 function createServer() {
     return __awaiter(this, void 0, void 0, function* () {
         const server = Hapi.server({
-            port: 3002,
-            host: 'localhost',
+            port: 3001,
+            host: '0.0.0.0',
             routes: {
                 state: { parse: true },
                 cors: {
