@@ -9,7 +9,7 @@ function LeaveType(): any {
             });
             if (respond.ok) {
                 const data = await respond.json();
-
+                console.log(data);
             } else {
                 console.log("There is som rror")
             }
