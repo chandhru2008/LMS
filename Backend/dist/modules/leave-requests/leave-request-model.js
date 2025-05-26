@@ -12,7 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LeaveRequest = void 0;
 const typeorm_1 = require("typeorm");
 const leave_type_model_1 = require("../leave-types/leave-type-model");
-const employee_model_1 = require("../empolyee/employee-model");
+const employee_entity_1 = require("../empolyee/employee-entity");
+const leave_approval_model_1 = require("../leave-approval/leave-approval-model");
 let LeaveRequest = class LeaveRequest {
 };
 exports.LeaveRequest = LeaveRequest;
@@ -26,9 +27,9 @@ __decorate([
     __metadata("design:type", leave_type_model_1.LeaveType)
 ], LeaveRequest.prototype, "leaveType", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => employee_model_1.Employee, employee => employee.leaveRequests),
+    (0, typeorm_1.ManyToOne)(() => employee_entity_1.Employee, employee => employee.leaveRequests),
     (0, typeorm_1.JoinColumn)({ name: "employee_id" }),
-    __metadata("design:type", employee_model_1.Employee)
+    __metadata("design:type", employee_entity_1.Employee)
 ], LeaveRequest.prototype, "employee", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
@@ -43,30 +44,6 @@ __decorate([
     __metadata("design:type", String)
 ], LeaveRequest.prototype, "status", void 0);
 __decorate([
-    (0, typeorm_1.Column)({
-        type: "enum",
-        enum: ["Pending", "Approved", "Rejected"],
-        default: "Pending",
-    }),
-    __metadata("design:type", String)
-], LeaveRequest.prototype, "manager_approval", void 0);
-__decorate([
-    (0, typeorm_1.Column)({
-        type: "enum",
-        enum: ["Pending", "Approved", "Rejected"],
-        default: "Pending",
-    }),
-    __metadata("design:type", String)
-], LeaveRequest.prototype, "HR_approval", void 0);
-__decorate([
-    (0, typeorm_1.Column)({
-        type: "enum",
-        enum: ["Pending", "Approved", "Rejected"],
-        default: "Pending",
-    }),
-    __metadata("design:type", String)
-], LeaveRequest.prototype, "director_approval", void 0);
-__decorate([
     (0, typeorm_1.Column)({ type: "date" }),
     __metadata("design:type", String)
 ], LeaveRequest.prototype, "start_date", void 0);
@@ -74,6 +51,16 @@ __decorate([
     (0, typeorm_1.Column)({ type: "date" }),
     __metadata("design:type", String)
 ], LeaveRequest.prototype, "end_date", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], LeaveRequest.prototype, "created_at", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => leave_approval_model_1.LeaveApproval, approval => approval.leaveRequest, {
+        cascade: true,
+    }),
+    __metadata("design:type", Array)
+], LeaveRequest.prototype, "approvals", void 0);
 exports.LeaveRequest = LeaveRequest = __decorate([
     (0, typeorm_1.Entity)()
 ], LeaveRequest);

@@ -30,7 +30,7 @@ class LeaveRequestController {
                     startDate: startDate,
                     endDate: endDate,
                     employeeId: employeeId,
-                    employeRole: employeeRole,
+                    employeeRole: employeeRole,
                     description: description
                 };
                 const leaveRequest = yield this.leaveRequestService.createLeaveRequest(data);
@@ -53,12 +53,12 @@ class LeaveRequestController {
                 const decoded = jwt.verify(token, secretKey);
                 const role = decoded.payload.role;
                 //middle ware
-                if (role === "director" || role === "hr_manager" || role === "HR") {
+                if (role === "director" || role === "hr_manager" || role === "HR" || role === 'manager') {
                     const allLeaveRequest = yield this.leaveRequestService.getAllLeaveRequests();
                     return h.response(allLeaveRequest).code(201);
                 }
                 else {
-                    return h.response({ message: "Unauthorized user" }).code(400);
+                    return h.response({ message: "Unauthorized user" }).code(401);
                 }
             }
             catch (e) {
@@ -77,55 +77,28 @@ class LeaveRequestController {
                 return h.response({ leaveRequest }).code(201);
             }
             catch (e) {
-                console.log(e);
                 return h.response({ message: e }).code(500);
             }
         });
     }
-    getLeaveRequestsForSubordinates(request, h) {
+    cancelLeaveRequest(req, h) {
         return __awaiter(this, void 0, void 0, function* () {
+            const secretKey = process.env.JWT_SECRET;
+            const token = req.state.userSession.token;
+            const decoded = jwt.verify(token, secretKey);
+            const eId = decoded.payload.id;
+            const body = req.payload;
+            const leaveRequestId = body.id;
+            if (!leaveRequestId) {
+                return h.response({ message: "Leave request ID is required." }).code(400);
+            }
             try {
-                const secretKey = process.env.JWT_SECRET;
-                const token = request.state.userSession.token;
-                const decoded = jwt.verify(token, secretKey);
-                const role = decoded.payload.role;
-                const eId = decoded.payload.id;
-                if (role == "Employee") {
-                    return h.response({ message: "Unauthorized user" }).code(400);
-                }
-                const leaveRequestByRole = yield this.leaveRequestService.getRequestsByRole(role, eId);
-                return h.response({ leaveRequestByRole }).code(200);
+                const result = yield this.leaveRequestService.cancelLeaveRequest(leaveRequestId, eId);
+                return h.response({ message: "Leave request cancelled successfully.", result }).code(200);
             }
-            catch (e) {
-                console.log("Error : ", e);
-            }
-        });
-    }
-    processDecision(request, h) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const secretKey = process.env.JWT_SECRET;
-                const token = request.state.userSession.token;
-                const decoded = jwt.verify(token, secretKey);
-                const role = decoded.payload.role;
-                const leaveRequestId = request.params.id;
-                const bodyData = request.payload;
-                let decision = null;
-                console.log(role);
-                if (role == "manager") {
-                    decision = bodyData.manager_approval;
-                }
-                else if (role == "HR") {
-                    decision = bodyData.hr_approval;
-                }
-                else if (role == "director") {
-                    decision = bodyData.director_approval;
-                }
-                yield this.leaveRequestService.processDecision(leaveRequestId, role, decision);
-                return h.response({ message: "Leave request approved" }).code(201);
-            }
-            catch (e) {
-                return h.response({ Error: e }).code(400);
+            catch (err) {
+                console.error("Error cancelling leave:", err);
+                return h.response({ message: "error " }).code(400);
             }
         });
     }

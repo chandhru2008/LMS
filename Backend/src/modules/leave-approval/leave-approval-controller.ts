@@ -10,10 +10,10 @@ export class LeaveApprovalController {
             const JWTtoken = request.state.userSession.token;
             const decode = jwt.verify(JWTtoken, secretKey);
             const role = decode.payload.role;
-            if (role === 'HR' || role === 'director') {
+            if (role === 'HR' || role === 'director' || role === 'hr_manager') {
                 const approvals = await this.leaveApprovalService.getPendingApprovals();
                 return h.response(approvals).code(200);
-            } else if (role === 'manager') {
+            } else if (role === 'manager' || role === 'hr_manager') {
                 const managerId: string = decode.payload.id
                 const approvals = await this.leaveApprovalService.getManagerPendingApprovel(managerId);
                 return h.response(approvals).code(200);

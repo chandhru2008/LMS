@@ -4,7 +4,7 @@ import { DefaultLeaveEntitlementController } from './default-leave-entitlement-c
 import { request } from 'http';
 
 
-export function registerRoutes(server: Server, defaultLeaveEntitlementController: DefaultLeaveEntitlementController) {
+export function defaultLeaveEntitlementRoutes(server: Server, defaultLeaveEntitlementController: DefaultLeaveEntitlementController) {
   server.route([
     {
       method: 'GET',

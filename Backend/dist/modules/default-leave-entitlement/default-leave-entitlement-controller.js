@@ -9,36 +9,33 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LeaveTypeService = void 0;
-const conn_1 = require("../../config/db/conn");
-const leave_type_model_1 = require("./leave-type-model");
-class LeaveTypeService {
-    constructor() {
-        this.repo = conn_1.dataSource.getRepository(leave_type_model_1.LeaveType);
+exports.DefaultLeaveEntitlementController = void 0;
+class DefaultLeaveEntitlementController {
+    constructor(defaultLeaveEntitlementService) {
+        this.defaultLeaveEntitlementService = defaultLeaveEntitlementService;
     }
-    getAllLeaveTypes() {
+    getByRole(request, h) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.repo.find();
+                const { role } = request.params;
+                const data = yield this.defaultLeaveEntitlementService.getEntitlementsByRole(role.toLowerCase());
+                return h.response(data).code(200);
             }
-            catch (error) {
-                console.error('Error retrieving leave types:', error);
-                throw new Error('Could not retrieve leave types');
+            catch (err) {
+                return h.response({ message: err.message }).code(500);
             }
         });
     }
-    findByType(name) {
+    getAll(request, h) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.repo.findOne({
-                    where: { name },
-                });
+                const data = yield this.defaultLeaveEntitlementService.getAllEntitlements();
+                return h.response(data).code(200);
             }
-            catch (error) {
-                console.error('Error finding leave type by name:', error);
-                throw new Error('Error retrieving leave type');
+            catch (err) {
+                return h.response({ message: err.message }).code(500);
             }
         });
     }
 }
-exports.LeaveTypeService = LeaveTypeService;
+exports.DefaultLeaveEntitlementController = DefaultLeaveEntitlementController;

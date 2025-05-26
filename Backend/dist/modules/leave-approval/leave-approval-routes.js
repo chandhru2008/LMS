@@ -9,15 +9,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.leaveBalanceRoute = leaveBalanceRoute;
-function leaveBalanceRoute(server, leaveBalanceController) {
+exports.leaveApproveRoutes = leaveApproveRoutes;
+function leaveApproveRoutes(server, leaveApprovalController) {
     server.route([
         {
             method: 'GET',
-            path: '/leave-balances',
-            handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
-                return yield leaveBalanceController.fetchEmployeeLeaveBalance(request, h);
-            })
-        }
+            path: '/approvals',
+            handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveApprovalController.getMyApprovals(request, response); })
+        },
+        {
+            method: 'PUT',
+            path: '/approvals/decision',
+            handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveApprovalController.handleApproval(request, response); })
+        },
     ]);
 }

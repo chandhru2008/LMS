@@ -13,6 +13,7 @@ exports.LeaveType = void 0;
 const typeorm_1 = require("typeorm");
 const leave_request_model_1 = require("../leave-requests/leave-request-model");
 const leave_balance_model_1 = require("../leave-balances/leave-balance-model");
+const default_leave_entitlement_entity_1 = require("../default-leave-entitlement/default-leave-entitlement-entity");
 let LeaveType = class LeaveType {
 };
 exports.LeaveType = LeaveType;
@@ -33,9 +34,9 @@ __decorate([
     __metadata("design:type", Array)
 ], LeaveType.prototype, "leaveBalances", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", Number)
-], LeaveType.prototype, "max_allowed_days", void 0);
+    (0, typeorm_1.OneToMany)(() => default_leave_entitlement_entity_1.DefaultLeaveEntitlement, (entitlement) => entitlement.leaveType),
+    __metadata("design:type", Object)
+], LeaveType.prototype, "defaultEntitlements", void 0);
 exports.LeaveType = LeaveType = __decorate([
     (0, typeorm_1.Entity)()
 ], LeaveType);

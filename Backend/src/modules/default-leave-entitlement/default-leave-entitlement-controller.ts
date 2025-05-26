@@ -3,9 +3,6 @@ import { DefaultLeaveEntitlementService } from './default-leave-entitlement-serv
 
 
 export class DefaultLeaveEntitlementController {
-  registerRoutes(server: Server<ServerApplicationState>) {
-      throw new Error('Method not implemented.');
-  }
 
   private defaultLeaveEntitlementService: DefaultLeaveEntitlementService
 

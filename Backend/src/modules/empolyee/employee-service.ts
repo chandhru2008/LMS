@@ -40,13 +40,13 @@ export class EmployeeService {
       const manager = managerEmail ? await this.findByEmail(managerEmail) : null;
       const hr = hrEmail ? await this.findByEmail(hrEmail) : null;
       const hrManager = hrManagerEmail ? await this.findByEmail(hrManagerEmail) : null;
-      const director = directorEmail ? await this.findByEmail(directorEmail) : null;
+      // const director = directorEmail ? await this.findByEmail(directorEmail) : null;
 
       // Validation based on role
       if (role === 'employee') {
         if (!manager) throw new Error("Manager does not exist");
       } else if (role === 'manager') {
-        if (!hr) throw new Error("HR does not exist");
+        // No supervisor required
       } else if (role === 'hr') {
         if (!hrManager) throw new Error("HR Manager does not exist");
       } else if (role === 'hr_manager' || role === 'director') {
@@ -103,5 +103,21 @@ export class EmployeeService {
     } catch (e: any) {
       throw new Error(e.message);
     }
+  }
+
+  async getAllEmployee() {
+    return await this.repo.find();
+  }
+  async getEmployeeByRole(id: string, role: string) {
+    try {
+      if (role === 'manager') {
+        return await this.repo.find({ where: { manager: { id: id } } });
+      } else if (role === 'hr_manager') {
+        return await this.repo.find({ where: { hrManager: { id: id } } });
+      }
+    }catch(e){
+      console.log(e);
+    }
+    
   }
 }

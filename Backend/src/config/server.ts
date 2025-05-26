@@ -10,6 +10,7 @@ import { leaveTypeRoutes } from '../modules/leave-types/leave-type-routes';
 import { leaveRequestRoutes } from '../modules/leave-requests/leave-request-routes';
 import { leaveBalanceRoute } from '../modules/leave-balances/leave-balance-router';
 import { leaveApproveRoutes } from '../modules/leave-approval/leave-approval-routes';
+import { defaultLeaveEntitlementRoutes } from '../modules/default-leave-entitlement/default-leave-entitlement-routes';
 
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
@@ -20,7 +21,7 @@ export async function createServer(): Promise<Hapi.Server> {
     routes: {
       state: { parse: true },
       cors: {
-        origin: ['http://localhost:5173'],
+        origin: ['https://leave-management-app-2025.netlify.app'],
         credentials: true,
       },
     },
@@ -29,7 +30,9 @@ export async function createServer(): Promise<Hapi.Server> {
   // Cookie config
   server.state('userSession', {
     ttl: 24 * 60 * 60 * 1000,
-    isSecure: false,
+    isSecure: true,
+    isSameSite : 'None',
+    domain : 'lms-zwod.onrender.com',
     isHttpOnly: true,
     path: '/',
     encoding: 'base64json',
@@ -47,7 +50,7 @@ export async function createServer(): Promise<Hapi.Server> {
     leaveApprovalController,
   } = initializeDependencies();
 
-  defaultLeaveEntitlementController.registerRoutes(server);
+  defaultLeaveEntitlementRoutes(server, defaultLeaveEntitlementController);
   leaveTypeRoutes(server, leaveTypeController);
   leaveRequestRoutes(server, leaveRequestController);
   leaveBalanceRoute(server, leaveBalanceController);

@@ -38,12 +38,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.dataSource = void 0;
 const typeorm_1 = require("typeorm");
-const employee_model_1 = require("../../modules/empolyee/employee-model");
+const employee_entity_1 = require("../../modules/empolyee/employee-entity");
 const leave_type_model_1 = require("../../modules/leave-types/leave-type-model");
 const leave_request_model_1 = require("../../modules/leave-requests/leave-request-model");
 const leave_balance_model_1 = require("../../modules/leave-balances/leave-balance-model");
 const dotenv = __importStar(require("dotenv"));
 const path_1 = __importDefault(require("path"));
+const default_leave_entitlement_entity_1 = require("../../modules/default-leave-entitlement/default-leave-entitlement-entity");
+const leave_approval_model_1 = require("../../modules/leave-approval/leave-approval-model");
 dotenv.config({ path: path_1.default.resolve(__dirname, '../../../../.env') });
 const dataSource = new typeorm_1.DataSource({
     type: "mysql",
@@ -54,7 +56,7 @@ const dataSource = new typeorm_1.DataSource({
     database: process.env.DB_NAME,
     synchronize: true,
     driver: require('mysql2'),
-    entities: [employee_model_1.Employee, leave_type_model_1.LeaveType, leave_request_model_1.LeaveRequest, leave_balance_model_1.LeaveBalance],
+    entities: [employee_entity_1.Employee, leave_type_model_1.LeaveType, leave_request_model_1.LeaveRequest, leave_balance_model_1.LeaveBalance, default_leave_entitlement_entity_1.DefaultLeaveEntitlement, leave_approval_model_1.LeaveApproval],
     ssl: {
         rejectUnauthorized: false, // Aiven requires SSL
     },

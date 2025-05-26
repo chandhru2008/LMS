@@ -19,11 +19,11 @@ export class LeaveRequestController {
       const role = decoded.payload.role;
 
       //middle ware
-      if (role === "director" || role === "hr_manager" || role === "HR") {
+      if (role === "director" || role === "hr_manager" || role === "HR" || role === 'manager') {
         const allLeaveRequest = await this.leaveRequestService.getAllLeaveRequests();
         return h.response(allLeaveRequest).code(201);
       } else {
-        return h.response({ message: "Unauthorized user" }).code(400);
+        return h.response({ message: "Unauthorized user" }).code(401);
       }
 
     } catch (e) {

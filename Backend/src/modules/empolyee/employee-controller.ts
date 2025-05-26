@@ -1,11 +1,11 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import {EmployeeService} from './employee-service'
+import { EmployeeService } from './employee-service'
 import { generateJWTToken, verifyToken } from "../../utils/jwtUtil";
 import { LeaveBalanceController } from "../leave-balances/leave-balance-controller";
 import jwt from 'jsonwebtoken';
 
 export class EmployeeController {
-  
+
   private employeeService: EmployeeService;
   private leaveBalanceController: LeaveBalanceController;
   private jwtSecret: string;
@@ -39,7 +39,7 @@ export class EmployeeController {
         return h.response({ message: 'JWT token must be provided' }).code(400);
       }
 
-      const decoded = this.verifyToken(token) as any; 
+      const decoded = this.verifyToken(token) as any;
       const role = decoded.payload?.role?.toLowerCase();
 
       if (role === 'hr' || role === 'hr_manager') {
@@ -88,6 +88,43 @@ export class EmployeeController {
       }).code(200);
     } catch (error: any) {
       return this.handleError(h, error);
+    }
+  }
+
+  async getAllEmployee(request: Request, h: ResponseToolkit) {
+
+    const token = this.getTokenFromRequest(request);
+    if (!token) {
+      return h.response({ message: 'JWT token must be provided' }).code(400);
+    }
+    const verifiedEmployee = this.verifyToken(token) as any;
+    if (verifiedEmployee.payload.role === 'HR' || verifiedEmployee.payload.role === 'director') {
+      const allEmployee = await this.employeeService.getAllEmployee();
+      return h.response(allEmployee).code(200);
+    } else {
+      return h.response({ message: 'Unauthorized user' }).code(400);
+    }
+  }
+
+  async getEmployeeByRole(request: Request, h: ResponseToolkit) {
+    const token = this.getTokenFromRequest(request);
+    if (!token) {
+      return h.response({ message: 'JWT token must be provided' }).code(400);
+    }
+
+    const verifiedEmployee = this.verifyToken(token) as any;
+
+    console.log(verifiedEmployee)
+
+    if (verifiedEmployee.payload.role === 'manager' || verifiedEmployee.payload.role === 'hr_manager') {
+      const id = verifiedEmployee.payload.id
+      const role = verifiedEmployee.payload.role
+      console.log(id, role)
+      const getemployeeByRole = await this.employeeService.getEmployeeByRole(id, role);
+      return h.response(getemployeeByRole).code(200)
+    }
+    else {
+      return h.response({ message: 'Unauthorized user' }).code(400);
     }
   }
 }

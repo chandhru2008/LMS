@@ -9,36 +9,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LeaveTypeService = void 0;
+exports.DefaultLeaveEntitlementService = void 0;
 const conn_1 = require("../../config/db/conn");
-const leave_type_model_1 = require("./leave-type-model");
-class LeaveTypeService {
-    constructor() {
-        this.repo = conn_1.dataSource.getRepository(leave_type_model_1.LeaveType);
+const default_leave_entitlement_entity_1 = require("./default-leave-entitlement-entity");
+const defaultLeaveEntitlementRepo = conn_1.dataSource.getRepository(default_leave_entitlement_entity_1.DefaultLeaveEntitlement);
+class DefaultLeaveEntitlementService {
+    registerRoutes(server, defaultLeaveEntitlementController) {
+        throw new Error('Method not implemented.');
     }
-    getAllLeaveTypes() {
+    getEntitlementsByRole(role) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.repo.find();
-            }
-            catch (error) {
-                console.error('Error retrieving leave types:', error);
-                throw new Error('Could not retrieve leave types');
-            }
-        });
-    }
-    findByType(name) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this.repo.findOne({
-                    where: { name },
+                return yield defaultLeaveEntitlementRepo.find({
+                    where: { role },
+                    relations: ['leaveType'],
                 });
             }
             catch (error) {
-                console.error('Error finding leave type by name:', error);
-                throw new Error('Error retrieving leave type');
+                throw new Error('Error retrieving default leave entitlements');
             }
         });
     }
+    getAllEntitlements() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield defaultLeaveEntitlementRepo.find();
+        });
+    }
 }
-exports.LeaveTypeService = LeaveTypeService;
+exports.DefaultLeaveEntitlementService = DefaultLeaveEntitlementService;

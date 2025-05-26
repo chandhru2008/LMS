@@ -10,40 +10,53 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LeaveBalanceService = void 0;
+const conn_1 = require("../../config/db/conn");
 const leave_balance_model_1 = require("./leave-balance-model");
 class LeaveBalanceService {
-    constructor(leaveBalanceRepository, leaveTypeRepository) {
-        this.leaveBalanceRepository = leaveBalanceRepository;
-        this.leaveTypeRepository = leaveTypeRepository;
+    constructor(defaultLeaveEntitlementService) {
+        this.repo = conn_1.dataSource.getRepository(leave_balance_model_1.LeaveBalance);
+        this.defaultLeaveEntitlementService = defaultLeaveEntitlementService;
     }
-    // Assignign default leave balances to an employee
+    // Assign default leave balances to an employee
     assignDefaultLeaveBalances(employeeData) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             try {
-                // Geting  all leave types
-                const allLeaveTypes = yield this.leaveTypeRepository.findAll();
-                // Loop through each leave type and create a leave balance entry
-                for (let leaveType of allLeaveTypes) {
+                const role = (_a = employeeData.role) === null || _a === void 0 ? void 0 : _a.toLowerCase();
+                if (!role) {
+                    throw new Error('Role is missing in employee data');
+                }
+                const defaultEntitlements = yield this.defaultLeaveEntitlementService.getEntitlementsByRole(role);
+                for (let entitlement of defaultEntitlements) {
                     const leaveBalance = new leave_balance_model_1.LeaveBalance();
                     leaveBalance.employee = employeeData;
-                    leaveBalance.leaveType = leaveType;
+                    leaveBalance.leaveType = entitlement.leaveType;
                     leaveBalance.used_leaves = 0;
-                    leaveBalance.remaining_leaves = leaveType.max_allowed_days;
-                    // Saving  the leave balance entry
-                    yield this.leaveBalanceRepository.storeDefaultLeaveBalances(leaveBalance);
-                    console.log(leaveBalance);
+                    leaveBalance.total = entitlement.defaultDays;
+                    leaveBalance.remaining_leaves = (_b = entitlement.defaultDays) !== null && _b !== void 0 ? _b : 9999;
+                    const newRecord = this.repo.create(leaveBalance);
+                    yield this.repo.save(newRecord);
                 }
             }
             catch (e) {
-                throw new Error(e.message);
+                throw new Error(`Failed to assign leave balances: ${e.message}`);
             }
         });
     }
+    // Get leave balance for an employee
     fetchEmployeeLeaveBalance(employeeData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const leaveBalance = yield this.leaveBalanceRepository.fetchEmployeeLeaveBalance(employeeData);
-                return leaveBalance;
+                const leaveBalance = yield this.repo.find({
+                    where: { employee: { id: employeeData.id } },
+                    relations: ['employee', 'leaveType'],
+                });
+                return leaveBalance.map(item => ({
+                    type: item.leaveType.name,
+                    used: item.used_leaves,
+                    remaining: item.remaining_leaves,
+                    total: item.total,
+                }));
             }
             catch (e) {
                 throw new Error(e.message);

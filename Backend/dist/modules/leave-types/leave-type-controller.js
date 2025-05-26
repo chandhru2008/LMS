@@ -14,16 +14,15 @@ class LeaveTypeController {
     constructor(leaveTypeService) {
         this.leaveTypeService = leaveTypeService;
     }
-    getAllLeaveTypes() {
+    getAllLeaveTypes(request, h) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Hey");
             try {
                 const leaveTypes = yield this.leaveTypeService.getAllLeaveTypes();
-                return leaveTypes;
+                return h.response(leaveTypes).code(200);
             }
             catch (error) {
                 console.error('Controller error:', error);
-                return ({ message: 'Failed to fetch leave types' });
+                return h.response({ message: 'Failed to fetch leave types' }).code(400);
             }
         });
     }

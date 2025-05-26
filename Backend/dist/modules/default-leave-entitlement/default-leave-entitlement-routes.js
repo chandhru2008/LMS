@@ -9,15 +9,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.leaveBalanceRoute = leaveBalanceRoute;
-function leaveBalanceRoute(server, leaveBalanceController) {
+exports.defaultLeaveEntitlementRoutes = defaultLeaveEntitlementRoutes;
+function defaultLeaveEntitlementRoutes(server, defaultLeaveEntitlementController) {
     server.route([
         {
             method: 'GET',
-            path: '/leave-balances',
+            path: '/default-leaves',
             handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
-                return yield leaveBalanceController.fetchEmployeeLeaveBalance(request, h);
+                return defaultLeaveEntitlementController.getAll(request, h);
             })
-        }
+        },
+        {
+            method: 'GET',
+            path: '/default-leaves/{role}',
+            handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
+                return defaultLeaveEntitlementController.getByRole(request, h);
+            })
+        },
     ]);
 }

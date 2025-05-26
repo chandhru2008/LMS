@@ -98,7 +98,11 @@ export class LeaveRequestService {
       employeeRole,
     } = data;
 
-    const employee = await this.employeeRepo.findOne({ where: { id: employeeId }, relations: ['manager'] });
+    const employee = await this.employeeRepo.findOne({
+      where: { id: employeeId },
+      relations: ['manager', 'hrManager'],
+    });
+
     if (!employee) throw new Error('Employee not found');
 
     const leaveType = await this.leaveTypeRepo.findOneBy({ id: leaveTypeId });
@@ -113,6 +117,7 @@ export class LeaveRequestService {
 
     const newStart = new Date(startDate);
     const newEnd = new Date(endDate);
+
     for (const leave of existingLeaves) {
       const existingStart = new Date(leave.start_date);
       const existingEnd = new Date(leave.end_date);
@@ -133,6 +138,52 @@ export class LeaveRequestService {
     });
 
     if (!leaveBalance) throw new Error('Leave balance not found');
+
+
+    if (
+      employee.gender === 'male' &&
+      employee.maritalStatus === 'Married' &&
+      leaveType.name === 'Marriage Leave'
+    ) {
+      const previousMarriageLeave = await this.leaveRequestRepo.findOne({
+        where: {
+          employee: { id: employee.id },
+          leaveType: { id: leaveType.id },
+          status: In(['Pending', 'Approve', 'Approved']),
+        },
+      });
+
+      if (previousMarriageLeave) {
+        throw new Error('Marriage leave already used.');
+      }
+    }
+
+   
+    if (leaveType.name === 'Emergency Leave') {
+      if (leaveBalance.remaining_leaves < leaveDays) {
+        throw new Error('Insufficient Emergency Leave balance.');
+      }
+
+      const leaveRequest = this.leaveRequestRepo.create({
+        employee,
+        leaveType,
+        start_date: startDate,
+        end_date: endDate,
+        description,
+        status: 'Approved', // auto-approve
+      });
+
+      await this.leaveRequestRepo.save(leaveRequest);
+
+    
+      leaveBalance.remaining_leaves -= leaveDays;
+      leaveBalance.used_leaves += leaveDays;
+      await this.leaveBalanceRepo.save(leaveBalance);
+
+      return 'Emergency leave auto-approved successfully.';
+    }
+
+   
     if (leaveBalance.remaining_leaves < leaveDays) {
       throw new Error('Insufficient leave balance');
     }
@@ -148,12 +199,12 @@ export class LeaveRequestService {
 
     const savedLeaveRequest = await this.leaveRequestRepo.save(leaveRequest);
 
-    // Determine approval chain
     const approvals = [];
 
     if (employeeRole === 'employee') {
       const managerId = employee.manager?.id;
       if (!managerId) throw new Error('Manager not assigned');
+
       if (leaveDays < 3) {
         approvals.push({ level: 1, approverRole: 'manager', approverId: managerId });
       } else if (leaveDays < 7) {
@@ -173,18 +224,22 @@ export class LeaveRequestService {
         ...(leaveDays < 3
           ? [{ level: 1, approverRole: 'HR' }]
           : [
-              { level: 1, approverRole: 'director' },
-              { level: 2, approverRole: 'HR' },
-            ])
+            { level: 1, approverRole: 'director' },
+            { level: 2, approverRole: 'HR' },
+          ])
       );
     } else if (employeeRole === 'HR') {
+      const hrManagerId = employee.hrManager?.id;
+      if (!hrManagerId) {
+        throw new Error('HR manager not found');
+      }
       approvals.push(
         ...(leaveDays < 3
-          ? [{ level: 1, approverRole: 'hr_manager' }]
+          ? [{ level: 1, approverRole: 'hr_manager', approverId: hrManagerId }]
           : [
-              { level: 1, approverRole: 'hr_manager' },
-              { level: 2, approverRole: 'director' },
-            ])
+            { level: 1, approverRole: 'hr_manager', approverId: hrManagerId },
+            { level: 2, approverRole: 'director' },
+          ])
       );
     } else if (employeeRole === 'hr_manager') {
       approvals.push({ level: 1, approverRole: 'director' });
@@ -206,4 +261,5 @@ export class LeaveRequestService {
 
     return 'Leave request submitted successfully and pending approvals.';
   }
+
 }

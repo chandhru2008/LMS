@@ -9,22 +9,22 @@ import { Request, ResponseToolkit } from '@hapi/hapi';
       {
         method: 'GET',
         path: '/all-leave-requests',
-        handler: async (request : Request, response : ResponseToolkit) => await leaveRequestController.getAllLeaveRequests(request, response)
+        handler: async (request : Request, response : ResponseToolkit) =>{return await leaveRequestController.getAllLeaveRequests(request, response)}
       },
       {
         method: 'POST',
         path: '/create-leave-request',
-        handler: async (request : Request, response : ResponseToolkit) => await leaveRequestController.createLeaveRequest(request, response)
+        handler: async (request : Request, response : ResponseToolkit) => {return await leaveRequestController.createLeaveRequest(request, response)}
       },
       {
         method: "GET",
         path: '/leave-requests/my',
-        handler: async (request : Request, response : ResponseToolkit) => await leaveRequestController.getMyLeaveRequests(request, response)
+        handler: async (request : Request, response : ResponseToolkit) => {return await leaveRequestController.getMyLeaveRequests(request, response)}
       },
        {
         method : 'PUT',
         path : '/leave-requests/cancel',
-        handler :async (request : Request, response : ResponseToolkit)  => await leaveRequestController.cancelLeaveRequest(request, response)
+        handler :async (request : Request, response : ResponseToolkit)  => {return await leaveRequestController.cancelLeaveRequest(request, response)}
       }
     ]);
   }

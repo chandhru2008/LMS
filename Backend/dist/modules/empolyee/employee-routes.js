@@ -9,46 +9,52 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EmployeeRoutes = void 0;
-class EmployeeRoutes {
-    constructor(employeeController) {
-        this.employeeController = employeeController;
-    }
-    employeeRoute(server) {
-        server.route([
-            {
-                method: 'POST',
-                path: '/register',
-                handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
-                    console.log("POST /register route hit");
-                    return this.employeeController.registerEmployee(request, h);
-                })
-            },
-            {
-                method: 'POST',
-                path: '/login',
-                handler: (request, h) => {
-                    return this.employeeController.loginEmployee(request, h);
-                }
-            },
-            {
-                method: 'POST',
-                path: '/log-out',
-                handler: (request, h) => {
-                    return h
-                        .response({ message: 'Logged out successfully' })
-                        .unstate('userSession', { path: '/' });
-                }
-            },
-            {
-                method: 'GET',
-                path: '/check-auth',
-                handler: (request, h) => {
-                    console.log("routes hit");
-                    return this.employeeController.authenticateEmployee(request, h);
-                }
-            },
-        ]);
-    }
+exports.employeeRoute = employeeRoute;
+function employeeRoute(server, employeeController) {
+    server.route([
+        {
+            method: 'POST',
+            path: '/register',
+            handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
+                return yield employeeController.registerEmployee(request, h);
+            })
+        },
+        {
+            method: 'POST',
+            path: '/login',
+            handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
+                return yield employeeController.loginEmployee(request, h);
+            })
+        },
+        {
+            method: 'POST',
+            path: '/log-out',
+            handler: (request, h) => {
+                return h
+                    .response({ message: 'Logged out successfully' })
+                    .unstate('userSession', { path: '/' });
+            }
+        },
+        {
+            method: 'GET',
+            path: '/check-auth',
+            handler: (request, h) => {
+                return employeeController.authenticateEmployee(request, h);
+            }
+        },
+        {
+            method: 'GET',
+            path: '/get-all-employees',
+            handler: (request, h) => {
+                return employeeController.getAllEmployee(request, h);
+            }
+        }, {
+            method: 'GET',
+            path: '/get-employees-by-role',
+            handler: (request, h) => {
+                console.log('routes hit');
+                return employeeController.getEmployeeByRole(request, h);
+            }
+        }
+    ]);
 }
-exports.EmployeeRoutes = EmployeeRoutes;

@@ -43,12 +43,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmployeeService = void 0;
-const employee_model_1 = require("./employee-model");
+const conn_1 = require("../../config/db/conn");
+const employee_entity_1 = require("./employee-entity");
 const bcrypt = __importStar(require("bcrypt"));
 class EmployeeService {
-    constructor(employeeRepo) {
-        this.employeeRepo = employeeRepo;
+    constructor() {
+        this.repo = conn_1.dataSource.getRepository(employee_entity_1.Employee);
     }
+    // Find employee by email
+    findByEmail(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.repo.findOne({ where: { email } });
+            }
+            catch (error) {
+                throw new Error('Error retrieving employee data');
+            }
+        });
+    }
+    // Create a new employee record with business validation
     registerEmployee(employeeData) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c, _d;
@@ -57,51 +70,48 @@ class EmployeeService {
                 if (!emailRegex.test(employeeData.email)) {
                     throw new Error("Enter a valid email");
                 }
-                const existingEmployee = yield this.employeeRepo.findByEmail(employeeData.email);
+                const existingEmployee = yield this.findByEmail(employeeData.email);
                 if (existingEmployee) {
                     throw new Error("Email already exists");
                 }
                 const role = employeeData.role.toLowerCase();
-                // Supervisor emails from frontend
+                // Supervisor emails 
                 const managerEmail = (_a = employeeData.managerEmail) === null || _a === void 0 ? void 0 : _a.trim();
                 const hrEmail = (_b = employeeData.hrEmail) === null || _b === void 0 ? void 0 : _b.trim();
                 const hrManagerEmail = (_c = employeeData.hrManagerEmail) === null || _c === void 0 ? void 0 : _c.trim();
                 const directorEmail = (_d = employeeData.directorEmail) === null || _d === void 0 ? void 0 : _d.trim();
                 // Lookup supervisors
-                const manager = managerEmail ? yield this.employeeRepo.findByEmail(managerEmail) : null;
-                const hr = hrEmail ? yield this.employeeRepo.findByEmail(hrEmail) : null;
-                const hrManager = hrManagerEmail ? yield this.employeeRepo.findByEmail(hrManagerEmail) : null;
-                const director = directorEmail ? yield this.employeeRepo.findByEmail(directorEmail) : null;
-                // Validation based on the exact rules you gave
+                const manager = managerEmail ? yield this.findByEmail(managerEmail) : null;
+                const hr = hrEmail ? yield this.findByEmail(hrEmail) : null;
+                const hrManager = hrManagerEmail ? yield this.findByEmail(hrManagerEmail) : null;
+                // const director = directorEmail ? await this.findByEmail(directorEmail) : null;
+                // Validation based on role
                 if (role === 'employee') {
                     if (!manager)
                         throw new Error("Manager does not exist");
                 }
                 else if (role === 'manager') {
-                    if (!hr)
-                        throw new Error("HR does not exist");
+                    // No supervisor required
                 }
                 else if (role === 'hr') {
                     if (!hrManager)
                         throw new Error("HR Manager does not exist");
                 }
-                else if (role === 'hr_manager')
-                    [
-                    //
-                    ];
-                else if (role === 'director') {
+                else if (role === 'hr_manager' || role === 'director') {
                     // No supervisor required
                 }
                 else {
                     throw new Error("Invalid role");
                 }
                 // Create employee entity
-                const employee = new employee_model_1.Employee();
+                const employee = new employee_entity_1.Employee();
                 employee.name = employeeData.name;
                 employee.email = employeeData.email;
+                employee.gender = employeeData.gender;
+                employee.maritalStatus = employeeData.maritalStatus;
                 employee.password = yield bcrypt.hash(employeeData.password, 10);
                 employee.role = role;
-                // Set supervisor relations based on role
+                // Set supervisor relations
                 if (role === 'employee') {
                     employee.manager = manager;
                 }
@@ -111,29 +121,50 @@ class EmployeeService {
                 else if (role === 'hr') {
                     employee.hrManager = hrManager;
                 }
-                return yield this.employeeRepo.create(employee);
+                return yield this.repo.save(employee);
             }
             catch (e) {
-                console.log("Error in service : ", e);
+                console.log("Error in EmployeeManager:", e);
                 throw new Error(e.message);
             }
         });
     }
+    // Login employee
     loginEmployee(loginEmployeeData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const checkEmployeeExist = yield this.employeeRepo.findByEmail(loginEmployeeData.email);
-                if (!checkEmployeeExist) {
+                const employee = yield this.findByEmail(loginEmployeeData.email);
+                if (!employee) {
                     throw new Error('Employee not found');
                 }
-                const isPasswordValid = yield bcrypt.compare(loginEmployeeData.password, checkEmployeeExist.password);
+                const isPasswordValid = yield bcrypt.compare(loginEmployeeData.password, employee.password);
                 if (!isPasswordValid) {
                     throw new Error('Invalid password');
                 }
-                return checkEmployeeExist;
+                return employee;
             }
             catch (e) {
                 throw new Error(e.message);
+            }
+        });
+    }
+    getAllEmployee() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.repo.find();
+        });
+    }
+    getEmployeeByRole(id, role) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (role === 'manager') {
+                    return yield this.repo.find({ where: { manager: { id: id } } });
+                }
+                else if (role === 'hr_manager') {
+                    return yield this.repo.find({ where: { hrManager: { id: id } } });
+                }
+            }
+            catch (e) {
+                console.log(e);
             }
         });
     }

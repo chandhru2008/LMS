@@ -15,7 +15,6 @@ export class LeaveApprovalService {
         });
 
 
-
         const grouped = new Map();
 
         for (const approval of approvals) {
@@ -33,8 +32,9 @@ export class LeaveApprovalService {
                     description: approval.leaveRequest.description,
                     managerApproval: null,
                     hrApproval: null,
+                    hrManagerApproval: null,
                     directorApproval: null,
-                    overallStatus: approval.leaveRequest.status, // Assuming this is the overall leave status
+                    overallStatus: approval.leaveRequest.status, 
                 });
             }
 
@@ -49,26 +49,19 @@ export class LeaveApprovalService {
                 case 'director':
                     roleGroup.directorApproval = approval.status;
                     break;
+                case 'hr_manager':
+                    roleGroup.hrManagerApproval = approval.status;
+                    break;
             }
         }
 
         const result = Array.from(grouped.values());
+
         return result;
-
-
-
-
 
     }
 
     async getManagerPendingApprovel(managerId: string) {
-        const approval = await this.dataSource.getRepository(LeaveApproval).find({
-            where: {
-                approver: { id: managerId },
-            },
-            relations: ['leaveRequest', 'leaveRequest.employee', 'leaveRequest.leaveType', 'approver'],
-        });
-
 
 
         const approvals = await this.dataSource.getRepository(LeaveApproval).find({
@@ -98,9 +91,11 @@ export class LeaveApprovalService {
                     managerApproval: null,
                     hrApproval: null,
                     directorApproval: null,
-                    overallStatus: approval.leaveRequest.status, // Assuming this is the overall leave status
+                    overallStatus: approval.leaveRequest.status,
                 });
             }
+
+
 
             const roleGroup = grouped.get(requestId);
             switch (approval.approverRole) {
@@ -113,6 +108,10 @@ export class LeaveApprovalService {
                 case 'director':
                     roleGroup.directorApproval = approval.status;
                     break;
+                case 'hr_manager':
+                    roleGroup.hrManagerApproval = approval.status
+                    break;
+
             }
         }
 
@@ -178,8 +177,6 @@ export class LeaveApprovalService {
 
         const leaveRequest = await leaveRequestRepo.findOne({ where: { id: leaveRequestId }, relations: ['leaveType', 'employee'] });
 
-        console.log("Leave request : ", leaveRequest)
-
 
 
         if (!leaveRequest) {
@@ -190,15 +187,10 @@ export class LeaveApprovalService {
 
 
         if (allApproved) {
-            leaveRequest.status = 'Approved'; // Assign string directly
+            leaveRequest.status = 'Approved';
             await leaveRequestRepo.save(leaveRequest);
-            console.log(leaveRequest.leaveType.id)
-            console.log(leaveRequest.employee)
 
             const leaveBalance = await leaveBalanceRepo.findOne({ where: { leaveType: { id: leaveRequest.leaveType.id }, employee: { id: leaveRequest.employee.id } } });
-
-
-            console.log("Leave  balance : ", leaveBalance)
 
             function calculateLeaveDays(startDate: string, endDate: string): number {
                 const start = new Date(startDate);
@@ -218,8 +210,6 @@ export class LeaveApprovalService {
             }
             leaveBalance.used_leaves = leaveBalance.used_leaves + leaveDays;
             leaveBalance.remaining_leaves = leaveBalance.total - leaveBalance.used_leaves
-            console.log(leaveDays)
-            console.log(leaveBalance.remaining_leaves)
             leaveBalanceRepo.save(leaveBalance);
             return 'Leave fully approved';
         };
