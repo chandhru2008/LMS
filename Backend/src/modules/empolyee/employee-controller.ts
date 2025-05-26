@@ -114,12 +114,11 @@ export class EmployeeController {
 
     const verifiedEmployee = this.verifyToken(token) as any;
 
-    console.log(verifiedEmployee)
+
 
     if (verifiedEmployee.payload.role === 'manager' || verifiedEmployee.payload.role === 'hr_manager') {
       const id = verifiedEmployee.payload.id
       const role = verifiedEmployee.payload.role
-      console.log(id, role)
       const getemployeeByRole = await this.employeeService.getEmployeeByRole(id, role);
       return h.response(getemployeeByRole).code(200)
     }

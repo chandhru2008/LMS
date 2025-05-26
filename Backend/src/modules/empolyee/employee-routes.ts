@@ -46,7 +46,6 @@ export function employeeRoute(server: Server, employeeController: EmployeeContro
       method : 'GET',
       path : '/get-employees-by-role',
       handler : (request, h) => {
-        console.log('routes hit')
         return employeeController.getEmployeeByRole(request, h);
       }
     }
