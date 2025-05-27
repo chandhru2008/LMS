@@ -17,4 +17,17 @@ export class LeaveTypeController {
             return h.response({ message: 'Failed to fetch leave types' }).code(400);
         }
     }
+
+    async getLeaveTypesByEligibility(request: Request, h: ResponseToolkit) {
+        try {
+            const gender = (request as any).auth.credentials.payload.gender;
+            const maritalStatus = (request as any).auth.credentials.payload.maritalStatus;
+            console.log((request as any).auth.credentials.payload);
+            const leaveTypesByEligibility = await this.leaveTypeService.getLeaveTypeByEligibility(gender, maritalStatus)
+            return h.response(leaveTypesByEligibility).code(200);
+        } catch (error) {
+            console.error('Controller error:', error);
+            return h.response({ message: 'Failed to fetch leave types' }).code(400);
+        }
+    }
 }

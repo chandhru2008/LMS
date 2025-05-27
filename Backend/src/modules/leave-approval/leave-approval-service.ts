@@ -1,12 +1,12 @@
 import { DataSource } from 'typeorm';
-import { LeaveApproval } from './leave-approval-model';
-import { LeaveRequest } from '../leave-requests/leave-request-model';
-import { LeaveBalance } from '../leave-balances/leave-balance-model';
+import { LeaveApproval } from './leave-approval-entity';
+import { LeaveRequest } from '../leave-requests/leave-request-entity';
+import { LeaveBalance } from '../leave-balances/leave-balance-entity';
 
 export class LeaveApprovalService {
     constructor(private dataSource: DataSource) { }
 
-    async getPendingApprovals() {
+    async getAllPendingApprovals() {
 
 
         const approvals = await this.dataSource.getRepository(LeaveApproval).find({
@@ -34,7 +34,7 @@ export class LeaveApprovalService {
                     hrApproval: null,
                     hrManagerApproval: null,
                     directorApproval: null,
-                    overallStatus: approval.leaveRequest.status, 
+                    overallStatus: approval.leaveRequest.status,
                 });
             }
 
@@ -43,7 +43,7 @@ export class LeaveApprovalService {
                 case 'manager':
                     roleGroup.managerApproval = approval.status;
                     break;
-                case 'HR':
+                case 'hr':
                     roleGroup.hrApproval = approval.status;
                     break;
                 case 'director':
@@ -61,16 +61,22 @@ export class LeaveApprovalService {
 
     }
 
-    async getManagerPendingApprovel(managerId: string) {
+    async getManagerPendingApprovel(approverId: string) {
+
 
 
         const approvals = await this.dataSource.getRepository(LeaveApproval).find({
             where: {
-                approver: { id: managerId },
-                status: 'Pending'
+                approver: { id: approverId },
             },
             relations: ['leaveRequest', 'leaveRequest.employee', 'leaveRequest.leaveType', 'approver'],
         });
+
+        console.log(approvals)
+
+        if (!approvals) {
+            throw new Error('Approvals not found');
+        }
 
 
         const grouped = new Map();
@@ -102,7 +108,7 @@ export class LeaveApprovalService {
                 case 'manager':
                     roleGroup.managerApproval = approval.status;
                     break;
-                case 'HR':
+                case 'hr':
                     roleGroup.hrApproval = approval.status;
                     break;
                 case 'director':
@@ -123,7 +129,7 @@ export class LeaveApprovalService {
     async approveLeave(
         leaveRequestId: string,
         decision: 'Approve' | 'Reject',
-        role: 'manager' | 'HR' | 'hr_manager' | 'director',
+        role: 'manager' | 'hr' | 'hr_manager' | 'director',
         approverId: string
     ) {
         const approvalRepo = this.dataSource.getRepository(LeaveApproval);
@@ -132,7 +138,7 @@ export class LeaveApprovalService {
 
 
 
-        // Step 1: Fetch approval entry
+
         const approvals = await approvalRepo.findOne({
             where: { leaveRequest: { id: leaveRequestId }, approverRole: role },
             relations: ['leaveRequest', 'leaveRequest.employee', 'approver'],

@@ -8,8 +8,8 @@ import {
     JoinColumn,
     OneToMany,
 } from "typeorm";
-import { LeaveRequest } from "../leave-requests/leave-request-model";
-import { LeaveBalance } from "../leave-balances/leave-balance-model";
+import { LeaveRequest } from "../leave-requests/leave-request-entity";
+import { LeaveBalance } from "../leave-balances/leave-balance-entity";
 
 @Entity()
 export class Employee {
@@ -33,18 +33,18 @@ export class Employee {
 
     @Column({
         type: "enum",
-        enum: ["intern", "employee", "manager", "HR", "hr_manager", "director"],
+        enum: [ "employee", "manager", "hr", "hr_manager", "director"],
         default: "employee",
     })
-    role!: "employee" | "manager" | "HR" | "hr_manager" | "director";
+    role!: "employee" | "manager" | "hr" | "hr_manager" | "director";
 
-    @Column({ type: 'enum', enum: ['Single', 'Married', 'Divorced', 'Widowed'], nullable: true })
-    maritalStatus?: 'Single' | 'Married' | 'Divorced' | 'Widowed';
+    @Column({ type: 'enum', enum: ['single', 'married'], nullable: true })
+    maritalStatus?: 'single' | 'married';
 
     @ManyToOne(() => Employee, { nullable: true })
     @JoinColumn({ name: "intern_id" })
     intern?: Employee;
-
+    
     // For employee role
     @ManyToOne(() => Employee, { nullable: true })
     @JoinColumn({ name: "manager_id" })

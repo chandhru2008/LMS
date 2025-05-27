@@ -36,11 +36,13 @@ function LeaveRequestHrManager() {
   useEffect(() => {
     async function fetchLeaveRequests() {
       try {
-        const res = await fetch("https://leave-management-app-2025.netlify.app/approvals", {
+        const res = await fetch("http://localhost:3001/approvals", {
           method: "GET",
           credentials: "include",
         });
         const rawData = await res.json();
+
+        console.log(rawData)
 
         const mappedData: LeaveRequest[] = rawData.map((item: any) => ({
           employeeDetails: {
@@ -75,7 +77,7 @@ function LeaveRequestHrManager() {
 
   async function handleAction(id: string, decision: "Approve" | "Reject") {
     try {
-      const res = await fetch(`https://leave-management-app-2025.netlify.app/approvals/decision`, {
+      const res = await fetch(`http://localhost:3001/approvals/decision`, {
         method: "PUT",
         credentials: "include",
         headers: {
@@ -84,7 +86,7 @@ function LeaveRequestHrManager() {
         body: JSON.stringify({
           leaveRequestId: id,
           decision,
-          role: "HR", // Inform backend it's HR taking the action
+          role: "hr",
         }),
       });
 

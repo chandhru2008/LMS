@@ -32,8 +32,8 @@ export function initializeDependencies() {
   const leaveBalanceService = new LeaveBalanceService(defaultLeaveEntitlementService);
   const leaveBalanceController = new LeaveBalanceController(leaveBalanceService);
 
-  const employeeService = new EmployeeService();
-  const employeeController = new EmployeeController(employeeService, leaveBalanceController);
+  const employeeService = new EmployeeService(leaveBalanceService);
+  const employeeController = new EmployeeController(employeeService);
 
   const leaveApprovalService = new LeaveApprovalService(dataSource);
   const leaveApprovalController = new LeaveApprovalController(leaveApprovalService);

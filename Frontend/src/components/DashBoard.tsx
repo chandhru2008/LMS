@@ -19,7 +19,7 @@ function DashBoard() {
     useEffect(() => {
         async function checkAuth() {
             try {
-                const res = await fetch('https://leave-management-app-2025.netlify.app/check-auth', {
+                const res = await fetch('http://localhost:3001/check-auth', {
                     method: 'GET',
                     credentials: 'include'
                 });
@@ -29,6 +29,7 @@ function DashBoard() {
                 } else {
                     const data = await res.json();
                     setRole(data.role);
+                    console.log(data)
                 }
 
             } catch (error) {
@@ -57,14 +58,14 @@ function DashBoard() {
                     }`}>Leave History</button>
 
                 {
-                    (role === 'manager' || role === 'HR' || role === 'director' || role === 'hr_manager') && (
+                    (role === 'manager' || role === 'hr' || role === 'director' || role === 'hr_manager') && (
                         <button onClick={() => handledashBoardContent("view")} className={`py-[10px] px-[15px] border-b-3 mb-[7px] ${dashBoardContent === 'view' ? 'border-[#4f39f6]-300 text-[#4f39f6]' : 'border-transparent text-[#00000]'
-                            }`}>{role === 'HR' ? 'HR' : role === 'director' ? 'Director' : role === 'hr_manager' ? 'HR Manager' : 'Manager'} View</button>
+                            }`}>{role === 'hr' ? 'hr' : role === 'director' ? 'Director' : role === 'hr_manager' ? 'HR Manager' : 'Manager'} View</button>
                     )
                 }
                 {
                     (
-                        (role === 'HR' || role === 'hr_manager') && (
+                        (role === 'hr' || role === 'hr_manager') && (
                             <button onClick={() => handledashBoardContent("registerEmployee")} className={`py-[10px] px-[15px] border-b-3 mb-[7px] ${dashBoardContent === 'registerEmployee' ? 'border-[#4f39f6]-300 text-[#4f39f6]' : 'border-transparent text-[#00000]'
                                 }`}> Register Employee</button>
                         )
@@ -90,7 +91,7 @@ function DashBoard() {
                 )
             }
             {
-                (dashBoardContent === 'view' && role === 'HR') && (
+                (dashBoardContent === 'view' && role === 'hr') && (
                     <LeaveRequestHr />
 
                 )
@@ -101,7 +102,7 @@ function DashBoard() {
                 )
             }
             {
-                (dashBoardContent === 'registerEmployee' && (role === 'HR' || role === 'hr_manager')) && (
+                (dashBoardContent === 'registerEmployee' && (role === 'hr' || role === 'hr_manager')) && (
                     <Registration />
                 )
             }

@@ -1,9 +1,9 @@
 # Handle login/register endpoints
-/login     https://leave-management-app-2025.netlify.app/login     200
-/register  https://leave-management-app-2025.netlify.app/register  200
+/login     http://localhost:3001/login     200
+/register  http://localhost:3001/register  200
 
 # API endpoints (if you have others)
-/api/*     https://leave-management-app-2025.netlify.app/api/:splat 200
+/api/*     http://localhost:3001/api/:splat 200
 
 # SPA fallback
 /*         /index.html   200

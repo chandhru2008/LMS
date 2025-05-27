@@ -28,33 +28,32 @@ function Registration() {
     if (!strongPasswordRegex.test(password))
       return showError('Enter a strong password');
     if (password !== confirmPassword) return showError('Passwords do not match');
-
     if (!role) return showError('Select a role');
 
     if (role === 'employee') {
       if (!managerEmail || !validEmailRegex.test(managerEmail))
         return showError('Enter a valid manager email');
-    } else if (role === 'HR') {
+    }
+
+    if (role === 'hr') {
       if (!hrManagerEmail || !validEmailRegex.test(hrManagerEmail))
         return showError('Enter a valid HR Manager email');
     }
 
-    const userDetails: any = {
+    const userDetails : any = {
       name,
       email,
       password,
       role,
       gender,
-      maritalStatus,
+      maritalStatus
     };
 
-    // Add only the relevant supervisor email
     if (role === 'employee') userDetails.managerEmail = managerEmail;
-    if (role === 'HR') userDetails.hrManagerEmail = hrManagerEmail;
-
+    if (role === 'hr') userDetails.hrManagerEmail = hrManagerEmail;
 
     try {
-      const response = await fetch('https://leave-management-app-2025.netlify.app/register', {
+      const response = await fetch('http://localhost:3001/register', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -69,11 +68,9 @@ function Registration() {
         showError(result.message || 'Registration failed');
         return;
       } else {
-        setSuccessMessage("Registration Successfull");
+        setSuccessMessage('Registration Successful');
         window.location.reload();
       }
-
-
     } catch (err) {
       console.error('Network error:', err);
       showError('Something went wrong. Try again.');
@@ -123,7 +120,7 @@ function Registration() {
             </option>
             <option value="employee">Employee</option>
             <option value="manager">Manager</option>
-            <option value="HR">HR</option>
+            <option value="hr">HR</option>
             <option value="hr_manager">HR Manager</option>
             <option value="director">Director</option>
           </select>
@@ -151,37 +148,29 @@ function Registration() {
             </option>
             <option value="single">Single</option>
             <option value="married">Married</option>
-            <option value="divorced">Divorced</option>
-            <option value="widowed">Widowed</option>
           </select>
 
-          {(role === 'employee' ||
-            role === 'manager' ||
-            role === 'HR' ||
-            role === 'hr_manager') && (
-              <div className="bg-gray-50 p-4 rounded-lg border mt-4 space-y-3">
-                <p className="text-lg font-medium text-gray-700">
-                  Supervisor Email
-                </p>
-
-                {role === 'employee' && (
-                  <input
-                    type="email"
-                    placeholder="Manager Email"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    onChange={(e) => setManagerEmail(e.target.value)}
-                  />
-                )}
-                {role === 'HR' && (
-                  <input
-                    type="email"
-                    placeholder="HR Manager Email"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    onChange={(e) => setHrManagerEmail(e.target.value)}
-                  />
-                )}
-              </div>
-            )}
+          {(role === 'employee' || role === 'hr') && (
+            <div className="bg-gray-50 p-4 rounded-lg border mt-4 space-y-3">
+              <p className="text-lg font-medium text-gray-700">Supervisor Email</p>
+              {role === 'employee' && (
+                <input
+                  type="email"
+                  placeholder="Manager Email"
+                  className="w-full px-4 py-2 border rounded-lg"
+                  onChange={(e) => setManagerEmail(e.target.value)}
+                />
+              )}
+              {role === 'hr' && (
+                <input
+                  type="email"
+                  placeholder="HR Manager Email"
+                  className="w-full px-4 py-2 border rounded-lg"
+                  onChange={(e) => setHrManagerEmail(e.target.value)}
+                />
+              )}
+            </div>
+          )}
 
           <button
             type="submit"
@@ -193,11 +182,12 @@ function Registration() {
           >
             Register
           </button>
+
           {successMessage && (
-            <span className="text-red-600 text-sm text-center">
+            <span className="text-green-600 text-sm text-center">
               {successMessage}
-            </span>)
-          }
+            </span>
+          )}
           {errorMessage && (
             <span className="text-red-600 text-sm text-center">
               {errorMessage}

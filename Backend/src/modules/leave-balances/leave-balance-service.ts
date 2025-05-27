@@ -1,5 +1,5 @@
 import { dataSource } from '../../config/db/conn';
-import { LeaveBalance } from './leave-balance-model';
+import { LeaveBalance } from './leave-balance-entity';
 import { DefaultLeaveEntitlementService } from '../default-leave-entitlement/default-leave-entitlement-service';
 
 export class LeaveBalanceService {
@@ -13,7 +13,7 @@ export class LeaveBalanceService {
   // Assign default leave balances to an employee
   async assignDefaultLeaveBalances(employeeData: any) {
     try {
-      const role = employeeData.role?.toLowerCase();
+      const role = employeeData.role.toLowerCase();
       if (!role) {
         throw new Error('Role is missing in employee data');
       }
@@ -21,6 +21,17 @@ export class LeaveBalanceService {
       const defaultEntitlements = await this.defaultLeaveEntitlementService.getEntitlementsByRole(role);
 
       for (let entitlement of defaultEntitlements) {
+        const leaveTypeName = entitlement.leaveType.name.toLowerCase();
+
+
+        if (
+          (leaveTypeName === 'maternity leave' && (employeeData.gender !== 'female' || employeeData.maritalStatus !== 'married')) ||
+          (leaveTypeName === 'paternity leave' && (employeeData.gender !== 'male' || employeeData.maritalStatus !== 'married'))
+        ) {
+          continue;
+        }
+
+
         const leaveBalance = new LeaveBalance();
         leaveBalance.employee = employeeData;
         leaveBalance.leaveType = entitlement.leaveType;
@@ -31,6 +42,7 @@ export class LeaveBalanceService {
         const newRecord = this.repo.create(leaveBalance);
         await this.repo.save(newRecord);
       }
+
     } catch (e: any) {
       throw new Error(`Failed to assign leave balances: ${e.message}`);
     }

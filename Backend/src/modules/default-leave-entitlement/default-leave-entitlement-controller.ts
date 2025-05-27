@@ -20,12 +20,4 @@ export class DefaultLeaveEntitlementController {
     }
   }
 
-  async getAll(request: Request, h: ResponseToolkit) {
-    try {
-      const data = await this.defaultLeaveEntitlementService.getAllEntitlements();
-      return h.response(data).code(200);
-    } catch (err: any) {
-      return h.response({ message: err.message }).code(500);
-    }
-  }
 }

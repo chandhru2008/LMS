@@ -11,7 +11,7 @@ function Header() {
     useEffect(() => {
         async function checkAuth() {
             try {
-                const response = await fetch("https://leave-management-app-2025.netlify.app/check-auth", {
+                const response = await fetch("http://localhost:3001/check-auth", {
                     method: "GET",
                     credentials: "include",
                 });
@@ -38,7 +38,7 @@ function Header() {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch('https://leave-management-app-2025.netlify.app/log-out', {
+            const response = await fetch('http://localhost:3001/log-out', {
                 method: 'POST',
                 credentials: 'include',
             });
@@ -61,19 +61,19 @@ function Header() {
 
                 {isLogin && data ? (
                     <div className="relative">
-                        <div 
-                            className="flex items-center space-x-2 text-white cursor-pointer"
+                        <div
+                            className="w-10 h-10 flex items-center justify-center text-white bg-blue-500 rounded-full cursor-pointer"
                             onClick={() => setShowProfile(prev => !prev)}
                         >
-                           <h1>{data.employeeName[0]}</h1>
-                            
+                            <h1 className="text-lg font-semibold">{data.employeeName[0]}</h1>
                         </div>
+
 
                         {showProfile && (
                             <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-50">
                                 <div className="px-4 py-3 border-b text-sm text-gray-700">
                                     <div className="font-medium">{data.employeeName}</div>
-                                    <div className="text-xs text-gray-500">{data.role === 'employee' ? 'Employee' : data.role === 'HR' ? 'HR' : data.role === 'director' ? 'Director' : data.role === 'hr_manager' ? 'HR Manager' : 'Manager'}</div>
+                                    <div className="text-xs text-gray-500">{data.role === 'employee' ? 'Employee' : data.role === 'hr' ? 'hr' : data.role === 'director' ? 'Director' : data.role === 'hr_manager' ? 'HR Manager' : 'Manager'}</div>
                                 </div>
                                 <button
                                     onClick={handleLogout}
@@ -85,8 +85,8 @@ function Header() {
                         )}
                     </div>
                 ) : (
-                    <div 
-                        className="px-[15px] py-[8px] bg-[#ffffff] text-blue-500 rounded-[5px] hover:cursor-pointer" 
+                    <div
+                        className="px-[15px] py-[8px] bg-[#ffffff] text-blue-500 rounded-[5px] hover:cursor-pointer"
                         onClick={() => navigate('/login')}
                     >
                         Login

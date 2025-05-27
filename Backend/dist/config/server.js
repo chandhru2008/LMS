@@ -66,7 +66,7 @@ function createServer() {
             routes: {
                 state: { parse: true },
                 cors: {
-                    origin: ['https://leave-management-app-2025.netlify.app'],
+                    origin: ['http://localhost:3001'],
                     credentials: true,
                 },
             },

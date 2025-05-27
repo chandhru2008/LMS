@@ -24,7 +24,7 @@ const router = createBrowserRouter([
     element: <Registration />,
     loader: async () => {
       try {
-        const res = await fetch('https://leave-management-app-2025.netlify.app/check-auth',{
+        const res = await fetch('http://localhost:3001/check-auth',{
           method : 'GET',
           credentials : 'include'
         });
@@ -33,7 +33,7 @@ const router = createBrowserRouter([
           throw new Error('Authentication check failed');
         }
         const data = await res.json();
-        if (data.role != 'HR' || data.role !='hr_manager') {
+        if (data.role != 'hr' || data.role !='hr_manager') {
           throw redirect('/'); 
         }
 

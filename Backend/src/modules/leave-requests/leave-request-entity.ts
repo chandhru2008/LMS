@@ -9,7 +9,7 @@ import {
 } from "typeorm";
 import { LeaveType } from "../leave-types/leave-type-model";
 import { Employee } from "../empolyee/employee-entity";
-import { LeaveApproval } from "../leave-approval/leave-approval-model";
+import { LeaveApproval } from "../leave-approval/leave-approval-entity";
 
 export type ApprovalStatus = "Pending" | "Approved" | "Rejected" | "Cancelled";
 

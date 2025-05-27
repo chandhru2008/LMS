@@ -24,7 +24,7 @@ function LeaveBalances() {
     async function fetchLeaveBalances(): Promise<void> {
       try {
         setIsLoading(true);
-        const response = await fetch("https://leave-management-app-2025.netlify.app/leave-balances", {
+        const response = await fetch("http://localhost:3001/leave-balances", {
           method: "GET",
           credentials: "include",
         });

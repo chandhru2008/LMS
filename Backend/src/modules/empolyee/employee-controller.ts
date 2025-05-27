@@ -1,28 +1,18 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { EmployeeService } from './employee-service'
 import { generateJWTToken, verifyToken } from "../../utils/jwtUtil";
-import { LeaveBalanceController } from "../leave-balances/leave-balance-controller";
-import jwt from 'jsonwebtoken';
+
 
 export class EmployeeController {
 
   private employeeService: EmployeeService;
-  private leaveBalanceController: LeaveBalanceController;
-  private jwtSecret: string;
 
-  constructor(employeeService: EmployeeService, leaveBalanceController: LeaveBalanceController) {
+
+  constructor(employeeService: EmployeeService) {
     this.employeeService = employeeService;
-    this.leaveBalanceController = leaveBalanceController;
-    this.jwtSecret = process.env.JWT_SECRET || '';
+
   }
 
-  public getTokenFromRequest(request: Request): string | null {
-    return request.state.userSession?.token || null;
-  }
-
-  public verifyToken(token: string) {
-    return jwt.verify(token, this.jwtSecret);
-  }
 
   private handleError(h: ResponseToolkit, error: any, defaultMessage = 'Internal server error') {
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
@@ -34,28 +24,17 @@ export class EmployeeController {
 
   async registerEmployee(request: Request, h: ResponseToolkit) {
     try {
-      const token = this.getTokenFromRequest(request);
-      if (!token) {
-        return h.response({ message: 'JWT token must be provided' }).code(400);
-      }
 
-      const decoded = this.verifyToken(token) as any;
-      const role = decoded.payload?.role?.toLowerCase();
+     const employeeData = request.payload as any;
+      await this.employeeService.registerEmployee(employeeData);
+      return h.response({ message: 'Employee registered successfully' }).code(200);
 
-      if (role === 'hr' || role === 'hr_manager') {
-        const employeeData = request.payload as any;
-        const newEmployee = await this.employeeService.registerEmployee(employeeData);
-
-        await this.leaveBalanceController.assignDefaultLeaveBalances(newEmployee);
-
-        return h.response({ message: 'Employee registered successfully' }).code(200);
-      }
-
-      return h.response({ message: 'Unauthorized user' }).code(401);
     } catch (error: any) {
       return this.handleError(h, error);
     }
   }
+
+
 
   async loginEmployee(request: Request, h: ResponseToolkit) {
     try {
@@ -75,55 +54,47 @@ export class EmployeeController {
 
   async authenticateEmployee(request: Request, h: ResponseToolkit) {
     try {
-      const token = this.getTokenFromRequest(request);
-      if (!token) {
-        return h.response({ message: 'JWT token must be provided' }).code(400);
-      }
-
-      const verifiedEmployee = this.verifyToken(token) as any;
+      const credentials = (request as any).auth.credentials;
+      const name = credentials.payload.name;
+      const role = credentials.payload.role;
 
       return h.response({
-        employeeName: verifiedEmployee.payload?.name,
-        role: verifiedEmployee.payload?.role,
+        employeeName: name,
+        role: role,
       }).code(200);
     } catch (error: any) {
       return this.handleError(h, error);
     }
   }
 
-  async getAllEmployee(request: Request, h: ResponseToolkit) {
 
-    const token = this.getTokenFromRequest(request);
-    if (!token) {
-      return h.response({ message: 'JWT token must be provided' }).code(400);
-    }
-    const verifiedEmployee = this.verifyToken(token) as any;
-    if (verifiedEmployee.payload.role === 'HR' || verifiedEmployee.payload.role === 'director') {
-      const allEmployee = await this.employeeService.getAllEmployee();
-      return h.response(allEmployee).code(200);
-    } else {
-      return h.response({ message: 'Unauthorized user' }).code(400);
+  async getAllEmployee(request: Request, h: ResponseToolkit) {
+    try {
+      const allEmployees = await this.employeeService.getAllEmployee();
+      return h.response(allEmployees).code(200);
+    } catch (error: any) {
+      console.error('Get all employees error:', error);
+      return h.response({ message: 'Failed to fetch employees' }).code(500);
     }
   }
+
 
   async getEmployeeByRole(request: Request, h: ResponseToolkit) {
-    const token = this.getTokenFromRequest(request);
-    if (!token) {
-      return h.response({ message: 'JWT token must be provided' }).code(400);
-    }
+    try {
+      const credentials = (request as any).auth.credentials;
+      const role = credentials.payload.role.toLowerCase();
+      const id = credentials.payload.id;
 
-    const verifiedEmployee = this.verifyToken(token) as any;
-
-
-
-    if (verifiedEmployee.payload.role === 'manager' || verifiedEmployee.payload.role === 'hr_manager') {
-      const id = verifiedEmployee.payload.id
-      const role = verifiedEmployee.payload.role
-      const getemployeeByRole = await this.employeeService.getEmployeeByRole(id, role);
-      return h.response(getemployeeByRole).code(200)
-    }
-    else {
-      return h.response({ message: 'Unauthorized user' }).code(400);
+      if (role === 'manager' || role === 'hr_manager') {
+        const getemployeeByRole = await this.employeeService.getEmployeeByRole(id, role);
+        return h.response(getemployeeByRole).code(200);
+      } else {
+        return h.response({ message: 'Unauthorized user' }).code(403);
+      }
+    } catch (error: any) {
+      console.error('Error in getEmployeeByRole:', error);
+      return h.response({ message: 'Failed to fetch employees by role' }).code(500);
     }
   }
+
 }

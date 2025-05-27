@@ -1,9 +1,9 @@
 import { dataSource } from '../../config/db/conn';
-import { LeaveRequest } from './leave-request-model';
+import { LeaveRequest } from './leave-request-entity';
 import { LeaveType } from '../leave-types/leave-type-model';
 import { Employee } from '../empolyee/employee-entity';
-import { LeaveBalance } from '../leave-balances/leave-balance-model';
-import { LeaveApproval } from '../leave-approval/leave-approval-model';
+import { LeaveBalance } from '../leave-balances/leave-balance-entity';
+import { LeaveApproval } from '../leave-approval/leave-approval-entity';
 import { In, Repository } from 'typeorm';
 
 export class LeaveRequestService {
@@ -52,6 +52,66 @@ export class LeaveRequestService {
       })),
     }));
   }
+
+  async getAllLeaveRequestsByRole(role: string, id: string) {
+
+    let employees: Employee[] = [];
+    if (role === 'hr_manager') {
+      employees = await this.employeeRepo.find({
+        where: {
+          hrManager: { id: id }
+        }
+      });
+    } else if (role === 'manager') {
+      employees = await this.employeeRepo.find({
+        where: {
+          manager: { id: id }
+        }
+      });
+
+    }
+
+
+
+    const leaveRequests = [];
+
+    for (const employee of employees) {
+      const requests = await this.leaveRequestRepo.find({
+        where: { employee: { id: employee.id } },
+        relations: ['employee', 'leaveType', 'approvals'],
+      });
+
+      if (requests) {
+
+        leaveRequests.push(...requests);
+      }
+    }
+
+    return leaveRequests.map((req) => ({
+      id: req.id,
+      description: req.description,
+      status: req.status,
+      start_date: req.start_date,
+      end_date: req.end_date,
+      created_at: req.created_at,
+      employee: {
+        name: req.employee.name,
+        email: req.employee.email,
+      },
+      leaveType: {
+        id: req.leaveType.id,
+        name: req.leaveType.name,
+      },
+      approvals: req.approvals.map((appr) => ({
+        id: appr.id,
+        level: appr.level,
+        approverRole: appr.approverRole,
+        status: appr.status,
+        approvedAt: appr.approvedAt,
+      })),
+    }));
+  }
+
 
   async getMyLeaveRequests(employeeId: string) {
     return await this.leaveRequestRepo.find({
@@ -111,7 +171,7 @@ export class LeaveRequestService {
     const existingLeaves = await this.leaveRequestRepo.find({
       where: {
         employee: { id: employeeId },
-        status: In(['Pending', 'Approve']),
+        status: In(['Pending', 'Approved']),
       },
     });
 
@@ -140,25 +200,6 @@ export class LeaveRequestService {
     if (!leaveBalance) throw new Error('Leave balance not found');
 
 
-    if (
-      employee.gender === 'male' &&
-      employee.maritalStatus === 'Married' &&
-      leaveType.name === 'Marriage Leave'
-    ) {
-      const previousMarriageLeave = await this.leaveRequestRepo.findOne({
-        where: {
-          employee: { id: employee.id },
-          leaveType: { id: leaveType.id },
-          status: In(['Pending', 'Approve', 'Approved']),
-        },
-      });
-
-      if (previousMarriageLeave) {
-        throw new Error('Marriage leave already used.');
-      }
-    }
-
-   
     if (leaveType.name === 'Emergency Leave') {
       if (leaveBalance.remaining_leaves < leaveDays) {
         throw new Error('Insufficient Emergency Leave balance.');
@@ -175,7 +216,7 @@ export class LeaveRequestService {
 
       await this.leaveRequestRepo.save(leaveRequest);
 
-    
+
       leaveBalance.remaining_leaves -= leaveDays;
       leaveBalance.used_leaves += leaveDays;
       await this.leaveBalanceRepo.save(leaveBalance);
@@ -183,7 +224,7 @@ export class LeaveRequestService {
       return 'Emergency leave auto-approved successfully.';
     }
 
-   
+
     if (leaveBalance.remaining_leaves < leaveDays) {
       throw new Error('Insufficient leave balance');
     }
@@ -210,25 +251,25 @@ export class LeaveRequestService {
       } else if (leaveDays < 7) {
         approvals.push(
           { level: 1, approverRole: 'manager', approverId: managerId },
-          { level: 2, approverRole: 'HR' }
+          { level: 2, approverRole: 'hr' }
         );
       } else {
         approvals.push(
           { level: 1, approverRole: 'manager', approverId: managerId },
           { level: 2, approverRole: 'director' },
-          { level: 3, approverRole: 'HR' }
+          { level: 3, approverRole: 'hr' }
         );
       }
     } else if (employeeRole === 'manager') {
       approvals.push(
         ...(leaveDays < 3
-          ? [{ level: 1, approverRole: 'HR' }]
+          ? [{ level: 1, approverRole: 'hr' }]
           : [
             { level: 1, approverRole: 'director' },
-            { level: 2, approverRole: 'HR' },
+            { level: 2, approverRole: 'hr' },
           ])
       );
-    } else if (employeeRole === 'HR') {
+    } else if (employeeRole === 'hr') {
       const hrManagerId = employee.hrManager?.id;
       if (!hrManagerId) {
         throw new Error('HR manager not found');

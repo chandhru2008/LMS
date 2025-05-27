@@ -23,4 +23,29 @@ export class LeaveTypeService {
       throw new Error('Error retrieving leave type');
     }
   }
+
+  async getLeaveTypeByEligibility(gender: string, maritalStatus: string) {
+    const allLeaveTypes = await this.repo.find();
+
+    const filteredLeaveTypes = allLeaveTypes.filter((leaveType) => {
+      const name = leaveType.name.toLowerCase();
+
+    
+      if (name === 'maternity leave' && (gender !== 'female' || maritalStatus !== 'married')) {
+        return false;
+      }
+
+     
+      if (name === 'paternity leave' && (gender !== 'male' || maritalStatus !== 'married')) {
+        return false;
+      }
+
+      return true;
+    });
+
+    return filteredLeaveTypes;
+  }
+
+
+
 }

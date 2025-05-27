@@ -8,14 +8,7 @@ export function defaultLeaveEntitlementRoutes(server: Server, defaultLeaveEntitl
   server.route([
     {
       method: 'GET',
-      path: '/default-leaves',
-      handler: async (request, h) => {
-        return defaultLeaveEntitlementController.getAll(request, h);
-      }
-    },
-    {
-      method: 'GET',
-      path: '/default-leaves/{role}',
+      path: '/default-leaves/by-role',
       handler: async (request, h) => {
         return defaultLeaveEntitlementController.getByRole(request, h);
       }

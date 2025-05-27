@@ -9,7 +9,7 @@ interface LeaveType {
 interface Approval {
   id: number;
   level: number;
-  approverRole: "manager" | "HR" | "director";
+  approverRole: "manager" | "hr" | "director";
   status: string;
   remarks: string | null;
 }
@@ -32,7 +32,7 @@ const [decision, setDecision] = useState('')
     async function fetchLeaveHistory() {
     
       try {
-        const response = await fetch("https://leave-management-app-2025.netlify.app/leave-requests/my", {
+        const response = await fetch("http://localhost:3001/leave-requests/my", {
           method: "GET",
           credentials: "include",
         });
@@ -59,7 +59,7 @@ const [decision, setDecision] = useState('')
     if (!confirmCancel) return;
 
     try {
-      const res = await fetch(`https://leave-management-app-2025.netlify.app/leave-requests/cancel`, {
+      const res = await fetch(`http://localhost:3001/leave-requests/cancel`, {
         method: "PUT",
         credentials: "include",
         headers: {
@@ -136,7 +136,7 @@ const [decision, setDecision] = useState('')
                       </span>
                     </td>
                     <td className="px-6 py-4 border-b">{getApprovalStatus(item.approvals, "manager")}</td>
-                    <td className="px-6 py-4 border-b">{getApprovalStatus(item.approvals, "HR")}</td>
+                    <td className="px-6 py-4 border-b">{getApprovalStatus(item.approvals, "hr")}</td>
                     <td className="px-6 py-4 border-b">{getApprovalStatus(item.approvals, "director")}</td>
                     <td className="px-6 py-4 border-b">
                       {isCancelable ? (

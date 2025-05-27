@@ -6,7 +6,7 @@ import {
   CreateDateColumn,
   OneToMany
 } from 'typeorm';
-import { LeaveRequest } from '../leave-requests/leave-request-model';
+import { LeaveRequest } from '../leave-requests/leave-request-entity';
 import { Employee } from '../empolyee/employee-entity';
 
 @Entity('leave_approvals')

@@ -8,10 +8,7 @@ const defaultLeaveEntitlementRepo = dataSource.getRepository(DefaultLeaveEntitle
 
 
 export class DefaultLeaveEntitlementService {
-  registerRoutes(server: Server<ServerApplicationState>, defaultLeaveEntitlementController: DefaultLeaveEntitlementController) {
-    throw new Error('Method not implemented.');
-  }
-  
+ 
 
   async getEntitlementsByRole(role: string) {
     try {
@@ -24,7 +21,4 @@ export class DefaultLeaveEntitlementService {
     }
   }
 
-  async getAllEntitlements() {
-    return await defaultLeaveEntitlementRepo.find();
-  }
 }

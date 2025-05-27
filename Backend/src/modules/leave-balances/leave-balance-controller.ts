@@ -10,23 +10,9 @@ export class LeaveBalanceController {
         this.leaveBalanceService = leaveBalanceService;
     }
 
-    async assignDefaultLeaveBalances(employeeData: any) {
-        try {
-            this.leaveBalanceService.assignDefaultLeaveBalances(employeeData);
-        } catch (e: any) {
-            throw new Error(e.message)
-        }
-    }
-
     async fetchEmployeeLeaveBalance(request: Request, h: ResponseToolkit) {
-
-        const secretKey = process.env.JWT_SECRET;
-
-        const token = request.state.userSession.token;
-
         try {
-            const decoded = jwt.verify(token, secretKey)
-            const employee = decoded.payload;
+            const employee = (request as any).auth.credentials.payload;
             const leaveBalance = await this.leaveBalanceService.fetchEmployeeLeaveBalance(employee);
             return h.response(leaveBalance).code(200);
         } catch (err) {

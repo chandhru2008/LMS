@@ -8,19 +8,18 @@ interface Employee {
 }
 
 interface Props {
-  onEmployeeSelect: (email: string) => void;
+  onEmployeeSelect: (emails: string[]) => void;
 }
 
 const EmployeeSidebar: React.FC<Props> = ({ onEmployeeSelect }) => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [role, setRole] = useState('');
-  const [selectedEmployee, setSelectedEmployee] = useState(false);
-
+  const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
 
   useEffect(() => {
     async function checkAuth() {
       try {
-        const res = await fetch('https://leave-management-app-2025.netlify.app/check-auth', {
+        const res = await fetch('http://localhost:3001/check-auth', {
           method: 'GET',
           credentials: 'include',
         });
@@ -38,9 +37,9 @@ const EmployeeSidebar: React.FC<Props> = ({ onEmployeeSelect }) => {
     if (!role) return;
 
     const endpoint =
-      role === 'HR' || role === 'director'
-        ? 'https://leave-management-app-2025.netlify.app/get-all-employees'
-        : 'https://leave-management-app-2025.netlify.app/get-employees-by-role';
+      role === 'hr' || role === 'director'
+        ? 'http://localhost:3001/get-all-employees'
+        : 'http://localhost:3001/get-employees-by-role';
 
     const fetchEmployees = async () => {
       try {
@@ -58,6 +57,15 @@ const EmployeeSidebar: React.FC<Props> = ({ onEmployeeSelect }) => {
     fetchEmployees();
   }, [role]);
 
+  const toggleSelection = (email: string) => {
+    const updated = selectedEmails.includes(email)
+      ? selectedEmails.filter(e => e !== email)
+      : [...selectedEmails, email];
+
+    setSelectedEmails(updated);
+    onEmployeeSelect(updated);
+  };
+
   return (
     <aside className="w-72 p-6 bg-gray-50 border-r border-gray-200 h-[75vh] overflow-y-auto">
       <h2 className="text-2xl font-semibold mb-4 border-b pb-2 text-gray-800">Team Members</h2>
@@ -65,12 +73,12 @@ const EmployeeSidebar: React.FC<Props> = ({ onEmployeeSelect }) => {
         {employees.map((employee) => (
           <li
             key={employee.id}
-            onClick={() => {
-              
-               selectedEmployee ? setSelectedEmployee(false) : setSelectedEmployee(true); onEmployeeSelect(employee.email) }}
-            className={`cursor-pointer flex items-center p-3 rounded-lg shadow-sm ${selectedEmployee ? 'bg-blue-100' : 'bg-white hover:bg-blue-50'
-              }`}
-
+            onClick={() => toggleSelection(employee.email)}
+            className={`cursor-pointer flex items-center p-3 rounded-lg shadow-sm ${
+              selectedEmails.includes(employee.email)
+                ? 'bg-blue-100'
+                : 'bg-white hover:bg-blue-50'
+            }`}
           >
             <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg mr-4">
               {employee.name.charAt(0).toUpperCase()}

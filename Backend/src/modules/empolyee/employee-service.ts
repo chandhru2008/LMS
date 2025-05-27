@@ -1,9 +1,15 @@
 import { dataSource } from "../../config/db/conn";
+import { LeaveBalanceService } from "../leave-balances/leave-balance-service";
 import { Employee } from "./employee-entity";
 import * as bcrypt from 'bcrypt';
 
 export class EmployeeService {
   private repo = dataSource.getRepository(Employee);
+  private leaveBalanceService: LeaveBalanceService
+
+  constructor(leaveBalanceService: LeaveBalanceService) {
+    this.leaveBalanceService = leaveBalanceService
+  }
 
   // Find employee by email
   async findByEmail(email: string): Promise<Employee | null> {
@@ -32,24 +38,20 @@ export class EmployeeService {
 
       // Supervisor emails 
       const managerEmail = employeeData.managerEmail?.trim();
-      const hrEmail = employeeData.hrEmail?.trim();
       const hrManagerEmail = employeeData.hrManagerEmail?.trim();
-      const directorEmail = employeeData.directorEmail?.trim();
+
 
       // Lookup supervisors
       const manager = managerEmail ? await this.findByEmail(managerEmail) : null;
-      const hr = hrEmail ? await this.findByEmail(hrEmail) : null;
       const hrManager = hrManagerEmail ? await this.findByEmail(hrManagerEmail) : null;
-      // const director = directorEmail ? await this.findByEmail(directorEmail) : null;
+
 
       // Validation based on role
       if (role === 'employee') {
         if (!manager) throw new Error("Manager does not exist");
-      } else if (role === 'manager') {
-        // No supervisor required
       } else if (role === 'hr') {
         if (!hrManager) throw new Error("HR Manager does not exist");
-      } else if (role === 'hr_manager' || role === 'director') {
+      } else if (role === 'hr_manager' || role === 'director' || role === 'manager') {
         // No supervisor required
       } else {
         throw new Error("Invalid role");
@@ -67,13 +69,15 @@ export class EmployeeService {
       // Set supervisor relations
       if (role === 'employee') {
         employee.manager = manager!;
-      } else if (role === 'manager') {
-        employee.hr = hr!;
       } else if (role === 'hr') {
         employee.hrManager = hrManager!;
       }
 
-      return await this.repo.save(employee);
+      const newEmployee = await this.repo.save(employee);
+      await this.leaveBalanceService.assignDefaultLeaveBalances(newEmployee)
+
+      return newEmployee;
+
 
     } catch (e: any) {
       console.log("Error in EmployeeManager:", e);
@@ -115,9 +119,9 @@ export class EmployeeService {
       } else if (role === 'hr_manager') {
         return await this.repo.find({ where: { hrManager: { id: id } } });
       }
-    }catch(e){
+    } catch (e) {
       console.log(e);
     }
-    
+
   }
 }

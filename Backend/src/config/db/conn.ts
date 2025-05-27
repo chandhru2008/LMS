@@ -1,13 +1,13 @@
 import { DataSource } from "typeorm";
 import { Employee } from "../../modules/empolyee/employee-entity";
 import { LeaveType } from "../../modules/leave-types/leave-type-model";
-import { LeaveRequest } from "../../modules/leave-requests/leave-request-model";
-import { LeaveBalance } from "../../modules/leave-balances/leave-balance-model";
+import { LeaveRequest } from "../../modules/leave-requests/leave-request-entity";
+import { LeaveBalance } from "../../modules/leave-balances/leave-balance-entity";
 
 import * as dotenv from 'dotenv';
 import path from "path";
 import { DefaultLeaveEntitlement } from "../../modules/default-leave-entitlement/default-leave-entitlement-entity";
-import { LeaveApproval } from "../../modules/leave-approval/leave-approval-model";
+import { LeaveApproval } from "../../modules/leave-approval/leave-approval-entity";
 dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
 
 
