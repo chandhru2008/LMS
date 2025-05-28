@@ -12,8 +12,8 @@ export const authenticate = async (request: Request, h: ResponseToolkit) => {
 
         (request as any).auth = { credentials: verified }; // attach to request
         return h.continue;
-    } catch (err: any) {
-        console.error('Auth middleware error:', err.message);
+    } catch (err) {
+        console.error('Auth middleware error:', err?.message);
         throw new Error('Invalid or expired token');
     }
 };

@@ -69,11 +69,18 @@ function Header() {
                         </div>
 
 
+
+
                         {showProfile && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-50">
-                                <div className="px-4 py-3 border-b text-sm text-gray-700">
+                            <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-50 ">
+                                <div className="px-4 py-3 border-b text-sm text-gray-700 flex flex-col gap-3">
                                     <div className="font-medium">{data.employeeName}</div>
-                                    <div className="text-xs text-gray-500">{data.role === 'employee' ? 'Employee' : data.role === 'hr' ? 'hr' : data.role === 'director' ? 'Director' : data.role === 'hr_manager' ? 'HR Manager' : 'Manager'}</div>
+                                    <div className="text-xs text-gray-500">Role : {data.role === 'employee' ? 'Employee' : data.role === 'hr' ? 'HR' : data.role === 'director' ? 'Director' : data.role === 'hr_manager' ? 'HR Manager' : 'Manager'}</div>
+                                    {['hr', 'director', 'hr_manager', 'manager'].includes(data.role.toLowerCase()) ? (
+                                        <div onClick={() => navigate('/Calender')} className="p-[10px] bg-[#3b5dfc] rounded text-white hover:cursor-pointer">Calendar View</div>
+                                    ) : (
+                                        <div></div>
+                                    )}
                                 </div>
                                 <button
                                     onClick={handleLogout}

@@ -22,8 +22,8 @@ export class LeaveRequestController {
   }
 
   async getAllLeaveRequestsByRole(request : Request, h : ResponseToolkit){
-    const role = (request as any).auth.credentials.payload.role;
-    const id = (request as any).auth.credentials.payload.id;
+    const role = request.auth.credentials.payload.role;
+    const id = request.auth.credentials.payload.id;
     const allLeaveRequest = await this.leaveRequestService.getAllLeaveRequestsByRole(role, id);
      return h.response(allLeaveRequest).code(201);
   }
@@ -37,8 +37,8 @@ export class LeaveRequestController {
       const startDate = bodyData.fromDate;
       const endDate = bodyData.toDate;
       const description = bodyData.reason;
-      const employeeId = (request as any).auth.credentials.payload.id
-      const employeeRole = (request as any).auth.credentials.payload.role
+      const employeeId = request.auth.credentials.payload.id
+      const employeeRole = request.auth.credentials.payload.role
 
       const data = {
         leaveTypeId: leaveTypeId,
@@ -46,7 +46,8 @@ export class LeaveRequestController {
         endDate: endDate,
         employeeId: employeeId,
         employeeRole: employeeRole,
-        description: description
+        description: description,
+        status : 'Pending'
       }
 
       const leaveRequest = await this.leaveRequestService.createLeaveRequest(data);
@@ -57,7 +58,7 @@ export class LeaveRequestController {
 
       return h.response({ message: 'Leave request created successfully', leaveRequest }).code(201);
 
-    } catch (error: any) {
+    } catch (error) {
       return h.response({ message: error.message }).code(400);
     }
 
@@ -65,7 +66,7 @@ export class LeaveRequestController {
 
   async getMyLeaveRequests(request: Request, h: ResponseToolkit) {
     try {
-      const employeeId = (request as any).auth.credentials.payload.id
+      const employeeId = request.auth.credentials.payload.id
       const leaveRequest = await this.leaveRequestService.getMyLeaveRequests(employeeId);
       return h.response({ leaveRequest }).code(201);
     } catch (e) {
@@ -79,7 +80,7 @@ export class LeaveRequestController {
 
   async cancelLeaveRequest(req: Request, h: ResponseToolkit) {
 
-    const eId = (req as any).auth.credentials.payload.id;
+    const eId = req.auth.credentials.payload.id;
     const body = req.payload as any;
     const leaveRequestId = body.id
 

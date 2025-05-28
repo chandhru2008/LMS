@@ -1,6 +1,7 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { EmployeeService } from './employee-service'
 import { generateJWTToken, verifyToken } from "../../utils/jwtUtil";
+import { LoginEmployeePayload, RegisterEmployeePayload } from "../../types";
 
 
 export class EmployeeController {
@@ -14,7 +15,7 @@ export class EmployeeController {
   }
 
 
-  private handleError(h: ResponseToolkit, error: any, defaultMessage = 'Internal server error') {
+  private handleError(h: ResponseToolkit, error, defaultMessage = 'Internal server error') {
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
       return h.response({ message: 'Invalid or expired token' }).code(401);
     }
@@ -25,11 +26,11 @@ export class EmployeeController {
   async registerEmployee(request: Request, h: ResponseToolkit) {
     try {
 
-     const employeeData = request.payload as any;
+     const employeeData = request.payload  as RegisterEmployeePayload ;
       await this.employeeService.registerEmployee(employeeData);
       return h.response({ message: 'Employee registered successfully' }).code(200);
 
-    } catch (error: any) {
+    } catch (error) {
       return this.handleError(h, error);
     }
   }
@@ -38,12 +39,12 @@ export class EmployeeController {
 
   async loginEmployee(request: Request, h: ResponseToolkit) {
     try {
-      const { email, password } = request.payload as { email: string; password: string };
+      const { email, password } = request.payload as LoginEmployeePayload;
       const employee = await this.employeeService.loginEmployee({ email, password });
       const JWTToken = generateJWTToken(employee);
       h.state('userSession', { token: JWTToken });
       return h.response({ message: 'Login successful', JWTToken }).code(200);
-    } catch (error: any) {
+    } catch (error) {
       if (error.message === "Invalid password" || error.message === 'Employee not found') {
         return h.response({ message: error.message }).code(400);
       }
@@ -54,7 +55,7 @@ export class EmployeeController {
 
   async authenticateEmployee(request: Request, h: ResponseToolkit) {
     try {
-      const credentials = (request as any).auth.credentials;
+      const credentials = request.auth.credentials;
       const name = credentials.payload.name;
       const role = credentials.payload.role;
 
@@ -62,7 +63,7 @@ export class EmployeeController {
         employeeName: name,
         role: role,
       }).code(200);
-    } catch (error: any) {
+    } catch (error) {
       return this.handleError(h, error);
     }
   }
@@ -72,7 +73,7 @@ export class EmployeeController {
     try {
       const allEmployees = await this.employeeService.getAllEmployee();
       return h.response(allEmployees).code(200);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Get all employees error:', error);
       return h.response({ message: 'Failed to fetch employees' }).code(500);
     }
@@ -81,7 +82,7 @@ export class EmployeeController {
 
   async getEmployeeByRole(request: Request, h: ResponseToolkit) {
     try {
-      const credentials = (request as any).auth.credentials;
+      const credentials = request.auth.credentials;
       const role = credentials.payload.role.toLowerCase();
       const id = credentials.payload.id;
 
@@ -91,7 +92,7 @@ export class EmployeeController {
       } else {
         return h.response({ message: 'Unauthorized user' }).code(403);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error in getEmployeeByRole:', error);
       return h.response({ message: 'Failed to fetch employees by role' }).code(500);
     }

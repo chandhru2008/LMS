@@ -178,6 +178,32 @@ export class LeaveRequestService {
     const newStart = new Date(startDate);
     const newEnd = new Date(endDate);
 
+    if (newEnd < new Date()) {
+      throw new Error('Cannot apply leave for past dates.');
+    }
+
+    // --- Weekend validation logic ---
+    function isWeekend(date: Date): boolean {
+      const day = date.getDay(); // Sunday = 0, Saturday = 6
+      return day === 0 || day === 6;
+    }
+
+    const datesInRange: Date[] = [];
+    let current = new Date(newStart);
+    while (current <= newEnd) {
+      datesInRange.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+
+    if (datesInRange.every(isWeekend)) {
+      throw new Error('Cannot request leave only for weekends.');
+    }
+
+    if (isWeekend(newStart) || isWeekend(newEnd)) {
+      throw new Error('Start or end date cannot fall on a weekend.');
+    }
+
+    // --- Overlap check ---
     for (const leave of existingLeaves) {
       const existingStart = new Date(leave.start_date);
       const existingEnd = new Date(leave.end_date);
@@ -186,9 +212,8 @@ export class LeaveRequestService {
       }
     }
 
-    const leaveDays = Math.ceil(
-      (newEnd.getTime() - newStart.getTime()) / (1000 * 60 * 60 * 24)
-    ) + 1;
+    // Leave days excluding weekends
+    const leaveDays = datesInRange.filter(date => !isWeekend(date)).length;
 
     const leaveBalance = await this.leaveBalanceRepo.findOne({
       where: {
@@ -199,7 +224,7 @@ export class LeaveRequestService {
 
     if (!leaveBalance) throw new Error('Leave balance not found');
 
-
+    // Emergency Leave auto approval
     if (leaveType.name === 'Emergency Leave') {
       if (leaveBalance.remaining_leaves < leaveDays) {
         throw new Error('Insufficient Emergency Leave balance.');
@@ -211,11 +236,10 @@ export class LeaveRequestService {
         start_date: startDate,
         end_date: endDate,
         description,
-        status: 'Approved', // auto-approve
+        status: 'Approved',
       });
 
       await this.leaveRequestRepo.save(leaveRequest);
-
 
       leaveBalance.remaining_leaves -= leaveDays;
       leaveBalance.used_leaves += leaveDays;
@@ -223,7 +247,6 @@ export class LeaveRequestService {
 
       return 'Emergency leave auto-approved successfully.';
     }
-
 
     if (leaveBalance.remaining_leaves < leaveDays) {
       throw new Error('Insufficient leave balance');
@@ -240,6 +263,7 @@ export class LeaveRequestService {
 
     const savedLeaveRequest = await this.leaveRequestRepo.save(leaveRequest);
 
+    // Approval logic
     const approvals = [];
 
     if (employeeRole === 'employee') {

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-interface Employee {
-  id: number;
+interface IEmployee {
   name: string;
   role: string;
   email: string;
@@ -12,7 +11,7 @@ interface Props {
 }
 
 const EmployeeSidebar: React.FC<Props> = ({ onEmployeeSelect }) => {
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employees, setEmployees] = useState<IEmployee[]>([]);
   const [role, setRole] = useState('');
   const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
 
@@ -67,18 +66,16 @@ const EmployeeSidebar: React.FC<Props> = ({ onEmployeeSelect }) => {
   };
 
   return (
-    <aside className="w-72 p-6 bg-gray-50 border-r border-gray-200 h-[75vh] overflow-y-auto">
-      <h2 className="text-2xl font-semibold mb-4 border-b pb-2 text-gray-800">Team Members</h2>
+    <aside className="w-60  bg-gray-50 border-r border-gray-200 overflow-y-auto p-[5px]">
       <ul className="space-y-4">
-        {employees.map((employee) => (
+        {employees.map((employee, i) => (
           <li
-            key={employee.id}
+            key={i}
             onClick={() => toggleSelection(employee.email)}
-            className={`cursor-pointer flex items-center p-3 rounded-lg shadow-sm ${
-              selectedEmails.includes(employee.email)
+            className={`cursor-pointer flex items-center p-3 rounded-lg shadow-sm ${selectedEmails.includes(employee.email)
                 ? 'bg-blue-100'
                 : 'bg-white hover:bg-blue-50'
-            }`}
+              }`}
           >
             <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg mr-4">
               {employee.name.charAt(0).toUpperCase()}

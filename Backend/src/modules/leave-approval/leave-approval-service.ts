@@ -72,7 +72,7 @@ export class LeaveApprovalService {
             relations: ['leaveRequest', 'leaveRequest.employee', 'leaveRequest.leaveType', 'approver'],
         });
 
-        console.log(approvals)
+
 
         if (!approvals) {
             throw new Error('Approvals not found');
@@ -129,7 +129,7 @@ export class LeaveApprovalService {
     async approveLeave(
         leaveRequestId: string,
         decision: 'Approve' | 'Reject',
-        role: 'manager' | 'hr' | 'hr_manager' | 'director',
+        role: 'manager' | 'hr' | 'hr_manager' | 'director' | 'employee',
         approverId: string
     ) {
         const approvalRepo = this.dataSource.getRepository(LeaveApproval);
@@ -146,6 +146,13 @@ export class LeaveApprovalService {
 
         if (!approvals) {
             throw new Error('Approval recored not found')
+        }
+
+        const today = new Date();
+        const leaveEndDate = new Date(approvals.leaveRequest.end_date);
+
+        if (leaveEndDate < today) {
+            throw new Error('Cannot approve leave requests for past dates');
         }
 
         if (!approvals.approver || approvals.approver.id === null) {

@@ -13,110 +13,114 @@ function Registration() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  interface IUserDetails {
+    name: string;
+    email: string;
+    password: string;
+    role: string;
+    gender: string;
+    maritalStatus: string;
+    managerEmail?: string;
+    hrManagerEmail?: string;
+  }
+
   function showError(message: string) {
     setErrorMessage(message);
     setTimeout(() => setErrorMessage(''), 3000);
   }
 
   async function handleSignUp() {
-    const validEmailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const validEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const strongPasswordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
     if (!email) return showError('Email is required');
     if (!validEmailRegex.test(email)) return showError('Enter a valid email');
-    if (!strongPasswordRegex.test(password))
-      return showError('Enter a strong password');
+    if (!strongPasswordRegex.test(password)) return showError('Enter a strong password');
     if (password !== confirmPassword) return showError('Passwords do not match');
     if (!role) return showError('Select a role');
 
-    if (role === 'employee') {
-      if (!managerEmail || !validEmailRegex.test(managerEmail))
-        return showError('Enter a valid manager email');
-    }
+    if (role === 'employee' && (!managerEmail || !validEmailRegex.test(managerEmail)))
+      return showError('Enter a valid manager email');
 
-    if (role === 'hr') {
-      if (!hrManagerEmail || !validEmailRegex.test(hrManagerEmail))
-        return showError('Enter a valid HR Manager email');
-    }
+    if (role === 'hr' && (!hrManagerEmail || !validEmailRegex.test(hrManagerEmail)))
+      return showError('Enter a valid HR Manager email');
 
-    const userDetails : any = {
+    const userDetails: IUserDetails = {
       name,
       email,
       password,
       role,
       gender,
-      maritalStatus
+      maritalStatus,
     };
 
     if (role === 'employee') userDetails.managerEmail = managerEmail;
     if (role === 'hr') userDetails.hrManagerEmail = hrManagerEmail;
 
     try {
-      const response = await fetch('http://localhost:3001/register', {
+      const res = await fetch('http://localhost:3001/register', {
         method: 'POST',
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userDetails),
       });
 
-      const result = await response.json();
+      const result = await res.json();
 
-      if (!response.ok) {
+      if (!res.ok) {
         showError(result.message || 'Registration failed');
         return;
-      } else {
-        setSuccessMessage('Registration Successful');
-        window.location.reload();
       }
+
+      setSuccessMessage('Registration successful!');
+      setTimeout(() => window.location.reload(), 1000);
     } catch (err) {
-      console.error('Network error:', err);
+      console.error(err);
       showError('Something went wrong. Try again.');
     }
   }
 
   return (
-    <div className="w-screen h-full flex items-center justify-center py-12 bg-gray-100">
-      <div className="w-[90%] max-w-xl bg-white p-10 rounded-2xl shadow-md border border-gray-200">
-        <h2 className="text-[28px] font-bold text-center mb-6 text-gray-800">
+    <div className="flex justify-center items-center w-full py-10 h-[60vh] mt-[60px]">
+      <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg p-8 border">
+        <h2 className="text-2xl font-bold text-center mb-6 text-indigo-700">
           Create New Account
         </h2>
 
-        <form className="flex flex-col space-y-4 text-[16px]">
+        <form className="space-y-4">
           <input
             type="text"
             placeholder="Full Name"
-            className="px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             onChange={(e) => setName(e.target.value)}
           />
           <input
             type="email"
             placeholder="Email"
-            className="px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             onChange={(e) => setEmail(e.target.value)}
           />
           <input
             type="password"
             placeholder="Password"
-            className="px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border rounded-md"
             onChange={(e) => setPassword(e.target.value)}
           />
           <input
             type="password"
             placeholder="Confirm Password"
-            className="px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border rounded-md"
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
           <select
-            defaultValue=""
-            className="px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border rounded-md"
             onChange={(e) => setRole(e.target.value)}
+            defaultValue=""
           >
             <option value="" disabled hidden>
-              Role
+              Select Role
             </option>
             <option value="employee">Employee</option>
             <option value="manager">Manager</option>
@@ -126,9 +130,9 @@ function Registration() {
           </select>
 
           <select
-            defaultValue=""
-            className="px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border rounded-md"
             onChange={(e) => setGender(e.target.value)}
+            defaultValue=""
           >
             <option value="" disabled hidden>
               Gender
@@ -139,9 +143,9 @@ function Registration() {
           </select>
 
           <select
-            defaultValue=""
-            className="px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border rounded-md"
             onChange={(e) => setMaritalStatus(e.target.value)}
+            defaultValue=""
           >
             <option value="" disabled hidden>
               Marital Status
@@ -151,30 +155,21 @@ function Registration() {
           </select>
 
           {(role === 'employee' || role === 'hr') && (
-            <div className="bg-gray-50 p-4 rounded-lg border mt-4 space-y-3">
-              <p className="text-lg font-medium text-gray-700">Supervisor Email</p>
-              {role === 'employee' && (
-                <input
-                  type="email"
-                  placeholder="Manager Email"
-                  className="w-full px-4 py-2 border rounded-lg"
-                  onChange={(e) => setManagerEmail(e.target.value)}
-                />
-              )}
-              {role === 'hr' && (
-                <input
-                  type="email"
-                  placeholder="HR Manager Email"
-                  className="w-full px-4 py-2 border rounded-lg"
-                  onChange={(e) => setHrManagerEmail(e.target.value)}
-                />
-              )}
-            </div>
+            <input
+              type="email"
+              placeholder={role === 'employee' ? 'Manager Email' : 'HR Manager Email'}
+              className="w-full px-4 py-2 border rounded-md"
+              onChange={(e) =>
+                role === 'employee'
+                  ? setManagerEmail(e.target.value)
+                  : setHrManagerEmail(e.target.value)
+              }
+            />
           )}
 
           <button
             type="submit"
-            className="bg-indigo-600 text-white font-semibold py-2 mt-4 rounded-lg hover:bg-indigo-700 transition"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-md transition"
             onClick={(e) => {
               e.preventDefault();
               handleSignUp();
@@ -183,15 +178,11 @@ function Registration() {
             Register
           </button>
 
-          {successMessage && (
-            <span className="text-green-600 text-sm text-center">
-              {successMessage}
-            </span>
-          )}
           {errorMessage && (
-            <span className="text-red-600 text-sm text-center">
-              {errorMessage}
-            </span>
+            <p className="text-red-600 text-sm text-center">{errorMessage}</p>
+          )}
+          {successMessage && (
+            <p className="text-green-600 text-sm text-center">{successMessage}</p>
           )}
         </form>
       </div>

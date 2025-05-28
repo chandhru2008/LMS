@@ -15,7 +15,7 @@ export class DefaultLeaveEntitlementController {
       const { role } = request.params;
       const data = await this.defaultLeaveEntitlementService.getEntitlementsByRole(role.toLowerCase());
       return h.response(data).code(200);
-    } catch (err: any) {
+    } catch (err) {
       return h.response({ message: err.message }).code(500);
     }
   }

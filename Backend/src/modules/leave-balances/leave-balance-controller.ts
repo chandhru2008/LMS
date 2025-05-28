@@ -12,7 +12,7 @@ export class LeaveBalanceController {
 
     async fetchEmployeeLeaveBalance(request: Request, h: ResponseToolkit) {
         try {
-            const employee = (request as any).auth.credentials.payload;
+            const employee = request.auth.credentials.payload;
             const leaveBalance = await this.leaveBalanceService.fetchEmployeeLeaveBalance(employee);
             return h.response(leaveBalance).code(200);
         } catch (err) {

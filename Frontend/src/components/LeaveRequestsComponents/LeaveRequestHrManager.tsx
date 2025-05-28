@@ -1,26 +1,6 @@
 import { useEffect, useState } from "react";
+import type { ILeaveRequest } from "../../types/leavetypes";
 
-interface LeaveRequest {
-  employeeDetails: {
-    employeeName: string;
-    employeeEmail: string;
-    employeeRole: string;
-  };
-  leaveDetails: {
-    leaveRequestId: string;
-    leaveType: string;
-    leaveStartDate: string;
-    leaveEndDate: string;
-    leaveReason: string;
-    status: string;
-    approvalStatus: {
-      hrManagerApproval: string;
-      managerApproval: string;
-      hrApproval: string;
-      directorApproval: string;
-    };
-  };
-}
 
 function calculateDuration(start: string, end: string): number {
   if (!start || !end) return 0;
@@ -31,7 +11,7 @@ function calculateDuration(start: string, end: string): number {
 }
 
 function LeaveRequestHrManager() {
-  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [leaveRequests, setLeaveRequests] = useState<ILeaveRequest[]>([]);
 
   useEffect(() => {
     async function fetchLeaveRequests() {
@@ -44,7 +24,7 @@ function LeaveRequestHrManager() {
 
         console.log(rawData)
 
-        const mappedData: LeaveRequest[] = rawData.map((item: any) => ({
+        const mappedData: ILeaveRequest[] = rawData.map((item: any) => ({
           employeeDetails: {
             employeeName: item.employeeName,
             employeeEmail: item.employeeEmail,
@@ -115,11 +95,11 @@ function LeaveRequestHrManager() {
       </div>
 
       <div className="flex flex-col gap-4">
-        {leaveRequests.filter(req => req.leaveDetails.approvalStatus.hrManagerApproval === "Pending").length === 0 ? (
+        {leaveRequests.filter(req => req.leaveDetails.approvalStatus.hrMangerApproval === "Pending").length === 0 ? (
           <p className="text-gray-500 text-center">No pending leave requests </p>
         ) : (
           leaveRequests
-            .filter(req => req.leaveDetails.approvalStatus.hrManagerApproval === "Pending")
+            .filter(req => req.leaveDetails.approvalStatus.hrMangerApproval === "Pending")
             .map(({ employeeDetails, leaveDetails }) => (
               <div
                 key={leaveDetails.leaveRequestId}

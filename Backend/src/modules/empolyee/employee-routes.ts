@@ -9,11 +9,10 @@ export function employeeRoute(server: Server, employeeController: EmployeeContro
       method: 'POST',
       path: '/register',
       options: {
-        // pre: [{ method: authenticate },
-        // { method: authorizeRoles(['hr', 'hr_manager']) }
-        // ],
+        pre: [{ method: authenticate },
+        { method: authorizeRoles(['hr', 'hr_manager']) }
+        ],
         handler: async (request, h) => {
-          console.log('route hit')
           return await employeeController.registerEmployee(request, h);
         }
       }

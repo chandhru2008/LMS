@@ -1,25 +1,6 @@
 import { useEffect, useState } from "react";
+import type { ILeaveRequest } from "../../types/leavetypes";
 
-interface LeaveRequest {
-  employeeDetails: {
-    employeeName: string;
-    employeeEmail: string;
-    employeeRole: string;
-  };
-  leaveDetails: {
-    leaveRequestId: string;
-    leaveType: string;
-    leaveStartDate: string;
-    leaveEndDate: string;
-    leaveReason: string;
-    status: string;
-    approvalStatus: {
-      managerApproval: string;
-      hrApproval: string;
-      directorApproval: string;
-    };
-  };
-}
 
 function calculateDuration(start: string, end: string): number {
   if (!start || !end) return 0;
@@ -30,7 +11,7 @@ function calculateDuration(start: string, end: string): number {
 }
 
 function LeaveRequestDirector() {
-  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [leaveRequests, setLeaveRequests] = useState<ILeaveRequest[]>([]);
 
   useEffect(() => {
     async function fetchLeaveRequests() {
@@ -41,7 +22,7 @@ function LeaveRequestDirector() {
         });
         const rawData = await res.json();
 
-        const mappedData: LeaveRequest[] = rawData.map((item: any) => ({
+        const mappedData: ILeaveRequest[] = rawData.map((item: any) => ({
           employeeDetails: {
             employeeName: item.employeeName,
             employeeEmail: item.employeeEmail,

@@ -1,4 +1,5 @@
 import { dataSource } from "../../config/db/conn";
+import { RegisterEmployeePayload } from "../../types";
 import { LeaveBalanceService } from "../leave-balances/leave-balance-service";
 import { Employee } from "./employee-entity";
 import * as bcrypt from 'bcrypt';
@@ -21,7 +22,7 @@ export class EmployeeService {
   }
 
   // Create a new employee record with business validation
-  async registerEmployee(employeeData: any): Promise<Employee> {
+  async registerEmployee(employeeData: RegisterEmployeePayload): Promise<Employee> {
     try {
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -62,7 +63,7 @@ export class EmployeeService {
       employee.name = employeeData.name;
       employee.email = employeeData.email;
       employee.gender = employeeData.gender;
-      employee.maritalStatus = employeeData.maritalStatus;
+      employee.maritalStatus = employeeData.materialStatus;
       employee.password = await bcrypt.hash(employeeData.password, 10);
       employee.role = role;
 
@@ -79,7 +80,7 @@ export class EmployeeService {
       return newEmployee;
 
 
-    } catch (e: any) {
+    } catch (e) {
       console.log("Error in EmployeeManager:", e);
       throw new Error(e.message);
     }
@@ -104,7 +105,7 @@ export class EmployeeService {
       }
 
       return employee;
-    } catch (e: any) {
+    } catch (e) {
       throw new Error(e.message);
     }
   }

@@ -2,6 +2,7 @@ import { dataSource } from '../../config/db/conn';
 import { LeaveBalance } from './leave-balance-entity';
 import { DefaultLeaveEntitlementService } from '../default-leave-entitlement/default-leave-entitlement-service';
 
+
 export class LeaveBalanceService {
   private repo = dataSource.getRepository(LeaveBalance);
   private defaultLeaveEntitlementService: DefaultLeaveEntitlementService;
@@ -43,7 +44,7 @@ export class LeaveBalanceService {
         await this.repo.save(newRecord);
       }
 
-    } catch (e: any) {
+    } catch (e) {
       throw new Error(`Failed to assign leave balances: ${e.message}`);
     }
   }
@@ -62,7 +63,7 @@ export class LeaveBalanceService {
         remaining: item.remaining_leaves,
         total: item.total,
       }));
-    } catch (e: any) {
+    } catch (e) {
       throw new Error(e.message);
     }
   }

@@ -16,8 +16,8 @@ dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 export async function createServer(): Promise<Hapi.Server> {
   const server: Hapi.Server = Hapi.server({
-      port: 3001,
-      host: 'localhost',
+    port: 3001,
+    host: 'localhost',
     routes: {
       state: { parse: true },
       cors: {

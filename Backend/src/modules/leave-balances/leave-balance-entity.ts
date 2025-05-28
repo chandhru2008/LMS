@@ -23,4 +23,5 @@ export class LeaveBalance {
 
   @Column({type : 'int', default : 0})
   total! : number
+  leaveBalance: import("c:/Users/ChandhruSoundarajan/Documents/My-projects/LMS/Backend/src/types").RegisterEmployeePayload;
 }

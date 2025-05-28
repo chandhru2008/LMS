@@ -20,9 +20,9 @@ export class LeaveTypeController {
 
     async getLeaveTypesByEligibility(request: Request, h: ResponseToolkit) {
         try {
-            const gender = (request as any).auth.credentials.payload.gender;
-            const maritalStatus = (request as any).auth.credentials.payload.maritalStatus;
-            console.log((request as any).auth.credentials.payload);
+            const gender = request.auth.credentials.payload.gender;
+            const maritalStatus = request.auth.credentials.payload.materialStatus;
+            request.auth.credentials.payload
             const leaveTypesByEligibility = await this.leaveTypeService.getLeaveTypeByEligibility(gender, maritalStatus)
             return h.response(leaveTypesByEligibility).code(200);
         } catch (error) {

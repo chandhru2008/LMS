@@ -38,4 +38,5 @@ export class LeaveApproval {
 
   @OneToMany(() => LeaveApproval, approval => approval.approver)
   approvalsToReview!: LeaveApproval[];
+    approvals: { id: string; };
 }
