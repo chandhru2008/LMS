@@ -5,7 +5,6 @@ import { enUS } from 'date-fns/locale/en-US';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import EmployeeSidebar from './EmployeeSideBar';
 import { useNavigate } from 'react-router-dom';
-import { FaHome, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import type { IApiLeaveData, ILeaveEvent, ILeaveType } from '../../types';
 import { useAuth } from '../AuthProvider';
 
@@ -24,10 +23,6 @@ const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#06b6d4"
 function getColor(index: number): string {
   return colors[index % colors.length];
 }
-
-
-
-
 
 const CustomToolbar: React.FC<{ label: string; onNavigate: (action: "PREV" | "NEXT") => void }> = ({ label, onNavigate }) => {
   const [leaveType, setLeaveType] = useState<ILeaveType[]>([]);
@@ -56,14 +51,14 @@ const CustomToolbar: React.FC<{ label: string; onNavigate: (action: "PREV" | "NE
           onClick={() => onNavigate("PREV")}
           className="p-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 shadow-sm"
         >
-          <FaChevronLeft />
+          ←
         </button>
         <span className="text-xl font-semibold text-gray-700">{label}</span>
         <button
           onClick={() => onNavigate("NEXT")}
           className="p-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 shadow-sm"
         >
-          <FaChevronRight />
+          →
         </button>
       </div>
       <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm w-full mb-3 border border-gray-200">
@@ -85,7 +80,7 @@ const CustomToolbar: React.FC<{ label: string; onNavigate: (action: "PREV" | "NE
 };
 
 const CustomEvent: React.FC<EventProps<ILeaveEvent>> = ({ event }) => (
-  <div className="">
+  <div>
     <div className="text-xs font-[10px] opacity-90">{event.leaveTypeName}</div>
     <div className="font-semibold font-[10px] truncate">{event.employeeName}</div>
   </div>
@@ -101,12 +96,11 @@ const LeaveCalendar: React.FC = () => {
 
   useEffect(() => {
     setRole(authData?.role);
-  }, [authData])
+  }, [authData]);
 
   useEffect(() => {
     const fetchLeaveData = async () => {
       try {
-
         let endpoint = "";
 
         if (role === "hr" || role === "director") {
@@ -149,14 +143,10 @@ const LeaveCalendar: React.FC = () => {
       } catch (error) {
         console.error('Error fetching leave data:', error);
       }
-    }
+    };
 
-    fetchLeaveData()
+    fetchLeaveData();
   }, [role]);
-
-
-
-
 
   function eventStyleGetter(event: ILeaveEvent) {
     const backgroundColor = leaveTypeColors[event.leaveTypeName] || '#777';
@@ -184,13 +174,11 @@ const LeaveCalendar: React.FC = () => {
           onClick={() => navigate('/')}
           className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 text-gray-700 transition-colors"
         >
-          <FaHome />
-          <span>Back to Home</span>
+          <span>← Back to Home</span>
         </button>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6 flex-1">
-
         <div className="w-full lg:w-72 shrink-0">
           <div className="bg-white p-4 rounded-xl shadow-sm h-full border border-gray-200">
             <h3 className="text-lg font-medium mb-4 text-gray-700">Filter Employees</h3>
@@ -198,7 +186,6 @@ const LeaveCalendar: React.FC = () => {
           </div>
         </div>
 
-        {/* Calendar Container */}
         <div className="flex-1 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
           <div className="h-[calc(100vh-180px)]">
             <Calendar
