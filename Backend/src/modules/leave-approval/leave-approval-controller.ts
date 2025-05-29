@@ -31,7 +31,7 @@ export class LeaveApprovalController {
             const result = await this.leaveApprovalService.approveLeave(leaveRequestId, decision, role, approverId);
             return h.response({ message: result }).code(200);
         } catch (err) {
-            console.log(err)
+            console.log("Error in handling approvals : ", err)
             return h.response({ error: err.message }).code(400);
         }
     }

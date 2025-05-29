@@ -23,6 +23,7 @@ export class EmployeeController {
     return h.response({ message: error.message || defaultMessage }).code(400);
   }
 
+
   async registerEmployee(request: Request, h: ResponseToolkit) {
     try {
 
@@ -41,9 +42,10 @@ export class EmployeeController {
     try {
       const { email, password } = request.payload as LoginEmployeePayload;
       const employee = await this.employeeService.loginEmployee({ email, password });
+      const role = employee.role 
       const JWTToken = generateJWTToken(employee);
       h.state('userSession', { token: JWTToken });
-      return h.response({ message: 'Login successful', JWTToken }).code(200);
+      return h.response({ message: 'Login successful', role }).code(200);
     } catch (error) {
       if (error.message === "Invalid password" || error.message === 'Employee not found') {
         return h.response({ message: error.message }).code(400);

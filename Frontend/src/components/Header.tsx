@@ -11,7 +11,7 @@ function Header() {
     useEffect(() => {
         async function checkAuth() {
             try {
-                const response = await fetch("http://localhost:3001/check-auth", {
+                const response = await fetch("https://lms-zwod.onrender.com/check-auth", {
                     method: "GET",
                     credentials: "include",
                 });
@@ -21,7 +21,7 @@ function Header() {
                 if (!response.ok) {
                     setIsLogIn(false);
                     if (result.message === "Invalid or expired token") {
-                        console.log(result.message);
+                       throw new Error(result.message);
                     }
                 } else {
                     setIsLogIn(true);
@@ -38,7 +38,7 @@ function Header() {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch('http://localhost:3001/log-out', {
+            const response = await fetch('https://lms-zwod.onrender.com/log-out', {
                 method: 'POST',
                 credentials: 'include',
             });
@@ -77,7 +77,7 @@ function Header() {
                                     <div className="font-medium">{data.employeeName}</div>
                                     <div className="text-xs text-gray-500">Role : {data.role === 'employee' ? 'Employee' : data.role === 'hr' ? 'HR' : data.role === 'director' ? 'Director' : data.role === 'hr_manager' ? 'HR Manager' : 'Manager'}</div>
                                     {['hr', 'director', 'hr_manager', 'manager'].includes(data.role.toLowerCase()) ? (
-                                        <div onClick={() => navigate('/Calender')} className="p-[10px] bg-[#3b5dfc] rounded text-white hover:cursor-pointer">Calendar View</div>
+                                        <div onClick={() => navigate('/calendar')} className="p-[10px] bg-[#3b5dfc] rounded text-white hover:cursor-pointer">Calendar View</div>
                                     ) : (
                                         <div></div>
                                     )}

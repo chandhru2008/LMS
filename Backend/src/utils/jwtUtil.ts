@@ -12,6 +12,7 @@ export const verifyToken = (token: any) => {
 
 
 export function getTokenFromRequest(request: Request): string | null {
+  // console.log(request.state.userSession.token);
   return request.state.userSession?.token || null;
 }
 

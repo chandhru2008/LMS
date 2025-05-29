@@ -1,38 +1,16 @@
 import { useEffect, useState } from "react";
+import type { IApproval, ILeaveHistoryItem } from "../types";
 
-interface LeaveType {
-  id: number;
-  name: string;
-  max_allowed_days?: number;
-}
 
-interface Approval {
-  id: number;
-  level: number;
-  approverRole: "manager" | "hr" | "director";
-  status: string;
-  remarks: string | null;
-}
-
-interface LeaveHistoryItem {
-  id: string;
-  start_date: string;
-  end_date: string;
-  description: string;
-  status: string;
-  approvals: Approval[];
-  leaveType: LeaveType;
-  created_at: string;
-}
 
 function LeaveHistory() {
-  const [data, setData] = useState<LeaveHistoryItem[]>([]);
+  const [data, setData] = useState<ILeaveHistoryItem[]>([]);
 const [decision, setDecision] = useState('')
   useEffect(() => {
     async function fetchLeaveHistory() {
     
       try {
-        const response = await fetch("http://localhost:3001/leave-requests/my", {
+        const response = await fetch("https://lms-zwod.onrender.com/leave-requests/my", {
           method: "GET",
           credentials: "include",
         });
@@ -48,7 +26,7 @@ const [decision, setDecision] = useState('')
     fetchLeaveHistory();
   }, []);
 
-  const getApprovalStatus = (approvals: Approval[], role: string) => {
+  const getApprovalStatus = (approvals: IApproval[], role: string) => {
     const approval = approvals.find((a) => a.approverRole.toLowerCase() === role.toLowerCase());
     return approval ? approval.status : "N/A";
   };
@@ -59,7 +37,7 @@ const [decision, setDecision] = useState('')
     if (!confirmCancel) return;
 
     try {
-      const res = await fetch(`http://localhost:3001/leave-requests/cancel`, {
+      const res = await fetch(`https://lms-zwod.onrender.com/leave-requests/cancel`, {
         method: "PUT",
         credentials: "include",
         headers: {

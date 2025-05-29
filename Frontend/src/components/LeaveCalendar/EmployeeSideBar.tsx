@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import type { IEmployee } from '../../types';
+import { useAuth } from '../AuthProvider';
 
-interface IEmployee {
-  name: string;
-  role: string;
-  email: string;
-}
 
 interface Props {
   onEmployeeSelect: (emails: string[]) => void;
@@ -12,33 +9,22 @@ interface Props {
 
 const EmployeeSidebar: React.FC<Props> = ({ onEmployeeSelect }) => {
   const [employees, setEmployees] = useState<IEmployee[]>([]);
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState<'hr' | 'hr_manager' | 'director' | 'manager' | 'employee'>();
   const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
 
-  useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await fetch('http://localhost:3001/check-auth', {
-          method: 'GET',
-          credentials: 'include',
-        });
-        const data = await res.json();
-        setRole(data.role);
-      } catch (error) {
-        console.error('Auth check error:', error);
-      }
-    }
+  const {authData} = useAuth();
 
-    checkAuth();
-  }, []);
+  useEffect(() => {
+    setRole(authData?.role)
+  }, [authData]);
 
   useEffect(() => {
     if (!role) return;
 
     const endpoint =
       role === 'hr' || role === 'director'
-        ? 'http://localhost:3001/get-all-employees'
-        : 'http://localhost:3001/get-employees-by-role';
+        ? 'https://lms-zwod.onrender.com/get-all-employees'
+        : 'https://lms-zwod.onrender.com/get-employees-by-role';
 
     const fetchEmployees = async () => {
       try {

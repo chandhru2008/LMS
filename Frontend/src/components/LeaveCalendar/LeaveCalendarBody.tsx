@@ -6,6 +6,8 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import EmployeeSidebar from './EmployeeSideBar';
 import { useNavigate } from 'react-router-dom';
 import { FaHome, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import type { IApiLeaveData, ILeaveEvent, ILeaveType } from '../../types';
+import { useAuth } from '../AuthProvider';
 
 const locales = { 'en-US': enUS };
 
@@ -23,34 +25,9 @@ function getColor(index: number): string {
   return colors[index % colors.length];
 }
 
-interface ILeaveType {
-  id: string;
-  name: string;
-}
 
-interface ILeaveEvent {
-  title: string;
-  start: Date;
-  end: Date;
-  allDay: boolean;
-  status: string;
-  employeeName: string;
-  leaveTypeName: string;
-  email: string;
-}
 
-interface IApiLeaveData {
-  employee: { name: string; email: string };
-  leaveType: { name: string };
-  start_date: string;
-  end_date: string;
-  status: string;
-}
 
-interface IUserInfo {
-  role: string;
-  id: string;
-}
 
 const CustomToolbar: React.FC<{ label: string; onNavigate: (action: "PREV" | "NEXT") => void }> = ({ label, onNavigate }) => {
   const [leaveType, setLeaveType] = useState<ILeaveType[]>([]);
@@ -58,7 +35,7 @@ const CustomToolbar: React.FC<{ label: string; onNavigate: (action: "PREV" | "NE
   useEffect(() => {
     async function getLeaveType() {
       try {
-        const res = await fetch("http://localhost:3001/leave-types", {
+        const res = await fetch("https://lms-zwod.onrender.com/leave-types", {
           method: "GET",
           credentials: "include",
         });
@@ -79,7 +56,7 @@ const CustomToolbar: React.FC<{ label: string; onNavigate: (action: "PREV" | "NE
           onClick={() => onNavigate("PREV")}
           className="p-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 shadow-sm"
         >
-          <FaChevronLeft/>
+          <FaChevronLeft />
         </button>
         <span className="text-xl font-semibold text-gray-700">{label}</span>
         <button
@@ -119,63 +96,67 @@ const LeaveCalendar: React.FC = () => {
   const [filteredEmails, setFilteredEmails] = useState<string[]>([]);
   const [leaveTypeColors, setLeaveTypeColors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
-
-  const fetchLeaveData = async () => {
-    try {
-      // Get current user info
-      const userRes = await fetch("http://localhost:3001/check-auth", {
-        method: "GET",
-        credentials: "include",
-      });
-      const user: IUserInfo = await userRes.json();
-
-      let endpoint = "";
-
-      if (user.role === "hr" || user.role === "director") {
-        endpoint = "http://localhost:3001/all-leave-requests";
-      } else if (user.role === "hr_manager" || user.role === "manager") {
-        endpoint = "http://localhost:3001/all-leave-requests-by-role";
-      } else {
-        console.warn("Unauthorized or unknown role");
-        return;
-      }
-
-      const response = await fetch(endpoint, {
-        method: "GET",
-        credentials: "include",
-      });
-
-      const data: IApiLeaveData[] = await response.json();
-
-      const approvedLeaves = data.filter((leave) => leave.status === 'Approved');
-
-      const uniqueLeaveTypes = Array.from(new Set(approvedLeaves.map((leave) => leave.leaveType.name)));
-      const colorMap: Record<string, string> = {};
-      uniqueLeaveTypes.forEach((leaveType, index) => {
-        colorMap[leaveType] = getColor(index);
-      });
-      setLeaveTypeColors(colorMap);
-
-      const formattedEvents: ILeaveEvent[] = approvedLeaves.map((leave) => ({
-        title: 'Leave',
-        start: new Date(leave.start_date),
-        end: new Date(leave.end_date),
-        allDay: true,
-        status: leave.status,
-        employeeName: leave.employee.name,
-        leaveTypeName: leave.leaveType.name,
-        email: leave.employee.email,
-      }));
-
-      setEvents(formattedEvents);
-    } catch (error) {
-      console.error('Error fetching leave data:', error);
-    }
-  };
+  const [role, setRole] = useState<"hr" | "manager" | "hr_manager" | "director" | "employee">();
+  const { authData } = useAuth();
 
   useEffect(() => {
-    fetchLeaveData();
-  }, []);
+    setRole(authData?.role);
+  }, [authData])
+
+  useEffect(() => {
+    const fetchLeaveData = async () => {
+      try {
+
+        let endpoint = "";
+
+        if (role === "hr" || role === "director") {
+          endpoint = "https://lms-zwod.onrender.com/all-leave-requests";
+        } else if (role === "hr_manager" || role === "manager") {
+          endpoint = "https://lms-zwod.onrender.com/all-leave-requests-by-role";
+        } else {
+          console.warn("Unauthorized or unknown role");
+          return;
+        }
+
+        const response = await fetch(endpoint, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        const data: IApiLeaveData[] = await response.json();
+
+        const approvedLeaves = data.filter((leave) => leave.status === 'Approved');
+
+        const uniqueLeaveTypes = Array.from(new Set(approvedLeaves.map((leave) => leave.leaveType.name)));
+        const colorMap: Record<string, string> = {};
+        uniqueLeaveTypes.forEach((leaveType, index) => {
+          colorMap[leaveType] = getColor(index);
+        });
+        setLeaveTypeColors(colorMap);
+
+        const formattedEvents: ILeaveEvent[] = approvedLeaves.map((leave) => ({
+          title: 'Leave',
+          start: new Date(leave.start_date),
+          end: new Date(leave.end_date),
+          allDay: true,
+          status: leave.status,
+          employeeName: leave.employee.name,
+          leaveTypeName: leave.leaveType.name,
+          email: leave.employee.email,
+        }));
+
+        setEvents(formattedEvents);
+      } catch (error) {
+        console.error('Error fetching leave data:', error);
+      }
+    }
+
+    fetchLeaveData()
+  }, [role]);
+
+
+
+
 
   function eventStyleGetter(event: ILeaveEvent) {
     const backgroundColor = leaveTypeColors[event.leaveTypeName] || '#777';
@@ -197,7 +178,6 @@ const LeaveCalendar: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen p-6 bg-gray-50">
-      {/* Header with back button */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Leave Calendar</h1>
         <button
@@ -210,14 +190,14 @@ const LeaveCalendar: React.FC = () => {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6 flex-1">
-        {/* Sidebar */}
+
         <div className="w-full lg:w-72 shrink-0">
           <div className="bg-white p-4 rounded-xl shadow-sm h-full border border-gray-200">
             <h3 className="text-lg font-medium mb-4 text-gray-700">Filter Employees</h3>
             <EmployeeSidebar onEmployeeSelect={setFilteredEmails} />
           </div>
         </div>
-        
+
         {/* Calendar Container */}
         <div className="flex-1 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
           <div className="h-[calc(100vh-180px)]">

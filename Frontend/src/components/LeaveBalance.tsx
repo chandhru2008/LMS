@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
+import type { ILeaveBalance } from "../types";
 
-interface LeaveBalance {
-  total: number;
-  type: string;
-  used: number;
-  remaining: number;
-}
+
 
 const leaveTypeColors: Record<string, string> = {
   "Annual Leave": "#3b82f6",
@@ -16,15 +12,17 @@ const leaveTypeColors: Record<string, string> = {
   "Other Leave": "#64748b",
 };
 
+
+
 function LeaveBalances() {
-  const [data, setData] = useState<LeaveBalance[]>([]);
+  const [data, setData] = useState<ILeaveBalance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchLeaveBalances(): Promise<void> {
       try {
         setIsLoading(true);
-        const response = await fetch("http://localhost:3001/leave-balances", {
+        const response = await fetch("https://lms-zwod.onrender.com/leave-balances", {
           method: "GET",
           credentials: "include",
         });
@@ -36,7 +34,7 @@ function LeaveBalances() {
           console.log("Failed to fetch leave balances");
         }
       } catch (e) {
-        console.log("Error:", e);
+        console.log("Error in fetching leave balances :", e);
       } finally {
         setIsLoading(false);
       }

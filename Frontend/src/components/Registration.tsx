@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import type { IUserDetails } from '../types';
 
 function Registration() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState<'hr' | 'hr_manager' | 'director' | 'manager' | 'employee'>();
   const [managerEmail, setManagerEmail] = useState('');
   const [hrManagerEmail, setHrManagerEmail] = useState('');
   const [gender, setGender] = useState('');
@@ -13,16 +14,7 @@ function Registration() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  interface IUserDetails {
-    name: string;
-    email: string;
-    password: string;
-    role: string;
-    gender: string;
-    maritalStatus: string;
-    managerEmail?: string;
-    hrManagerEmail?: string;
-  }
+
 
   function showError(message: string) {
     setErrorMessage(message);
@@ -59,7 +51,7 @@ function Registration() {
     if (role === 'hr') userDetails.hrManagerEmail = hrManagerEmail;
 
     try {
-      const res = await fetch('http://localhost:3001/register', {
+      const res = await fetch('https://lms-zwod.onrender.com/register', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -116,7 +108,7 @@ function Registration() {
 
           <select
             className="w-full px-4 py-2 border rounded-md"
-            onChange={(e) => setRole(e.target.value)}
+            onChange={(e) => setRole(e.target.value  as 'hr' | 'hr_manager' | 'director' | 'manager' | 'employee')}
             defaultValue=""
           >
             <option value="" disabled hidden>

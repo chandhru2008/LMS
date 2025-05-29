@@ -66,7 +66,7 @@ function createServer() {
             routes: {
                 state: { parse: true },
                 cors: {
-                    origin: ['http://localhost:3001'],
+                    origin: ['https://lms-zwod.onrender.com'],
                     credentials: true,
                 },
             },

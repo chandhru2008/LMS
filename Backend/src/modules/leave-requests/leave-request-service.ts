@@ -212,8 +212,8 @@ export class LeaveRequestService {
       }
     }
 
-    // Leave days excluding weekends
     const leaveDays = datesInRange.filter(date => !isWeekend(date)).length;
+
 
     const leaveBalance = await this.leaveBalanceRepo.findOne({
       where: {

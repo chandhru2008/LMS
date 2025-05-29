@@ -16,7 +16,7 @@ export class LeaveRequestController {
       const allLeaveRequest = await this.leaveRequestService.getAllLeaveRequests();
       return h.response(allLeaveRequest).code(201);
     } catch (e) {
-      console.log(e);
+      console.log("Error in getting all leave requests : ", e);
     }
 
   }

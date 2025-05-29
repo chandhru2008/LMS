@@ -1,14 +1,9 @@
 import { useEffect, useState } from "react";
 import 'react-datepicker/dist/react-datepicker.css'
-
-type LeaveType = {
-  id: number;
-  name: string;
-  max_allowed_days: number;
-};
+import type { ILeaveType } from "../types";
 
 function LeaveRequestForm() {
-  const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
+  const [leaveTypes, setLeaveTypes] = useState<ILeaveType[]>([]);
   const [formData, setFormData] = useState({
     leaveType: "",
     fromDate: "",
@@ -19,17 +14,19 @@ function LeaveRequestForm() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
 
+
+
+
   useEffect(() => {
     async function fetchData() {
       try {
-        const typesRes = await fetch("http://localhost:3001/leave-types/eligibility", {
+        const typesRes = await fetch("https://lms-zwod.onrender.com/leave-types/eligibility", {
           method: "GET",
           credentials: "include",
         });
 
         const types = await typesRes.json();
         setLeaveTypes(types);
-        console.log(types)
       } catch (err) {
         console.error("Error fetching data:", err);
       }
@@ -78,7 +75,7 @@ function LeaveRequestForm() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3001/create-leave-request", {
+      const response = await fetch("https://lms-zwod.onrender.com/create-leave-request", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

@@ -81,7 +81,7 @@ export class EmployeeService {
 
 
     } catch (e) {
-      console.log("Error in EmployeeManager:", e);
+      console.log("Error in registering employee :", e);
       throw new Error(e.message);
     }
   }
@@ -121,7 +121,7 @@ export class EmployeeService {
         return await this.repo.find({ where: { hrManager: { id: id } } });
       }
     } catch (e) {
-      console.log(e);
+      console.log("Error in getting employees by role : ", e);
     }
 
   }

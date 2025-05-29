@@ -19,7 +19,7 @@ function Login() {
     try {
       const userData = { email, password };
 
-      const response = await fetch('http://localhost:3001/login', {
+      const response = await fetch('https://lms-zwod.onrender.com/login', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -36,11 +36,13 @@ function Login() {
           setErrorMessage(errorData.message);
         }
       } else {
+        const data  = await response.json();
+        localStorage.setItem('role' , data.role)
         navigate('/')
       }
 
     } catch (err) {
-      console.log('Error:', err);
+      console.log('Error in login :', err);
       setErrorMessage('Something went wrong. Please try again.');
     }
   }
