@@ -10,17 +10,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.leaveApproveRoutes = leaveApproveRoutes;
+const auth_middleware_1 = require("../../middleware/auth-middleware");
 function leaveApproveRoutes(server, leaveApprovalController) {
     server.route([
         {
             method: 'GET',
             path: '/approvals',
-            handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveApprovalController.getMyApprovals(request, response); })
+            options: {
+                pre: [
+                    { method: auth_middleware_1.authenticate },
+                    { method: (0, auth_middleware_1.authorizeRoles)(['hr', 'manager', 'hr_manager', 'director']) }
+                ],
+                handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveApprovalController.getMyApprovals(request, response); })
+            }
         },
         {
             method: 'PUT',
             path: '/approvals/decision',
-            handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveApprovalController.handleApproval(request, response); })
+            options: {
+                pre: [
+                    { method: auth_middleware_1.authenticate },
+                    { method: (0, auth_middleware_1.authorizeRoles)(['hr', 'manager', 'hr_manager', 'director']) }
+                ],
+                handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveApprovalController.handleApproval(request, response); })
+            }
         },
     ]);
 }

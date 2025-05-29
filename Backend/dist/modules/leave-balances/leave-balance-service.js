@@ -11,29 +11,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LeaveBalanceService = void 0;
 const conn_1 = require("../../config/db/conn");
-const leave_balance_model_1 = require("./leave-balance-model");
+const leave_balance_entity_1 = require("./leave-balance-entity");
 class LeaveBalanceService {
     constructor(defaultLeaveEntitlementService) {
-        this.repo = conn_1.dataSource.getRepository(leave_balance_model_1.LeaveBalance);
+        this.repo = conn_1.dataSource.getRepository(leave_balance_entity_1.LeaveBalance);
         this.defaultLeaveEntitlementService = defaultLeaveEntitlementService;
     }
     // Assign default leave balances to an employee
     assignDefaultLeaveBalances(employeeData) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
+            var _a;
             try {
-                const role = (_a = employeeData.role) === null || _a === void 0 ? void 0 : _a.toLowerCase();
+                const role = employeeData.role.toLowerCase();
                 if (!role) {
                     throw new Error('Role is missing in employee data');
                 }
                 const defaultEntitlements = yield this.defaultLeaveEntitlementService.getEntitlementsByRole(role);
                 for (let entitlement of defaultEntitlements) {
-                    const leaveBalance = new leave_balance_model_1.LeaveBalance();
+                    const leaveTypeName = entitlement.leaveType.name.toLowerCase();
+                    if ((leaveTypeName === 'maternity leave' && (employeeData.gender !== 'female' || employeeData.maritalStatus !== 'married')) ||
+                        (leaveTypeName === 'paternity leave' && (employeeData.gender !== 'male' || employeeData.maritalStatus !== 'married'))) {
+                        continue;
+                    }
+                    const leaveBalance = new leave_balance_entity_1.LeaveBalance();
                     leaveBalance.employee = employeeData;
                     leaveBalance.leaveType = entitlement.leaveType;
                     leaveBalance.used_leaves = 0;
                     leaveBalance.total = entitlement.defaultDays;
-                    leaveBalance.remaining_leaves = (_b = entitlement.defaultDays) !== null && _b !== void 0 ? _b : 9999;
+                    leaveBalance.remaining_leaves = (_a = entitlement.defaultDays) !== null && _a !== void 0 ? _a : 9999;
                     const newRecord = this.repo.create(leaveBalance);
                     yield this.repo.save(newRecord);
                 }

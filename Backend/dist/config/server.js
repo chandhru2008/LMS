@@ -66,7 +66,7 @@ function createServer() {
             routes: {
                 state: { parse: true },
                 cors: {
-                    origin: ['https://lms-zwod.onrender.com'],
+                    origin: ['https://leave-management-app-2025.netlify.app'],
                     credentials: true,
                 },
             },

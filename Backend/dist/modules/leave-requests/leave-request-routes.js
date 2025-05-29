@@ -10,27 +10,51 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.leaveRequestRoutes = leaveRequestRoutes;
+const auth_middleware_1 = require("../../middleware/auth-middleware");
 function leaveRequestRoutes(server, leaveRequestController) {
     server.route([
         {
             method: 'GET',
             path: '/all-leave-requests',
-            handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveRequestController.getAllLeaveRequests(request, response); })
+            options: {
+                pre: [{ method: auth_middleware_1.authenticate },
+                    { method: (0, auth_middleware_1.authorizeRoles)(['hr', 'director']) }
+                ],
+                handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveRequestController.getAllLeaveRequests(request, response); })
+            }
+        },
+        {
+            method: 'GET',
+            path: '/all-leave-requests-by-role',
+            options: {
+                pre: [{ method: auth_middleware_1.authenticate },
+                    { method: (0, auth_middleware_1.authorizeRoles)(['manager', 'hr_manager']) }],
+                handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveRequestController.getAllLeaveRequestsByRole(request, response); })
+            }
         },
         {
             method: 'POST',
             path: '/create-leave-request',
-            handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveRequestController.createLeaveRequest(request, response); })
+            options: {
+                pre: [{ method: auth_middleware_1.authenticate }],
+                handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveRequestController.createLeaveRequest(request, response); })
+            }
         },
         {
             method: "GET",
             path: '/leave-requests/my',
-            handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveRequestController.getMyLeaveRequests(request, response); })
+            options: {
+                pre: [{ method: auth_middleware_1.authenticate }],
+                handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveRequestController.getMyLeaveRequests(request, response); })
+            }
         },
         {
             method: 'PUT',
             path: '/leave-requests/cancel',
-            handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveRequestController.cancelLeaveRequest(request, response); })
+            options: {
+                pre: [{ method: auth_middleware_1.authenticate }],
+                handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveRequestController.cancelLeaveRequest(request, response); })
+            }
         }
     ]);
 }

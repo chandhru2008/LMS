@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyToken = exports.generateJWTToken = void 0;
+exports.getTokenFromRequest = getTokenFromRequest;
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
 const generateJWTToken = (payload) => {
@@ -11,3 +12,8 @@ const verifyToken = (token) => {
     return jwt.verify(token, secret);
 };
 exports.verifyToken = verifyToken;
+function getTokenFromRequest(request) {
+    var _a;
+    // console.log(request.state.userSession.token);
+    return ((_a = request.state.userSession) === null || _a === void 0 ? void 0 : _a.token) || null;
+}

@@ -10,14 +10,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.employeeRoute = employeeRoute;
+const auth_middleware_1 = require("../../middleware/auth-middleware");
 function employeeRoute(server, employeeController) {
     server.route([
         {
             method: 'POST',
             path: '/register',
-            handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
-                return yield employeeController.registerEmployee(request, h);
-            })
+            options: {
+                pre: [{ method: auth_middleware_1.authenticate },
+                    { method: (0, auth_middleware_1.authorizeRoles)(['hr', 'hr_manager']) }
+                ],
+                handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
+                    return yield employeeController.registerEmployee(request, h);
+                })
+            }
         },
         {
             method: 'POST',
@@ -38,22 +44,35 @@ function employeeRoute(server, employeeController) {
         {
             method: 'GET',
             path: '/check-auth',
-            handler: (request, h) => {
-                return employeeController.authenticateEmployee(request, h);
+            options: {
+                pre: [{ method: auth_middleware_1.authenticate }],
+                handler: (request, h) => {
+                    return employeeController.authenticateEmployee(request, h);
+                }
             }
         },
         {
             method: 'GET',
             path: '/get-all-employees',
-            handler: (request, h) => {
-                return employeeController.getAllEmployee(request, h);
+            options: {
+                pre: [{ method: auth_middleware_1.authenticate },
+                    { method: (0, auth_middleware_1.authorizeRoles)(['hr', 'director']) }
+                ],
+                handler: (request, h) => {
+                    return employeeController.getAllEmployee(request, h);
+                }
             }
-        }, {
+        },
+        {
             method: 'GET',
             path: '/get-employees-by-role',
-            handler: (request, h) => {
-                console.log('routes hit');
-                return employeeController.getEmployeeByRole(request, h);
+            options: {
+                pre: [{ method: auth_middleware_1.authenticate },
+                    { method: (0, auth_middleware_1.authorizeRoles)(['hr_manager', 'manager']) }
+                ], // middleware
+                handler: (request, h) => {
+                    return employeeController.getEmployeeByRole(request, h);
+                }
             }
         }
     ]);

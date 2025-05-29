@@ -15,23 +15,21 @@ class LeaveRequestController {
     constructor(leaveRequestService) {
         this.createLeaveRequest = (request, h) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const secretKey = process.env.JWT_SECRET;
-                const token = request.state.userSession.token;
-                const decoded = jwt.verify(token, secretKey);
                 const bodyData = request.payload;
                 const leaveTypeId = bodyData.leaveTypeId;
                 const startDate = bodyData.fromDate;
                 const endDate = bodyData.toDate;
                 const description = bodyData.reason;
-                const employeeId = decoded.payload.id;
-                const employeeRole = decoded.payload.role;
+                const employeeId = request.auth.credentials.payload.id;
+                const employeeRole = request.auth.credentials.payload.role;
                 const data = {
                     leaveTypeId: leaveTypeId,
                     startDate: startDate,
                     endDate: endDate,
                     employeeId: employeeId,
                     employeeRole: employeeRole,
-                    description: description
+                    description: description,
+                    status: 'Pending'
                 };
                 const leaveRequest = yield this.leaveRequestService.createLeaveRequest(data);
                 if (!leaveRequest) {
@@ -48,32 +46,27 @@ class LeaveRequestController {
     getAllLeaveRequests(request, h) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const secretKey = process.env.JWT_SECRET;
-                const token = request.state.userSession.token;
-                const decoded = jwt.verify(token, secretKey);
-                const role = decoded.payload.role;
-                //middle ware
-                if (role === "director" || role === "hr_manager" || role === "HR" || role === 'manager') {
-                    const allLeaveRequest = yield this.leaveRequestService.getAllLeaveRequests();
-                    return h.response(allLeaveRequest).code(201);
-                }
-                else {
-                    return h.response({ message: "Unauthorized user" }).code(401);
-                }
+                const allLeaveRequest = yield this.leaveRequestService.getAllLeaveRequests();
+                return h.response(allLeaveRequest).code(201);
             }
             catch (e) {
-                console.log(e);
+                console.log("Error in getting all leave requests : ", e);
             }
+        });
+    }
+    getAllLeaveRequestsByRole(request, h) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const role = request.auth.credentials.payload.role;
+            const id = request.auth.credentials.payload.id;
+            const allLeaveRequest = yield this.leaveRequestService.getAllLeaveRequestsByRole(role, id);
+            return h.response(allLeaveRequest).code(201);
         });
     }
     getMyLeaveRequests(request, h) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const secretKey = process.env.JWT_SECRET;
-                const token = request.state.userSession.token;
-                const decoded = jwt.verify(token, secretKey);
-                const employee = decoded.payload.id;
-                const leaveRequest = yield this.leaveRequestService.getMyLeaveRequests(employee);
+                const employeeId = request.auth.credentials.payload.id;
+                const leaveRequest = yield this.leaveRequestService.getMyLeaveRequests(employeeId);
                 return h.response({ leaveRequest }).code(201);
             }
             catch (e) {
@@ -83,10 +76,7 @@ class LeaveRequestController {
     }
     cancelLeaveRequest(req, h) {
         return __awaiter(this, void 0, void 0, function* () {
-            const secretKey = process.env.JWT_SECRET;
-            const token = req.state.userSession.token;
-            const decoded = jwt.verify(token, secretKey);
-            const eId = decoded.payload.id;
+            const eId = req.auth.credentials.payload.id;
             const body = req.payload;
             const leaveRequestId = body.id;
             if (!leaveRequestId) {

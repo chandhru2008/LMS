@@ -47,8 +47,9 @@ const conn_1 = require("../../config/db/conn");
 const employee_entity_1 = require("./employee-entity");
 const bcrypt = __importStar(require("bcrypt"));
 class EmployeeService {
-    constructor() {
+    constructor(leaveBalanceService) {
         this.repo = conn_1.dataSource.getRepository(employee_entity_1.Employee);
+        this.leaveBalanceService = leaveBalanceService;
     }
     // Find employee by email
     findByEmail(email) {
@@ -64,7 +65,7 @@ class EmployeeService {
     // Create a new employee record with business validation
     registerEmployee(employeeData) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c, _d;
+            var _a, _b;
             try {
                 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
                 if (!emailRegex.test(employeeData.email)) {
@@ -77,27 +78,20 @@ class EmployeeService {
                 const role = employeeData.role.toLowerCase();
                 // Supervisor emails 
                 const managerEmail = (_a = employeeData.managerEmail) === null || _a === void 0 ? void 0 : _a.trim();
-                const hrEmail = (_b = employeeData.hrEmail) === null || _b === void 0 ? void 0 : _b.trim();
-                const hrManagerEmail = (_c = employeeData.hrManagerEmail) === null || _c === void 0 ? void 0 : _c.trim();
-                const directorEmail = (_d = employeeData.directorEmail) === null || _d === void 0 ? void 0 : _d.trim();
+                const hrManagerEmail = (_b = employeeData.hrManagerEmail) === null || _b === void 0 ? void 0 : _b.trim();
                 // Lookup supervisors
                 const manager = managerEmail ? yield this.findByEmail(managerEmail) : null;
-                const hr = hrEmail ? yield this.findByEmail(hrEmail) : null;
                 const hrManager = hrManagerEmail ? yield this.findByEmail(hrManagerEmail) : null;
-                // const director = directorEmail ? await this.findByEmail(directorEmail) : null;
                 // Validation based on role
                 if (role === 'employee') {
                     if (!manager)
                         throw new Error("Manager does not exist");
                 }
-                else if (role === 'manager') {
-                    // No supervisor required
-                }
                 else if (role === 'hr') {
                     if (!hrManager)
                         throw new Error("HR Manager does not exist");
                 }
-                else if (role === 'hr_manager' || role === 'director') {
+                else if (role === 'hr_manager' || role === 'director' || role === 'manager') {
                     // No supervisor required
                 }
                 else {
@@ -108,23 +102,22 @@ class EmployeeService {
                 employee.name = employeeData.name;
                 employee.email = employeeData.email;
                 employee.gender = employeeData.gender;
-                employee.maritalStatus = employeeData.maritalStatus;
+                employee.maritalStatus = employeeData.materialStatus;
                 employee.password = yield bcrypt.hash(employeeData.password, 10);
                 employee.role = role;
                 // Set supervisor relations
                 if (role === 'employee') {
                     employee.manager = manager;
                 }
-                else if (role === 'manager') {
-                    employee.hr = hr;
-                }
                 else if (role === 'hr') {
                     employee.hrManager = hrManager;
                 }
-                return yield this.repo.save(employee);
+                const newEmployee = yield this.repo.save(employee);
+                yield this.leaveBalanceService.assignDefaultLeaveBalances(newEmployee);
+                return newEmployee;
             }
             catch (e) {
-                console.log("Error in EmployeeManager:", e);
+                console.log("Error in registering employee :", e);
                 throw new Error(e.message);
             }
         });
@@ -164,7 +157,7 @@ class EmployeeService {
                 }
             }
             catch (e) {
-                console.log(e);
+                console.log("Error in getting employees by role : ", e);
             }
         });
     }

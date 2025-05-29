@@ -15,23 +15,10 @@ class LeaveBalanceController {
     constructor(leaveBalanceService) {
         this.leaveBalanceService = leaveBalanceService;
     }
-    assignDefaultLeaveBalances(employeeData) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                this.leaveBalanceService.assignDefaultLeaveBalances(employeeData);
-            }
-            catch (e) {
-                throw new Error(e.message);
-            }
-        });
-    }
     fetchEmployeeLeaveBalance(request, h) {
         return __awaiter(this, void 0, void 0, function* () {
-            const secretKey = process.env.JWT_SECRET;
-            const token = request.state.userSession.token;
             try {
-                const decoded = jwt.verify(token, secretKey);
-                const employee = decoded.payload;
+                const employee = request.auth.credentials.payload;
                 const leaveBalance = yield this.leaveBalanceService.fetchEmployeeLeaveBalance(employee);
                 return h.response(leaveBalance).code(200);
             }

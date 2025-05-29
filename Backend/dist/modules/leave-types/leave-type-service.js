@@ -40,5 +40,21 @@ class LeaveTypeService {
             }
         });
     }
+    getLeaveTypeByEligibility(gender, maritalStatus) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const allLeaveTypes = yield this.repo.find();
+            const filteredLeaveTypes = allLeaveTypes.filter((leaveType) => {
+                const name = leaveType.name.toLowerCase();
+                if (name === 'maternity leave' && (gender !== 'female' || maritalStatus !== 'married')) {
+                    return false;
+                }
+                if (name === 'paternity leave' && (gender !== 'male' || maritalStatus !== 'married')) {
+                    return false;
+                }
+                return true;
+            });
+            return filteredLeaveTypes;
+        });
+    }
 }
 exports.LeaveTypeService = LeaveTypeService;

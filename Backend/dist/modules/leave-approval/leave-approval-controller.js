@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LeaveApprovalController = void 0;
-const jwt = require('jsonwebtoken');
 class LeaveApprovalController {
     constructor(leaveApprovalService) {
         this.leaveApprovalService = leaveApprovalService;
@@ -18,17 +17,15 @@ class LeaveApprovalController {
     getMyApprovals(request, h) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const secretKey = process.env.JWT_SECRET;
-                const JWTtoken = request.state.userSession.token;
-                const decode = jwt.verify(JWTtoken, secretKey);
-                const role = decode.payload.role;
-                if (role === 'HR' || role === 'director' || role === 'hr_manager') {
-                    const approvals = yield this.leaveApprovalService.getPendingApprovals();
+                const role = request.auth.credentials.payload.role;
+                const id = request.auth.credentials.payload.id;
+                if (role === 'hr' || role === 'director') {
+                    const approvals = yield this.leaveApprovalService.getAllPendingApprovals();
                     return h.response(approvals).code(200);
                 }
                 else if (role === 'manager' || role === 'hr_manager') {
-                    const managerId = decode.payload.id;
-                    const approvals = yield this.leaveApprovalService.getManagerPendingApprovel(managerId);
+                    const approverId = id;
+                    const approvals = yield this.leaveApprovalService.getManagerPendingApprovel(approverId);
                     return h.response(approvals).code(200);
                 }
             }
@@ -43,16 +40,13 @@ class LeaveApprovalController {
                 const body = request.payload;
                 const decision = body.decision;
                 const leaveRequestId = body.leaveRequestId;
-                const secretKey = process.env.JWT_SECRET;
-                const JWTtoken = request.state.userSession.token;
-                const decode = jwt.verify(JWTtoken, secretKey);
-                const role = decode.payload.role;
-                const approverId = decode.payload.id;
+                const role = request.auth.credentials.payload.role;
+                const approverId = request.auth.credentials.payload.id;
                 const result = yield this.leaveApprovalService.approveLeave(leaveRequestId, decision, role, approverId);
                 return h.response({ message: result }).code(200);
             }
             catch (err) {
-                console.log(err);
+                console.log("Error in handling approvals : ", err);
                 return h.response({ error: err.message }).code(400);
             }
         });

@@ -10,16 +10,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LeaveApprovalService = void 0;
-const leave_approval_model_1 = require("./leave-approval-model");
-const leave_request_model_1 = require("../leave-requests/leave-request-model");
-const leave_balance_model_1 = require("../leave-balances/leave-balance-model");
+const leave_approval_entity_1 = require("./leave-approval-entity");
+const leave_request_entity_1 = require("../leave-requests/leave-request-entity");
+const leave_balance_entity_1 = require("../leave-balances/leave-balance-entity");
 class LeaveApprovalService {
     constructor(dataSource) {
         this.dataSource = dataSource;
     }
-    getPendingApprovals() {
+    getAllPendingApprovals() {
         return __awaiter(this, void 0, void 0, function* () {
-            const approvals = yield this.dataSource.getRepository(leave_approval_model_1.LeaveApproval).find({
+            const approvals = yield this.dataSource.getRepository(leave_approval_entity_1.LeaveApproval).find({
                 where: { status: 'Pending' },
                 relations: ['leaveRequest', 'leaveRequest.employee', 'leaveRequest.leaveType'],
             });
@@ -48,7 +48,7 @@ class LeaveApprovalService {
                     case 'manager':
                         roleGroup.managerApproval = approval.status;
                         break;
-                    case 'HR':
+                    case 'hr':
                         roleGroup.hrApproval = approval.status;
                         break;
                     case 'director':
@@ -63,15 +63,17 @@ class LeaveApprovalService {
             return result;
         });
     }
-    getManagerPendingApprovel(managerId) {
+    getManagerPendingApprovel(approverId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const approvals = yield this.dataSource.getRepository(leave_approval_model_1.LeaveApproval).find({
+            const approvals = yield this.dataSource.getRepository(leave_approval_entity_1.LeaveApproval).find({
                 where: {
-                    approver: { id: managerId },
-                    status: 'Pending'
+                    approver: { id: approverId },
                 },
                 relations: ['leaveRequest', 'leaveRequest.employee', 'leaveRequest.leaveType', 'approver'],
             });
+            if (!approvals) {
+                throw new Error('Approvals not found');
+            }
             const grouped = new Map();
             for (const approval of approvals) {
                 const requestId = approval.leaveRequest.id;
@@ -96,7 +98,7 @@ class LeaveApprovalService {
                     case 'manager':
                         roleGroup.managerApproval = approval.status;
                         break;
-                    case 'HR':
+                    case 'hr':
                         roleGroup.hrApproval = approval.status;
                         break;
                     case 'director':
@@ -113,16 +115,20 @@ class LeaveApprovalService {
     }
     approveLeave(leaveRequestId, decision, role, approverId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const approvalRepo = this.dataSource.getRepository(leave_approval_model_1.LeaveApproval);
-            const leaveRequestRepo = this.dataSource.getRepository(leave_request_model_1.LeaveRequest);
-            const leaveBalanceRepo = this.dataSource.getRepository(leave_balance_model_1.LeaveBalance);
-            // Step 1: Fetch approval entry
+            const approvalRepo = this.dataSource.getRepository(leave_approval_entity_1.LeaveApproval);
+            const leaveRequestRepo = this.dataSource.getRepository(leave_request_entity_1.LeaveRequest);
+            const leaveBalanceRepo = this.dataSource.getRepository(leave_balance_entity_1.LeaveBalance);
             const approvals = yield approvalRepo.findOne({
                 where: { leaveRequest: { id: leaveRequestId }, approverRole: role },
                 relations: ['leaveRequest', 'leaveRequest.employee', 'approver'],
             });
             if (!approvals) {
                 throw new Error('Approval recored not found');
+            }
+            const today = new Date();
+            const leaveEndDate = new Date(approvals.leaveRequest.end_date);
+            if (leaveEndDate < today) {
+                throw new Error('Cannot approve leave requests for past dates');
             }
             if (!approvals.approver || approvals.approver.id === null) {
                 approvals.approver = { id: approverId };

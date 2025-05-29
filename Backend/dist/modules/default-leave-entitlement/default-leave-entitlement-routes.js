@@ -14,14 +14,7 @@ function defaultLeaveEntitlementRoutes(server, defaultLeaveEntitlementController
     server.route([
         {
             method: 'GET',
-            path: '/default-leaves',
-            handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
-                return defaultLeaveEntitlementController.getAll(request, h);
-            })
-        },
-        {
-            method: 'GET',
-            path: '/default-leaves/{role}',
+            path: '/default-leaves/by-role',
             handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
                 return defaultLeaveEntitlementController.getByRole(request, h);
             })

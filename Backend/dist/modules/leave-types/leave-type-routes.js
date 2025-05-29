@@ -10,12 +10,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.leaveTypeRoutes = leaveTypeRoutes;
+const auth_middleware_1 = require("../../middleware/auth-middleware");
 function leaveTypeRoutes(server, leaveTypeController) {
     server.route([
         {
             method: 'GET',
             path: "/leave-types",
             handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveTypeController.getAllLeaveTypes(request, response); })
+        }, {
+            method: 'GET',
+            path: "/leave-types/eligibility",
+            options: {
+                pre: [{ method: auth_middleware_1.authenticate }],
+                handler: (request, response) => __awaiter(this, void 0, void 0, function* () { return yield leaveTypeController.getLeaveTypesByEligibility(request, response); })
+            }
         }
     ]);
 }

@@ -10,14 +10,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.leaveBalanceRoute = leaveBalanceRoute;
+const auth_middleware_1 = require("../../middleware/auth-middleware");
 function leaveBalanceRoute(server, leaveBalanceController) {
     server.route([
         {
             method: 'GET',
             path: '/leave-balances',
-            handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
-                return yield leaveBalanceController.fetchEmployeeLeaveBalance(request, h);
-            })
+            options: {
+                pre: [{ method: auth_middleware_1.authenticate }],
+                handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
+                    return yield leaveBalanceController.fetchEmployeeLeaveBalance(request, h);
+                })
+            }
         }
     ]);
 }

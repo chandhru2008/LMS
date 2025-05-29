@@ -11,8 +11,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LeaveType = void 0;
 const typeorm_1 = require("typeorm");
-const leave_request_model_1 = require("../leave-requests/leave-request-model");
-const leave_balance_model_1 = require("../leave-balances/leave-balance-model");
+const leave_request_entity_1 = require("../leave-requests/leave-request-entity");
+const leave_balance_entity_1 = require("../leave-balances/leave-balance-entity");
 const default_leave_entitlement_entity_1 = require("../default-leave-entitlement/default-leave-entitlement-entity");
 let LeaveType = class LeaveType {
 };
@@ -26,16 +26,16 @@ __decorate([
     __metadata("design:type", String)
 ], LeaveType.prototype, "name", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => leave_request_model_1.LeaveRequest, leaveRequest => leaveRequest.leaveType),
+    (0, typeorm_1.OneToMany)(() => leave_request_entity_1.LeaveRequest, leaveRequest => leaveRequest.leaveType),
     __metadata("design:type", Array)
 ], LeaveType.prototype, "leaveRequests", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => leave_balance_model_1.LeaveBalance, leaveBalance => leaveBalance.leaveType),
+    (0, typeorm_1.OneToMany)(() => leave_balance_entity_1.LeaveBalance, leaveBalance => leaveBalance.leaveType),
     __metadata("design:type", Array)
 ], LeaveType.prototype, "leaveBalances", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => default_leave_entitlement_entity_1.DefaultLeaveEntitlement, (entitlement) => entitlement.leaveType),
-    __metadata("design:type", Object)
+    __metadata("design:type", Array)
 ], LeaveType.prototype, "defaultEntitlements", void 0);
 exports.LeaveType = LeaveType = __decorate([
     (0, typeorm_1.Entity)()

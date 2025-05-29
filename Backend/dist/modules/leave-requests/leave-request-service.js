@@ -11,19 +11,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LeaveRequestService = void 0;
 const conn_1 = require("../../config/db/conn");
-const leave_request_model_1 = require("./leave-request-model");
+const leave_request_entity_1 = require("./leave-request-entity");
 const leave_type_model_1 = require("../leave-types/leave-type-model");
 const employee_entity_1 = require("../empolyee/employee-entity");
-const leave_balance_model_1 = require("../leave-balances/leave-balance-model");
-const leave_approval_model_1 = require("../leave-approval/leave-approval-model");
+const leave_balance_entity_1 = require("../leave-balances/leave-balance-entity");
+const leave_approval_entity_1 = require("../leave-approval/leave-approval-entity");
 const typeorm_1 = require("typeorm");
 class LeaveRequestService {
     constructor() {
-        this.leaveRequestRepo = conn_1.dataSource.getRepository(leave_request_model_1.LeaveRequest);
+        this.leaveRequestRepo = conn_1.dataSource.getRepository(leave_request_entity_1.LeaveRequest);
         this.employeeRepo = conn_1.dataSource.getRepository(employee_entity_1.Employee);
         this.leaveTypeRepo = conn_1.dataSource.getRepository(leave_type_model_1.LeaveType);
-        this.leaveApprovalRepo = conn_1.dataSource.getRepository(leave_approval_model_1.LeaveApproval);
-        this.leaveBalanceRepo = conn_1.dataSource.getRepository(leave_balance_model_1.LeaveBalance);
+        this.leaveApprovalRepo = conn_1.dataSource.getRepository(leave_approval_entity_1.LeaveApproval);
+        this.leaveBalanceRepo = conn_1.dataSource.getRepository(leave_balance_entity_1.LeaveBalance);
     }
     getAllLeaveRequests() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -48,6 +48,58 @@ class LeaveRequestService {
                     name: req.leaveType.name,
                 },
                 approvals: req.approvals.map(appr => ({
+                    id: appr.id,
+                    level: appr.level,
+                    approverRole: appr.approverRole,
+                    status: appr.status,
+                    approvedAt: appr.approvedAt,
+                })),
+            }));
+        });
+    }
+    getAllLeaveRequestsByRole(role, id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let employees = [];
+            if (role === 'hr_manager') {
+                employees = yield this.employeeRepo.find({
+                    where: {
+                        hrManager: { id: id }
+                    }
+                });
+            }
+            else if (role === 'manager') {
+                employees = yield this.employeeRepo.find({
+                    where: {
+                        manager: { id: id }
+                    }
+                });
+            }
+            const leaveRequests = [];
+            for (const employee of employees) {
+                const requests = yield this.leaveRequestRepo.find({
+                    where: { employee: { id: employee.id } },
+                    relations: ['employee', 'leaveType', 'approvals'],
+                });
+                if (requests) {
+                    leaveRequests.push(...requests);
+                }
+            }
+            return leaveRequests.map((req) => ({
+                id: req.id,
+                description: req.description,
+                status: req.status,
+                start_date: req.start_date,
+                end_date: req.end_date,
+                created_at: req.created_at,
+                employee: {
+                    name: req.employee.name,
+                    email: req.employee.email,
+                },
+                leaveType: {
+                    id: req.leaveType.id,
+                    name: req.leaveType.name,
+                },
+                approvals: req.approvals.map((appr) => ({
                     id: appr.id,
                     level: appr.level,
                     approverRole: appr.approverRole,
@@ -112,11 +164,32 @@ class LeaveRequestService {
             const existingLeaves = yield this.leaveRequestRepo.find({
                 where: {
                     employee: { id: employeeId },
-                    status: (0, typeorm_1.In)(['Pending', 'Approve']),
+                    status: (0, typeorm_1.In)(['Pending', 'Approved']),
                 },
             });
             const newStart = new Date(startDate);
             const newEnd = new Date(endDate);
+            if (newEnd < new Date()) {
+                throw new Error('Cannot apply leave for past dates.');
+            }
+            // --- Weekend validation logic ---
+            function isWeekend(date) {
+                const day = date.getDay(); // Sunday = 0, Saturday = 6
+                return day === 0 || day === 6;
+            }
+            const datesInRange = [];
+            let current = new Date(newStart);
+            while (current <= newEnd) {
+                datesInRange.push(new Date(current));
+                current.setDate(current.getDate() + 1);
+            }
+            if (datesInRange.every(isWeekend)) {
+                throw new Error('Cannot request leave only for weekends.');
+            }
+            if (isWeekend(newStart) || isWeekend(newEnd)) {
+                throw new Error('Start or end date cannot fall on a weekend.');
+            }
+            // --- Overlap check ---
             for (const leave of existingLeaves) {
                 const existingStart = new Date(leave.start_date);
                 const existingEnd = new Date(leave.end_date);
@@ -124,7 +197,7 @@ class LeaveRequestService {
                     throw new Error('Leave request overlaps with an existing leave.');
                 }
             }
-            const leaveDays = Math.ceil((newEnd.getTime() - newStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            const leaveDays = datesInRange.filter(date => !isWeekend(date)).length;
             const leaveBalance = yield this.leaveBalanceRepo.findOne({
                 where: {
                     employee: { id: employee.id },
@@ -133,20 +206,7 @@ class LeaveRequestService {
             });
             if (!leaveBalance)
                 throw new Error('Leave balance not found');
-            if (employee.gender === 'male' &&
-                employee.maritalStatus === 'Married' &&
-                leaveType.name === 'Marriage Leave') {
-                const previousMarriageLeave = yield this.leaveRequestRepo.findOne({
-                    where: {
-                        employee: { id: employee.id },
-                        leaveType: { id: leaveType.id },
-                        status: (0, typeorm_1.In)(['Pending', 'Approve', 'Approved']),
-                    },
-                });
-                if (previousMarriageLeave) {
-                    throw new Error('Marriage leave already used.');
-                }
-            }
+            // Emergency Leave auto approval
             if (leaveType.name === 'Emergency Leave') {
                 if (leaveBalance.remaining_leaves < leaveDays) {
                     throw new Error('Insufficient Emergency Leave balance.');
@@ -157,7 +217,7 @@ class LeaveRequestService {
                     start_date: startDate,
                     end_date: endDate,
                     description,
-                    status: 'Approved', // auto-approve
+                    status: 'Approved',
                 });
                 yield this.leaveRequestRepo.save(leaveRequest);
                 leaveBalance.remaining_leaves -= leaveDays;
@@ -177,6 +237,7 @@ class LeaveRequestService {
                 status,
             });
             const savedLeaveRequest = yield this.leaveRequestRepo.save(leaveRequest);
+            // Approval logic
             const approvals = [];
             if (employeeRole === 'employee') {
                 const managerId = (_a = employee.manager) === null || _a === void 0 ? void 0 : _a.id;
@@ -186,21 +247,21 @@ class LeaveRequestService {
                     approvals.push({ level: 1, approverRole: 'manager', approverId: managerId });
                 }
                 else if (leaveDays < 7) {
-                    approvals.push({ level: 1, approverRole: 'manager', approverId: managerId }, { level: 2, approverRole: 'HR' });
+                    approvals.push({ level: 1, approverRole: 'manager', approverId: managerId }, { level: 2, approverRole: 'hr' });
                 }
                 else {
-                    approvals.push({ level: 1, approverRole: 'manager', approverId: managerId }, { level: 2, approverRole: 'director' }, { level: 3, approverRole: 'HR' });
+                    approvals.push({ level: 1, approverRole: 'manager', approverId: managerId }, { level: 2, approverRole: 'director' }, { level: 3, approverRole: 'hr' });
                 }
             }
             else if (employeeRole === 'manager') {
                 approvals.push(...(leaveDays < 3
-                    ? [{ level: 1, approverRole: 'HR' }]
+                    ? [{ level: 1, approverRole: 'hr' }]
                     : [
                         { level: 1, approverRole: 'director' },
-                        { level: 2, approverRole: 'HR' },
+                        { level: 2, approverRole: 'hr' },
                     ]));
             }
-            else if (employeeRole === 'HR') {
+            else if (employeeRole === 'hr') {
                 const hrManagerId = (_b = employee.hrManager) === null || _b === void 0 ? void 0 : _b.id;
                 if (!hrManagerId) {
                     throw new Error('HR manager not found');

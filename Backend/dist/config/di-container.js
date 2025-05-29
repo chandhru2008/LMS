@@ -24,8 +24,8 @@ function initializeDependencies() {
     const leaveRequestController = new leave_request_controller_1.LeaveRequestController(leaveRequestService);
     const leaveBalanceService = new leave_balance_service_1.LeaveBalanceService(defaultLeaveEntitlementService);
     const leaveBalanceController = new leave_balance_controller_1.LeaveBalanceController(leaveBalanceService);
-    const employeeService = new employee_service_1.EmployeeService();
-    const employeeController = new employee_controller_1.EmployeeController(employeeService, leaveBalanceController);
+    const employeeService = new employee_service_1.EmployeeService(leaveBalanceService);
+    const employeeController = new employee_controller_1.EmployeeController(employeeService);
     const leaveApprovalService = new leave_approval_service_1.LeaveApprovalService(conn_1.dataSource);
     const leaveApprovalController = new leave_approval_controller_1.LeaveApprovalController(leaveApprovalService);
     return {

@@ -14,9 +14,6 @@ const conn_1 = require("../../config/db/conn");
 const default_leave_entitlement_entity_1 = require("./default-leave-entitlement-entity");
 const defaultLeaveEntitlementRepo = conn_1.dataSource.getRepository(default_leave_entitlement_entity_1.DefaultLeaveEntitlement);
 class DefaultLeaveEntitlementService {
-    registerRoutes(server, defaultLeaveEntitlementController) {
-        throw new Error('Method not implemented.');
-    }
     getEntitlementsByRole(role) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -28,11 +25,6 @@ class DefaultLeaveEntitlementService {
             catch (error) {
                 throw new Error('Error retrieving default leave entitlements');
             }
-        });
-    }
-    getAllEntitlements() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield defaultLeaveEntitlementRepo.find();
         });
     }
 }

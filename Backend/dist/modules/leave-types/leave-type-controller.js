@@ -26,5 +26,20 @@ class LeaveTypeController {
             }
         });
     }
+    getLeaveTypesByEligibility(request, h) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const gender = request.auth.credentials.payload.gender;
+                const maritalStatus = request.auth.credentials.payload.materialStatus;
+                request.auth.credentials.payload;
+                const leaveTypesByEligibility = yield this.leaveTypeService.getLeaveTypeByEligibility(gender, maritalStatus);
+                return h.response(leaveTypesByEligibility).code(200);
+            }
+            catch (error) {
+                console.error('Controller error:', error);
+                return h.response({ message: 'Failed to fetch leave types' }).code(400);
+            }
+        });
+    }
 }
 exports.LeaveTypeController = LeaveTypeController;

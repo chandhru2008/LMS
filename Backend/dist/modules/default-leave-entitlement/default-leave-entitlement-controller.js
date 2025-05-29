@@ -26,16 +26,5 @@ class DefaultLeaveEntitlementController {
             }
         });
     }
-    getAll(request, h) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const data = yield this.defaultLeaveEntitlementService.getAllEntitlements();
-                return h.response(data).code(200);
-            }
-            catch (err) {
-                return h.response({ message: err.message }).code(500);
-            }
-        });
-    }
 }
 exports.DefaultLeaveEntitlementController = DefaultLeaveEntitlementController;
