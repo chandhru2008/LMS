@@ -1,3 +1,5 @@
+import type { Dispatch, SetStateAction } from "react";
+
 export interface ILeaveRequestRawData {
     employeeName: string,
     employeeEmail: string,
@@ -30,7 +32,7 @@ export interface ILeaveRequest {
         status: string;
         approvalStatus: {
             managerApproval: 'Approved' | 'Pending' | 'Cancelled';
-            hrMangerApproval: 'Approved' | 'Pending' | 'Cancelled'
+            hrManagerApproval: 'Approved' | 'Pending' | 'Cancelled'
             hrApproval: 'Approved' | 'Pending' | 'Cancelled';
             directorApproval: 'Approved' | 'Pending' | 'Cancelled';
         };
@@ -79,8 +81,11 @@ export interface IAuthData {
     role: 'hr' | 'manager' | 'hr_manager' | 'director' | 'employee';
 };
 
-export interface IAuthContextType {
+
+export interface IAuthContextType  {
     authData: IAuthData | null;
+    login: boolean;
+    setLogin :  Dispatch<SetStateAction<boolean>>;
 };
 
 export interface ILeaveType {
@@ -121,3 +126,11 @@ export interface TabPanelProps {
     activeTab: string;
     role: string;
 }
+
+export interface IAuthData  {
+    name: string;
+    email: string;
+    role: 'hr' | 'manager' | 'hr_manager' | 'director' | 'employee';
+};
+
+

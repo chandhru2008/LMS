@@ -10,7 +10,7 @@ const [decision, setDecision] = useState('')
     async function fetchLeaveHistory() {
     
       try {
-        const response = await fetch("https://lms-zwod.onrender.com/leave-requests/my", {
+        const response = await fetch("http://localhost:3001/leave-requests/my", {
           method: "GET",
           credentials: "include",
         });
@@ -37,7 +37,7 @@ const [decision, setDecision] = useState('')
     if (!confirmCancel) return;
 
     try {
-      const res = await fetch(`https://lms-zwod.onrender.com/leave-requests/cancel`, {
+      const res = await fetch(`http://localhost:3001/leave-requests/cancel`, {
         method: "PUT",
         credentials: "include",
         headers: {

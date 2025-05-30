@@ -30,7 +30,7 @@ const CustomToolbar: React.FC<{ label: string; onNavigate: (action: "PREV" | "NE
   useEffect(() => {
     async function getLeaveType() {
       try {
-        const res = await fetch("https://lms-zwod.onrender.com/leave-types", {
+        const res = await fetch("http://localhost:3001/leave-types", {
           method: "GET",
           credentials: "include",
         });
@@ -104,9 +104,9 @@ const LeaveCalendar: React.FC = () => {
         let endpoint = "";
 
         if (role === "hr" || role === "director") {
-          endpoint = "https://lms-zwod.onrender.com/all-leave-requests";
+          endpoint = "http://localhost:3001/all-leave-requests";
         } else if (role === "hr_manager" || role === "manager") {
-          endpoint = "https://lms-zwod.onrender.com/all-leave-requests-by-role";
+          endpoint = "http://localhost:3001/all-leave-requests-by-role";
         } else {
           console.warn("Unauthorized or unknown role");
           return;

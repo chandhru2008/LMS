@@ -130,13 +130,12 @@ export class LeaveApprovalService {
         leaveRequestId: string,
         decision: 'Approve' | 'Reject',
         role: 'manager' | 'hr' | 'hr_manager' | 'director' | 'employee',
-        approverId: string
+        approverId: string,
+        remark: string
     ) {
         const approvalRepo = this.dataSource.getRepository(LeaveApproval);
         const leaveRequestRepo = this.dataSource.getRepository(LeaveRequest);
         const leaveBalanceRepo = this.dataSource.getRepository(LeaveBalance);
-
-
 
 
         const approvals = await approvalRepo.findOne({
@@ -155,8 +154,11 @@ export class LeaveApprovalService {
             throw new Error('Cannot approve leave requests for past dates');
         }
 
+
+
         if (!approvals.approver || approvals.approver.id === null) {
             approvals.approver = { id: approverId } as any;
+
             if (decision === 'Approve') {
                 approvals.status = 'Approved'
             } else if (decision === 'Reject') {
@@ -169,10 +171,12 @@ export class LeaveApprovalService {
             }
         } else {
             if (decision === 'Approve') {
+
                 approvals.status = 'Approved'
             } else if (decision === 'Reject') {
                 approvals.status = 'Rejected'
             } try {
+                approvals.remarks = remark;
                 await approvalRepo.save(approvals);
             } catch (err) {
                 console.error('Failed to save approval:', err);

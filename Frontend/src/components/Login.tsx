@@ -1,14 +1,26 @@
-import { useState } from 'react';
-import {  useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthProvider';
 
 function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const { login, setLogin } = useAuth();
+
+
+  useEffect(() => {
+    console.log(login)
+    if (login) { console.log(login); navigate('/'); }
+  }, [login, navigate])
+
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+
+
     e.preventDefault();
+
 
     const validEmailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!validEmailRegex.test(email)) {
@@ -19,7 +31,7 @@ function Login() {
     try {
       const userData = { email, password };
 
-      const response = await fetch('https://lms-zwod.onrender.com/login', {
+      const response = await fetch('http://localhost:3001/login', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -36,8 +48,9 @@ function Login() {
           setErrorMessage(errorData.message);
         }
       } else {
-        const data  = await response.json();
-        localStorage.setItem('role' , data.role)
+        const data = await response.json();
+        localStorage.setItem('role', data.role)
+        setLogin(true)
         navigate('/')
       }
 

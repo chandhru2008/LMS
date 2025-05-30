@@ -5,18 +5,26 @@ import LeaveBalances from "./LeaveBalance";
 import Registration from "./Registration";
 import LeaveRequestApproval from "./LeaveRequestApprovals";
 import { useAuth } from "./AuthProvider";
+import { useNavigate } from "react-router-dom";
+
 
 function DashBoard() {
+
+    const navigate = useNavigate();
     const [role, setRole] = useState('');
     const [activeTab, setActiveTab] = useState('leaveRequest');
 
-    const { authData } = useAuth();
+    const { authData, login } = useAuth();
 
     useEffect(() => {
         if (authData) {
             setRole(authData.role);
+            if (!login) {
+                console.log(login)
+                navigate('/login');
+            }
         }
-    }, [authData]);
+    }, [authData, login, navigate]);
 
 
     const tabs = [
