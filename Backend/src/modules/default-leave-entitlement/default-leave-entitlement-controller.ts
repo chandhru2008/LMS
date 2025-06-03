@@ -19,5 +19,4 @@ export class DefaultLeaveEntitlementController {
       return h.response({ message: err.message }).code(500);
     }
   }
-
 }

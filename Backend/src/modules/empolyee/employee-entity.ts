@@ -40,27 +40,23 @@ export class Employee {
 
     @Column({ type: 'enum', enum: ['single', 'married'], nullable: true })
     maritalStatus?: 'single' | 'married';
-
-    @ManyToOne(() => Employee, { nullable: true })
-    @JoinColumn({ name: "intern_id" })
-    intern?: Employee;
     
-    // For employee role
+
     @ManyToOne(() => Employee, { nullable: true })
     @JoinColumn({ name: "manager_id" })
     manager?: Employee;
 
-    // For manager role
+   
     @ManyToOne(() => Employee, { nullable: true })
     @JoinColumn({ name: "hr_id" })
     hr?: Employee;
 
-    // For HR role
+    
     @ManyToOne(() => Employee, { nullable: true })
     @JoinColumn({ name: "hr_manager_id" })
     hrManager?: Employee;
 
-    // For HR Manager role
+ 
     @ManyToOne(() => Employee, { nullable: true })
     @JoinColumn({ name: "director_id" })
     director?: Employee;

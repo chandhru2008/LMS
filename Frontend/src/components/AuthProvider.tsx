@@ -27,7 +27,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setAuthData(data);
             }
 
-
         } catch (err) {
             console.log('Error in fetching authData : ', err)
             setAuthData(null);
@@ -39,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ authData, login, setLogin }} >
+        <AuthContext.Provider value={{ authData, login, setLogin, setAuthData, fetchAuth }} >
             {children}
         </AuthContext.Provider>
     );

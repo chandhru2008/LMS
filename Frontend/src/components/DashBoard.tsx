@@ -24,6 +24,7 @@ function DashBoard() {
                 navigate('/login');
             }
         }
+        console.log(authData)
     }, [authData, login, navigate]);
 
 

@@ -82,10 +82,12 @@ export interface IAuthData {
 };
 
 
-export interface IAuthContextType  {
+export interface IAuthContextType {
     authData: IAuthData | null;
     login: boolean;
-    setLogin :  Dispatch<SetStateAction<boolean>>;
+    setLogin: Dispatch<SetStateAction<boolean>>;
+    setAuthData: React.Dispatch<React.SetStateAction<IAuthData | null>>;
+    fetchAuth: () => Promise<void>;
 };
 
 export interface ILeaveType {
@@ -103,11 +105,11 @@ export interface IApproval {
 }
 
 export interface IApiLeaveData {
-  employee: { name: string; email: string };
-  leaveType: { name: string };
-  start_date: string;
-  end_date: string;
-  status: string;
+    employee: { name: string; email: string };
+    leaveType: { name: string };
+    start_date: string;
+    end_date: string;
+    status: string;
 }
 
 
@@ -127,7 +129,7 @@ export interface TabPanelProps {
     role: string;
 }
 
-export interface IAuthData  {
+export interface IAuthData {
     name: string;
     email: string;
     role: 'hr' | 'manager' | 'hr_manager' | 'director' | 'employee';

@@ -7,7 +7,7 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const { login, setLogin } = useAuth();
+  const { login, setLogin, fetchAuth } = useAuth();
 
 
   useEffect(() => {
@@ -49,7 +49,8 @@ function Login() {
         }
       } else {
         const data = await response.json();
-        localStorage.setItem('role', data.role)
+        localStorage.setItem('role', data.role);
+        await fetchAuth();
         setLogin(true)
         navigate('/')
       }

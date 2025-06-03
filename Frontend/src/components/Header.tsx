@@ -8,7 +8,8 @@ function Header() {
     const navigate = useNavigate();
     const [data, setData] = useState<IAuthData>();
     const [showProfile, setShowProfile] = useState(false);
-    const { authData, login, setLogin } = useAuth();
+    const { authData, login, setLogin, setAuthData } = useAuth();
+
 
     useEffect(() => {
         if (authData && login) {
@@ -27,6 +28,7 @@ function Header() {
             });
             if (response.ok) {
                 setLogin(false);
+                setAuthData(null); 
                 navigate("/login");
             } else {
                 console.error('Logout failed');
