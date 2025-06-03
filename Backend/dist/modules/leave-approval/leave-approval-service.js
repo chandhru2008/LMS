@@ -113,7 +113,7 @@ class LeaveApprovalService {
             return result;
         });
     }
-    approveLeave(leaveRequestId, decision, role, approverId) {
+    approveLeave(leaveRequestId, decision, role, approverId, remark) {
         return __awaiter(this, void 0, void 0, function* () {
             const approvalRepo = this.dataSource.getRepository(leave_approval_entity_1.LeaveApproval);
             const leaveRequestRepo = this.dataSource.getRepository(leave_request_entity_1.LeaveRequest);
@@ -153,6 +153,7 @@ class LeaveApprovalService {
                     approvals.status = 'Rejected';
                 }
                 try {
+                    approvals.remarks = remark;
                     yield approvalRepo.save(approvals);
                 }
                 catch (err) {

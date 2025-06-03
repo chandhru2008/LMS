@@ -41,6 +41,7 @@ class EmployeeController {
                 const employee = yield this.employeeService.loginEmployee({ email, password });
                 const role = employee.role;
                 const JWTToken = (0, jwtUtil_1.generateJWTToken)(employee);
+                console.log("new  JWT : ", JWTToken);
                 h.state('userSession', { token: JWTToken });
                 return h.response({ message: 'Login successful', role }).code(200);
             }
@@ -59,8 +60,10 @@ class EmployeeController {
                 const credentials = request.auth.credentials;
                 const name = credentials.payload.name;
                 const role = credentials.payload.role;
+                const email = credentials.payload.email;
                 return h.response({
-                    employeeName: name,
+                    name: name,
+                    email: email,
                     role: role,
                 }).code(200);
             }

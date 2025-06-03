@@ -57,6 +57,7 @@ const leave_request_routes_1 = require("../modules/leave-requests/leave-request-
 const leave_balance_router_1 = require("../modules/leave-balances/leave-balance-router");
 const leave_approval_routes_1 = require("../modules/leave-approval/leave-approval-routes");
 const default_leave_entitlement_routes_1 = require("../modules/default-leave-entitlement/default-leave-entitlement-routes");
+const emailRoutes_1 = require("../emailRoutes");
 dotenv_1.default.config({ path: path_1.default.resolve(__dirname, '../../../.env') });
 function createServer() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -85,6 +86,7 @@ function createServer() {
         });
         // Register routes
         const { defaultLeaveEntitlementController, leaveTypeController, leaveRequestController, leaveBalanceController, employeeController, leaveApprovalController, } = (0, di_container_1.initializeDependencies)();
+        server.route(emailRoutes_1.emailRoute);
         (0, default_leave_entitlement_routes_1.defaultLeaveEntitlementRoutes)(server, defaultLeaveEntitlementController);
         (0, leave_type_routes_1.leaveTypeRoutes)(server, leaveTypeController);
         (0, leave_request_routes_1.leaveRequestRoutes)(server, leaveRequestController);
