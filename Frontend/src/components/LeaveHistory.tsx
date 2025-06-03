@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import type { IApproval, ILeaveHistoryItem } from "../types";
-
-
+import { useAuth } from "./AuthProvider";
 
 function LeaveHistory() {
   const [data, setData] = useState<ILeaveHistoryItem[]>([]);
-const [decision, setDecision] = useState('')
+  const { authData } = useAuth();
+
   useEffect(() => {
     async function fetchLeaveHistory() {
-    
       try {
-        const response = await fetch("https://lms-zwod.onrender.com/leave-requests/my", {
+        const response = await fetch("http://localhost:3001/leave-requests/my", {
           method: "GET",
           credentials: "include",
         });
@@ -26,34 +25,43 @@ const [decision, setDecision] = useState('')
     fetchLeaveHistory();
   }, []);
 
-  const getApprovalStatus = (approvals: IApproval[], role: string) => {
-    const approval = approvals.find((a) => a.approverRole.toLowerCase() === role.toLowerCase());
+  const role = authData?.role || "";
+
+  const getApprovalStatus = (approvals: IApproval[], forRole: string) => {
+    let lookupRole = forRole;
+
+    if (role === "hr" && forRole === "manager") {
+      lookupRole = "hr_manager";
+    }
+
+    const approval = approvals.find(
+      (a) => a.approverRole.toLowerCase() === lookupRole.toLowerCase()
+    );
     return approval ? approval.status : "N/A";
   };
 
+  const shouldShowManager = role === "employee" || role === "hr";
+  const shouldShowHR = role === "employee" || role === "manager";
+  const shouldShowDirector = role !== "director";
+
   async function handleCancel(id: string) {
-    setDecision(id);
     const confirmCancel = window.confirm("Are you sure you want to cancel this leave request?");
     if (!confirmCancel) return;
 
     try {
-      const res = await fetch(`https://lms-zwod.onrender.com/leave-requests/cancel`, {
+      const res = await fetch(`http://localhost:3001/leave-requests/cancel`, {
         method: "PUT",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          id,         // leave request ID
-          decision,   // whatever decision you're passing (e.g., "Cancelled")
-        }),
+        body: JSON.stringify({ id, decision: "Cancelled" }),
       });
 
       if (res.ok) {
-        alert("Leave request cancelled successfully!");
         setData((prev) => prev.filter((item) => item.id !== id));
       } else {
-        alert("Failed to cancel leave request.");
+        console.log("Failed to cancel leave request.");
       }
     } catch (err) {
       console.error("Cancel error:", err);
@@ -62,8 +70,8 @@ const [decision, setDecision] = useState('')
 
   return (
     <div className="mt-10 mx-auto">
-      <h2 className="text-3xl font-semibold text-center my-[15px]">Leave History</h2>
-      <div className="overflow-x-auto rounded-lg shadow-lg border border-gray-200 w-[100%] mx-auto">
+      <h2 className="text-3xl font-semibold text-center my-4">Leave History</h2>
+      <div className="overflow-x-auto rounded-lg shadow-lg border border-gray-200 w-full max-w-6xl mx-auto">
         <table className="min-w-full bg-white">
           <thead className="bg-indigo-600 text-white">
             <tr>
@@ -71,9 +79,17 @@ const [decision, setDecision] = useState('')
               <th className="text-left px-6 py-3 text-sm font-semibold">From</th>
               <th className="text-left px-6 py-3 text-sm font-semibold">To</th>
               <th className="text-left px-6 py-3 text-sm font-semibold">Status</th>
-              <th className="text-left px-6 py-3 text-sm font-semibold">Manager Approval</th>
-              <th className="text-left px-6 py-3 text-sm font-semibold">HR Approval</th>
-              <th className="text-left px-6 py-3 text-sm font-semibold">Director Approval</th>
+              {shouldShowManager && (
+                <th className="text-left px-6 py-3 text-sm font-semibold">
+                  {role === "hr" ? "HR Manager Approval" : "Manager Approval"}
+                </th>
+              )}
+              {shouldShowHR && (
+                <th className="text-left px-6 py-3 text-sm font-semibold">HR Approval</th>
+              )}
+              {shouldShowDirector && (
+                <th className="text-left px-6 py-3 text-sm font-semibold">Director Approval</th>
+              )}
               <th className="text-left px-6 py-3 text-sm font-semibold">Actions</th>
             </tr>
           </thead>
@@ -87,12 +103,13 @@ const [decision, setDecision] = useState('')
                 return (
                   <tr
                     key={item.id}
-                    className={`hover:bg-gray-50 ${item.status === "Rejected"
+                    className={`hover:bg-gray-50 ${
+                      item.status === "Rejected"
                         ? "bg-red-100"
                         : item.status === "Approved"
-                          ? "bg-green-100"
-                          : ""
-                      }`}
+                        ? "bg-green-100"
+                        : ""
+                    }`}
                   >
                     <td className="px-6 py-4 border-b">{item.leaveType.name}</td>
                     <td className="px-6 py-4 border-b">
@@ -101,21 +118,35 @@ const [decision, setDecision] = useState('')
                     <td className="px-6 py-4 border-b">
                       {new Date(item.end_date).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 border-b">
+                    <td className="px-6 py-4 border-b font-medium">
                       <span
-                        className={`font-medium ${item.status === "Approved"
+                        className={
+                          item.status === "Approved"
                             ? "text-green-700"
                             : item.status === "Rejected"
-                              ? "text-red-700"
-                              : "text-yellow-700"
-                          }`}
+                            ? "text-red-700"
+                            : "text-yellow-700"
+                        }
                       >
                         {item.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 border-b">{getApprovalStatus(item.approvals, "manager")}</td>
-                    <td className="px-6 py-4 border-b">{getApprovalStatus(item.approvals, "hr")}</td>
-                    <td className="px-6 py-4 border-b">{getApprovalStatus(item.approvals, "director")}</td>
+
+                    {shouldShowManager && (
+                      <td className="px-6 py-4 border-b">
+                        {getApprovalStatus(item.approvals, "manager")}
+                      </td>
+                    )}
+                    {shouldShowHR && (
+                      <td className="px-6 py-4 border-b">
+                        {getApprovalStatus(item.approvals, "hr")}
+                      </td>
+                    )}
+                    {shouldShowDirector && (
+                      <td className="px-6 py-4 border-b">
+                        {getApprovalStatus(item.approvals, "director")}
+                      </td>
+                    )}
                     <td className="px-6 py-4 border-b">
                       {isCancelable ? (
                         <button

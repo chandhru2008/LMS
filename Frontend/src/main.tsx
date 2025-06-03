@@ -12,17 +12,17 @@ import LeaveCalendar from './components/LeaveCalendar/LeaveCalendarBody.tsx'
 const router = createBrowserRouter([
   {
     path: "/login",
-    element: <Login />
+    element: (<AuthProvider><Login /></AuthProvider>)
   },
   {
     path: "/",
-    element: <App />
+    element: (<AuthProvider><App /></AuthProvider>)
   },
   {
     path: '/calendar',
-    element: <LeaveCalendar />
+    element: (<AuthProvider><LeaveCalendar /></AuthProvider>)
   }
 ])
 createRoot(document.getElementById('root')!).render(
-  <AuthProvider><RouterProvider router={router} /></AuthProvider>
+  <RouterProvider router={router} />
 )

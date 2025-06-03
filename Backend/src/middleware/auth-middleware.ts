@@ -4,6 +4,11 @@ import { getTokenFromRequest, verifyToken } from '../utils/jwtUtil';
 export const authenticate = async (request: Request, h: ResponseToolkit) => {
     try {
         const token = getTokenFromRequest(request);
+
+        console.log("Token : ", token)
+
+
+
         if (!token) {
             throw new Error('JWT token must be provided');
         }

@@ -20,12 +20,15 @@ function LeaveRequestForm() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const typesRes = await fetch("https://lms-zwod.onrender.com/leave-types/eligibility", {
+        const typesRes = await fetch("http://localhost:3001/leave-types/eligibility", {
           method: "GET",
           credentials: "include",
         });
 
         const types = await typesRes.json();
+
+        console.log(types);
+        
         setLeaveTypes(types);
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -75,7 +78,7 @@ function LeaveRequestForm() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://lms-zwod.onrender.com/create-leave-request", {
+      const response = await fetch("http://localhost:3001/create-leave-request", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -104,7 +107,7 @@ function LeaveRequestForm() {
     }
   };
 
-
+console.log(leaveTypes)
   return (
     <div className="max-w-4xl mx-auto mt-10 bg-white shadow-xl rounded-2xl overflow-hidden p-6">
       <h2 className="text-xl font-bold mb-4 text-indigo-600">Leave Request</h2>

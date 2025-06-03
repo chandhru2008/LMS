@@ -12,7 +12,7 @@ export function defaultLeaveEntitlementRoutes(server: Server, defaultLeaveEntitl
       handler: async (request, h) => {
         return defaultLeaveEntitlementController.getByRole(request, h);
       }
-    },
+    }
   ]);
 }
 

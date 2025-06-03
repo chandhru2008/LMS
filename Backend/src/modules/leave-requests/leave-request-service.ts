@@ -5,6 +5,7 @@ import { Employee } from '../empolyee/employee-entity';
 import { LeaveBalance } from '../leave-balances/leave-balance-entity';
 import { LeaveApproval } from '../leave-approval/leave-approval-entity';
 import { In, Repository } from 'typeorm';
+import { sendEmail } from '../../mailservice';
 
 export class LeaveRequestService {
   private leaveRequestRepo: Repository<LeaveRequest>;
@@ -162,7 +163,6 @@ export class LeaveRequestService {
       where: { id: employeeId },
       relations: ['manager', 'hrManager'],
     });
-
     if (!employee) throw new Error('Employee not found');
 
     const leaveType = await this.leaveTypeRepo.findOneBy({ id: leaveTypeId });
@@ -177,16 +177,9 @@ export class LeaveRequestService {
 
     const newStart = new Date(startDate);
     const newEnd = new Date(endDate);
+    if (newEnd < new Date()) throw new Error('Cannot apply leave for past dates.');
 
-    if (newEnd < new Date()) {
-      throw new Error('Cannot apply leave for past dates.');
-    }
-
-    // --- Weekend validation logic ---
-    function isWeekend(date: Date): boolean {
-      const day = date.getDay(); // Sunday = 0, Saturday = 6
-      return day === 0 || day === 6;
-    }
+    const isWeekend = (date: Date): boolean => [0, 6].includes(date.getDay());
 
     const datesInRange: Date[] = [];
     let current = new Date(newStart);
@@ -198,12 +191,10 @@ export class LeaveRequestService {
     if (datesInRange.every(isWeekend)) {
       throw new Error('Cannot request leave only for weekends.');
     }
-
     if (isWeekend(newStart) || isWeekend(newEnd)) {
       throw new Error('Start or end date cannot fall on a weekend.');
     }
 
-    // --- Overlap check ---
     for (const leave of existingLeaves) {
       const existingStart = new Date(leave.start_date);
       const existingEnd = new Date(leave.end_date);
@@ -214,23 +205,32 @@ export class LeaveRequestService {
 
     const leaveDays = datesInRange.filter(date => !isWeekend(date)).length;
 
-
     const leaveBalance = await this.leaveBalanceRepo.findOne({
       where: {
         employee: { id: employee.id },
         leaveType: { id: leaveType.id },
       },
     });
-
     if (!leaveBalance) throw new Error('Leave balance not found');
 
-    // Emergency Leave auto approval
+    const leaveInfo = `${employee.name} applied ${leaveType.name} for ${leaveDays} day(s) from ${startDate} to ${endDate}`;
+    const html = `
+    <p>Click the button below to open the app:</p>
+    <a href="http://localhost:3001" style="padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:5px;">
+      Go to App
+    </a>
+  `;
+
+    const approvals = [];
+    let initialEmails: string[] = [];
+
+    // Emergency Leave auto-approval logic
     if (leaveType.name === 'Emergency Leave') {
       if (leaveBalance.remaining_leaves < leaveDays) {
         throw new Error('Insufficient Emergency Leave balance.');
       }
 
-      const leaveRequest = this.leaveRequestRepo.create({
+      const emergencyLeave = this.leaveRequestRepo.create({
         employee,
         leaveType,
         start_date: startDate,
@@ -238,18 +238,17 @@ export class LeaveRequestService {
         description,
         status: 'Approved',
       });
-
-      await this.leaveRequestRepo.save(leaveRequest);
+      await this.leaveRequestRepo.save(emergencyLeave);
 
       leaveBalance.remaining_leaves -= leaveDays;
       leaveBalance.used_leaves += leaveDays;
       await this.leaveBalanceRepo.save(leaveBalance);
 
-      return 'Emergency leave auto-approved successfully.';
-    }
+      if (employee.manager?.email) {
+        sendEmail(employee.manager.email, leaveInfo, description, html);
+      }
 
-    if (leaveBalance.remaining_leaves < leaveDays) {
-      throw new Error('Insufficient leave balance');
+      return 'Emergency leave auto-approved and email sent to manager.';
     }
 
     const leaveRequest = this.leaveRequestRepo.create({
@@ -260,56 +259,64 @@ export class LeaveRequestService {
       description,
       status,
     });
-
     const savedLeaveRequest = await this.leaveRequestRepo.save(leaveRequest);
 
-    // Approval logic
-    const approvals = [];
-
+    // Approval logic based on role
     if (employeeRole === 'employee') {
-      const managerId = employee.manager?.id;
-      if (!managerId) throw new Error('Manager not assigned');
+      const manager = employee.manager;
+      if (!manager) throw new Error('Manager not assigned');
+
+      approvals.push({ level: 1, approverRole: 'manager', approverId: manager.id });
 
       if (leaveDays < 3) {
-        approvals.push({ level: 1, approverRole: 'manager', approverId: managerId });
+        initialEmails.push(manager.email);
       } else if (leaveDays < 7) {
-        approvals.push(
-          { level: 1, approverRole: 'manager', approverId: managerId },
-          { level: 2, approverRole: 'hr' }
-        );
+        approvals.push({ level: 2, approverRole: 'hr' });
+        initialEmails.push(manager.email);
       } else {
         approvals.push(
-          { level: 1, approverRole: 'manager', approverId: managerId },
           { level: 2, approverRole: 'director' },
           { level: 3, approverRole: 'hr' }
         );
+        initialEmails.push(manager.email);
       }
     } else if (employeeRole === 'manager') {
-      approvals.push(
-        ...(leaveDays < 3
-          ? [{ level: 1, approverRole: 'hr' }]
-          : [
-            { level: 1, approverRole: 'director' },
-            { level: 2, approverRole: 'hr' },
-          ])
-      );
-    } else if (employeeRole === 'hr') {
-      const hrManagerId = employee.hrManager?.id;
-      if (!hrManagerId) {
-        throw new Error('HR manager not found');
+      const hrs = await this.employeeRepo.find({ where: { role: 'hr' } });
+      const hrEmails = hrs.map(hr => hr.email);
+
+      if (leaveDays < 3) {
+        approvals.push({ level: 1, approverRole: 'hr' });
+      } else {
+        approvals.push(
+          { level: 1, approverRole: 'director' },
+          { level: 2, approverRole: 'hr' }
+        );
       }
-      approvals.push(
-        ...(leaveDays < 3
-          ? [{ level: 1, approverRole: 'hr_manager', approverId: hrManagerId }]
-          : [
-            { level: 1, approverRole: 'hr_manager', approverId: hrManagerId },
-            { level: 2, approverRole: 'director' },
-          ])
-      );
+      initialEmails = hrEmails;
+    } else if (employeeRole === 'hr') {
+      const hrManager = employee.hrManager;
+      if (!hrManager) throw new Error('HR manager not assigned');
+
+      if (leaveDays < 3) {
+        approvals.push({
+          level: 1,
+          approverRole: 'hr_manager',
+          approverId: hrManager.id,
+        });
+      } else {
+        approvals.push(
+          { level: 1, approverRole: 'hr_manager', approverId: hrManager.id },
+          { level: 2, approverRole: 'director' }
+        );
+      }
+      initialEmails.push(hrManager.email);
     } else if (employeeRole === 'hr_manager') {
       approvals.push({ level: 1, approverRole: 'director' });
+      const directors = await this.employeeRepo.find({ where: { role: 'director' } });
+      initialEmails = directors.map(d => d.email);
     }
 
+    // Save all approval records
     for (const approval of approvals) {
       const leaveApproval = this.leaveApprovalRepo.create({
         leaveRequest: savedLeaveRequest,
@@ -320,11 +327,16 @@ export class LeaveRequestService {
           ? { id: approval.approverId } as Employee
           : undefined,
       });
-
       await this.leaveApprovalRepo.save(leaveApproval);
     }
 
-    return 'Leave request submitted successfully and pending approvals.';
+    // Send emails only to the first group of approvers
+    for (const email of initialEmails) {
+      sendEmail(email, leaveInfo, description, html);
+    }
+
+    return 'Leave request submitted successfully and email sent to first approver.';
   }
+
 
 }

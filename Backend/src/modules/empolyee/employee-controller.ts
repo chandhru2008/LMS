@@ -44,6 +44,7 @@ export class EmployeeController {
       const employee = await this.employeeService.loginEmployee({ email, password });
       const role = employee.role 
       const JWTToken = generateJWTToken(employee);
+      console.log("new  JWT : ", JWTToken)
       h.state('userSession', { token: JWTToken });
       return h.response({ message: 'Login successful', role }).code(200);
     } catch (error) {
@@ -60,9 +61,11 @@ export class EmployeeController {
       const credentials = request.auth.credentials;
       const name = credentials.payload.name;
       const role = credentials.payload.role;
+      const email = credentials.payload.email
 
       return h.response({
-        employeeName: name,
+        name: name,
+        email : email,
         role: role,
       }).code(200);
     } catch (error) {

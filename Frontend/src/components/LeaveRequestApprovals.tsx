@@ -13,27 +13,26 @@ function calculateDuration(start: string, end: string): number {
 const approvalFieldMap: Record<string, keyof ILeaveRequest["leaveDetails"]["approvalStatus"]> = {
   director: "directorApproval",
   hr: "hrApproval",
-  hr_manager : "hrMangerApproval",
+  hr_manager: "hrManagerApproval",
   manager: "managerApproval",
 };
 
 function LeaveRequestApproval() {
   const { authData } = useAuth();
-  if(!authData) throw new Error('authData is missing')
-  const role = authData.role; 
-;
-  const [leaveRequests, setLeaveRequests] = useState<ILeaveRequest[]>([]);
+  if (!authData) throw new Error("authData is missing");
+  const role = authData.role;
 
+  const [leaveRequests, setLeaveRequests] = useState<ILeaveRequest[]>([]);
+  const [remarksMap, setRemarksMap] = useState<Record<string, string>>({});
 
   const approvalField = approvalFieldMap[role] ?? null;
-
 
   useEffect(() => {
     if (!approvalField) return;
 
     async function fetchLeaveRequests() {
       try {
-        const res = await fetch("https://lms-zwod.onrender.com/approvals", {
+        const res = await fetch("http://localhost:3001/approvals", {
           method: "GET",
           credentials: "include",
         });
@@ -71,8 +70,10 @@ function LeaveRequestApproval() {
   }, [approvalField]);
 
   async function handleAction(id: string, decision: "Approve" | "Reject") {
+    const remarks = remarksMap[id] || "";
+
     try {
-      const res = await fetch(`https://lms-zwod.onrender.com/approvals/decision`, {
+      const res = await fetch(`http://localhost:3001/approvals/decision`, {
         method: "PUT",
         credentials: "include",
         headers: {
@@ -82,6 +83,7 @@ function LeaveRequestApproval() {
           leaveRequestId: id,
           decision,
           role,
+          remarks,
         }),
       });
 
@@ -89,6 +91,11 @@ function LeaveRequestApproval() {
         setLeaveRequests((prev) =>
           prev.filter((req) => req.leaveDetails.leaveRequestId !== id)
         );
+        setRemarksMap((prev) => {
+          const updated = { ...prev };
+          delete updated[id];
+          return updated;
+        });
       } else {
         console.error("Action failed");
       }
@@ -184,6 +191,22 @@ function LeaveRequestApproval() {
                     <p className="font-semibold">Director Approval</p>
                     <p>{leaveDetails.approvalStatus.directorApproval}</p>
                   </div>
+                </div>
+
+                <div>
+                  <p className="font-semibold text-sm text-gray-600">Remarks</p>
+                  <textarea
+                    value={remarksMap[leaveDetails.leaveRequestId] || ""}
+                    onChange={(e) =>
+                      setRemarksMap((prev) => ({
+                        ...prev,
+                        [leaveDetails.leaveRequestId]: e.target.value,
+                      }))
+                    }
+                    placeholder="Enter remarks..."
+                    className="w-full mt-1 p-2 border rounded text-gray-700 resize-none"
+                    rows={2}
+                  />
                 </div>
 
                 <div className="flex justify-end gap-4 pt-4">
