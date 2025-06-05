@@ -18,11 +18,11 @@ dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 export async function createServer(): Promise<Hapi.Server> {
   const server: Hapi.Server = Hapi.server({
     port: 3001,
-    host: '0.0.0.0',
+    host: 'localhost',
     routes: {
       state: { parse: true },
       cors: {
-        origin: ['https://leave-management-app-2025.netlify.app'],
+        origin: ['http://localhost:5173'],
         credentials: true,
       },
     },
@@ -31,9 +31,9 @@ export async function createServer(): Promise<Hapi.Server> {
   // Cookie config
   server.state('userSession', {
     ttl: 24 * 60 * 60 * 1000,
-    isSecure: true,
-    isSameSite: 'None',
-    domain: 'lms-zwod.onrender.com',
+    isSecure: false,
+    // isSameSite: 'None',
+    // domain: 'lms-zwod.onrender.com',
     isHttpOnly: true,
     path: '/',
     encoding: 'base64json',

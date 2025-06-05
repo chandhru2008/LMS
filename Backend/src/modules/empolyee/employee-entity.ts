@@ -10,6 +10,7 @@ import {
 } from "typeorm";
 import { LeaveRequest } from "../leave-requests/leave-request-entity";
 import { LeaveBalance } from "../leave-balances/leave-balance-entity";
+import { LeaveApproval } from "../leave-approval/leave-approval-entity";
 
 @Entity()
 export class Employee {
@@ -33,33 +34,29 @@ export class Employee {
 
     @Column({
         type: "enum",
-        enum: [ "employee", "manager", "hr", "hr_manager", "director"],
+        enum: ["employee", "manager", "hr", "hr_manager", "director"],
         default: "employee",
     })
     role!: "employee" | "manager" | "hr" | "hr_manager" | "director";
 
     @Column({ type: 'enum', enum: ['single', 'married'], nullable: true })
     maritalStatus?: 'single' | 'married';
-    
+
 
     @ManyToOne(() => Employee, { nullable: true })
     @JoinColumn({ name: "manager_id" })
     manager?: Employee;
 
-   
+
     @ManyToOne(() => Employee, { nullable: true })
     @JoinColumn({ name: "hr_id" })
     hr?: Employee;
 
-    
+
     @ManyToOne(() => Employee, { nullable: true })
     @JoinColumn({ name: "hr_manager_id" })
     hrManager?: Employee;
 
- 
-    @ManyToOne(() => Employee, { nullable: true })
-    @JoinColumn({ name: "director_id" })
-    director?: Employee;
 
     @CreateDateColumn()
     created_at!: Date;
@@ -72,4 +69,8 @@ export class Employee {
 
     @OneToMany(() => LeaveBalance, (leaveBalance) => leaveBalance.employee)
     leaveBalances!: LeaveBalance[];
+
+    @OneToMany(() => LeaveApproval, (approval) => approval.approver)
+approvalsGiven: LeaveApproval[];
+
 }

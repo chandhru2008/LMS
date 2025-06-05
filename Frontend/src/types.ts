@@ -102,6 +102,8 @@ export interface IApproval {
     approverRole: "manager" | "hr" | "director";
     status: string;
     remarks: string | null;
+    approver : IEmployee
+    approvedAt : Date
 }
 
 export interface IApiLeaveData {
@@ -122,6 +124,7 @@ export interface ILeaveHistoryItem {
     approvals: IApproval[];
     leaveType: ILeaveType;
     created_at: string;
+    workDays : number
 }
 
 export interface TabPanelProps {
@@ -136,3 +139,8 @@ export interface IAuthData {
 };
 
 
+export interface IleaveBalanceDeatils{
+    type : string,
+    remaining : number;
+    used : number;
+}
