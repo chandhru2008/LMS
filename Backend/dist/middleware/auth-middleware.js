@@ -10,15 +10,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authorizeRoles = exports.authenticate = void 0;
-const jwtUtil_1 = require("../utils/jwtUtil");
+const jwt_util_1 = require("../common/utils/jwt-util");
 const authenticate = (request, h) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const token = (0, jwtUtil_1.getTokenFromRequest)(request);
+        const token = (0, jwt_util_1.getTokenFromRequest)(request);
         console.log("Token : ", token);
         if (!token) {
             throw new Error('JWT token must be provided');
         }
-        const verified = (0, jwtUtil_1.verifyToken)(token);
+        const verified = (0, jwt_util_1.verifyToken)(token);
         request.auth = { credentials: verified }; // attach to request
         return h.continue;
     }
@@ -31,11 +31,11 @@ exports.authenticate = authenticate;
 const authorizeRoles = (allowedRoles) => {
     return (request, h) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const token = (0, jwtUtil_1.getTokenFromRequest)(request);
+            const token = (0, jwt_util_1.getTokenFromRequest)(request);
             if (!token) {
                 return h.response({ message: 'Unauthorized' }).code(401).takeover();
             }
-            const verified = (0, jwtUtil_1.verifyToken)(token);
+            const verified = (0, jwt_util_1.verifyToken)(token);
             const role = verified.payload.role;
             request.auth = { credentials: verified };
             if (!allowedRoles.includes(role)) {

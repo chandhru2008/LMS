@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 import { Request } from "@hapi/hapi";
-import { Employee } from "../../types";
+import { Employee } from '../../modules/empolyee/employee-entity'
 const secret = process.env.JWT_SECRET;
 
 export const generateJWTToken = (payload: Employee) => {

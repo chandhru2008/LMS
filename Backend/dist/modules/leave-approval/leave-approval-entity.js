@@ -18,10 +18,12 @@ let LeaveApproval = class LeaveApproval {
 exports.LeaveApproval = LeaveApproval;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
-    __metadata("design:type", String)
+    __metadata("design:type", Number)
 ], LeaveApproval.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => leave_request_entity_1.LeaveRequest, (leaveRequest) => leaveRequest.approvals),
+    (0, typeorm_1.JoinColumn)({ name: 'leave_request_id' }) // optional but good to specify
+    ,
     __metadata("design:type", leave_request_entity_1.LeaveRequest)
 ], LeaveApproval.prototype, "leaveRequest", void 0);
 __decorate([
@@ -33,7 +35,9 @@ __decorate([
     __metadata("design:type", String)
 ], LeaveApproval.prototype, "approverRole", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => employee_entity_1.Employee, { nullable: true }),
+    (0, typeorm_1.ManyToOne)(() => employee_entity_1.Employee, (employee) => employee.approvalsGiven, { nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: 'employee_id' }) // foreign key column
+    ,
     __metadata("design:type", employee_entity_1.Employee)
 ], LeaveApproval.prototype, "approver", void 0);
 __decorate([
@@ -48,10 +52,6 @@ __decorate([
     (0, typeorm_1.CreateDateColumn)({ nullable: true }),
     __metadata("design:type", Date)
 ], LeaveApproval.prototype, "approvedAt", void 0);
-__decorate([
-    (0, typeorm_1.OneToMany)(() => LeaveApproval, approval => approval.approver),
-    __metadata("design:type", Array)
-], LeaveApproval.prototype, "approvalsToReview", void 0);
 exports.LeaveApproval = LeaveApproval = __decorate([
     (0, typeorm_1.Entity)('leave_approvals')
 ], LeaveApproval);

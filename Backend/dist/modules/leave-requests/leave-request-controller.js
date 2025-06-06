@@ -16,14 +16,14 @@ class LeaveRequestController {
         this.createLeaveRequest = (request, h) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const bodyData = request.payload;
-                const leaveTypeId = bodyData.leaveTypeId;
+                const leaveTypeName = bodyData.leaveTypeName;
                 const startDate = bodyData.fromDate;
                 const endDate = bodyData.toDate;
                 const description = bodyData.reason;
                 const employeeId = request.auth.credentials.payload.id;
                 const employeeRole = request.auth.credentials.payload.role;
                 const data = {
-                    leaveTypeId: leaveTypeId,
+                    leaveTypeName: leaveTypeName,
                     startDate: startDate,
                     endDate: endDate,
                     employeeId: employeeId,
@@ -66,6 +66,7 @@ class LeaveRequestController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const employeeId = request.auth.credentials.payload.id;
+                console.log(employeeId);
                 const leaveRequest = yield this.leaveRequestService.getMyLeaveRequests(employeeId);
                 return h.response({ leaveRequest }).code(201);
             }

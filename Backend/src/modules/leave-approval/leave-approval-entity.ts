@@ -24,7 +24,6 @@ export class LeaveApproval {
   @Column()
   approverRole!: string;
 
-  // ✅ This links to the approver (an employee who approved)
   @ManyToOne(() => Employee, (employee) => employee.approvalsGiven, { nullable: true })
   @JoinColumn({ name: 'employee_id' }) // foreign key column
   approver!: Employee;

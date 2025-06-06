@@ -253,7 +253,7 @@ export class LeaveRequestService {
     const leaveInfo = `${employee.name} applied ${leaveType.name} for ${leaveDays} day(s) from ${startDate} to ${endDate}`;
     const html = `
     <p>Click the button below to open the app:</p>
-    <a href="http://localhost:3001" style="padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:5px;">
+    <a href="https://lms-zwod.onrender.com" style="padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:5px;">
       Go to App
     </a>
   `;

@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmployeeController = void 0;
-const jwtUtil_1 = require("../../utils/jwtUtil");
+const jwt_util_1 = require("../../common/utils/jwt-util");
 class EmployeeController {
     constructor(employeeService) {
         this.employeeService = employeeService;
@@ -40,7 +40,7 @@ class EmployeeController {
                 const { email, password } = request.payload;
                 const employee = yield this.employeeService.loginEmployee({ email, password });
                 const role = employee.role;
-                const JWTToken = (0, jwtUtil_1.generateJWTToken)(employee);
+                const JWTToken = (0, jwt_util_1.generateJWTToken)(employee);
                 console.log("new  JWT : ", JWTToken);
                 h.state('userSession', { token: JWTToken });
                 return h.response({ message: 'Login successful', role }).code(200);
@@ -101,6 +101,28 @@ class EmployeeController {
             catch (error) {
                 console.error('Error in getEmployeeByRole:', error);
                 return h.response({ message: 'Failed to fetch employees by role' }).code(500);
+            }
+        });
+    }
+    getAllManagers(request, h) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const allManagers = yield this.employeeService.getAllManagers();
+                return h.response(allManagers).code(200);
+            }
+            catch (e) {
+                return h.response({ message: e }).code(400);
+            }
+        });
+    }
+    getAllHrManagers(h) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const allHrManagers = yield this.employeeService.getAllHrManagers();
+                return h.response(allHrManagers).code(200);
+            }
+            catch (e) {
+                return h.response({ message: e }).code(400);
             }
         });
     }

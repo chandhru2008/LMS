@@ -13,6 +13,7 @@ exports.Employee = void 0;
 const typeorm_1 = require("typeorm");
 const leave_request_entity_1 = require("../leave-requests/leave-request-entity");
 const leave_balance_entity_1 = require("../leave-balances/leave-balance-entity");
+const leave_approval_entity_1 = require("../leave-approval/leave-approval-entity");
 let Employee = class Employee {
 };
 exports.Employee = Employee;
@@ -67,11 +68,6 @@ __decorate([
     __metadata("design:type", Employee)
 ], Employee.prototype, "hrManager", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Employee, { nullable: true }),
-    (0, typeorm_1.JoinColumn)({ name: "director_id" }),
-    __metadata("design:type", Employee)
-], Employee.prototype, "director", void 0);
-__decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], Employee.prototype, "created_at", void 0);
@@ -87,6 +83,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => leave_balance_entity_1.LeaveBalance, (leaveBalance) => leaveBalance.employee),
     __metadata("design:type", Array)
 ], Employee.prototype, "leaveBalances", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => leave_approval_entity_1.LeaveApproval, (approval) => approval.approver),
+    __metadata("design:type", Array)
+], Employee.prototype, "approvalsGiven", void 0);
 exports.Employee = Employee = __decorate([
     (0, typeorm_1.Entity)()
 ], Employee);

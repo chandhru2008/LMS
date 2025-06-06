@@ -35,7 +35,7 @@ export async function notifyNextApproverIfAny(
     const leaveInfo = `${leaveRequest.employee.name} applied for ${leaveRequest.leaveType.name} from ${leaveRequest.start_date} to ${leaveRequest.end_date}`;
     const description = leaveRequest.description;
     const html = `<p>Click the button below to open the app:</p>
-    <a href="http://localhost:3001" style="padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:5px;">Go to App</a>`;
+    <a href="https://lms-zwod.onrender.com" style="padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:5px;">Go to App</a>`;
 
     for (const approver of nextApprovers) {
         await sendEmail(approver.email, leaveInfo, description, html);
