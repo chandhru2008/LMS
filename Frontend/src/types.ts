@@ -1,6 +1,11 @@
 import type { Dispatch, SetStateAction } from "react";
 
 export interface ILeaveRequestRawData {
+    employeeRole: 'employee' | 'manager' | 'hr' | 'hr_manager' | 'director';
+    hrRemark: string;
+    hrManagerRemark: string;
+    directorRemark: string;
+    managerRemark: string;
     employeeName: string,
     employeeEmail: string,
     role: 'hr' | 'manager' | 'hr_manager' | 'director' | 'employee',
@@ -31,6 +36,9 @@ export interface ILeaveRequest {
         leaveReason: string;
         status: string;
         approvalStatus: {
+            directorRemarks: string;
+            hrRemarks: string;
+            managerRemarks: string;
             managerApproval: 'Approved' | 'Pending' | 'Cancelled';
             hrManagerApproval: 'Approved' | 'Pending' | 'Cancelled'
             hrApproval: 'Approved' | 'Pending' | 'Cancelled';

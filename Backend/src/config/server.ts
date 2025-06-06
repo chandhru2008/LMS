@@ -11,7 +11,7 @@ import { leaveRequestRoutes } from '../modules/leave-requests/leave-request-rout
 import { leaveBalanceRoute } from '../modules/leave-balances/leave-balance-router';
 import { leaveApproveRoutes } from '../modules/leave-approval/leave-approval-routes';
 import { defaultLeaveEntitlementRoutes } from '../modules/default-leave-entitlement/default-leave-entitlement-routes';
-import { emailRoute } from '../emailRoutes';
+import { emailRoute } from '../common/routes/emailRoutes';
 
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 

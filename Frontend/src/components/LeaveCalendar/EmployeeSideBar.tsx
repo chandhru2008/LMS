@@ -23,8 +23,8 @@ const EmployeeSidebar: React.FC<Props> = ({ onEmployeeSelect }) => {
 
     const endpoint =
       role === 'hr' || role === 'director'
-        ? 'http://localhost:3001/get-all-employees'
-        : 'http://localhost:3001/get-employees-by-role';
+        ? 'https://lms-zwod.onrender.com/get-all-employees'
+        : 'https://lms-zwod.onrender.com/get-employees-by-role';
 
     const fetchEmployees = async () => {
       try {

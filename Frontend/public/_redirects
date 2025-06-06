@@ -1,9 +1,9 @@
 # Handle login/register endpoints
-/login     http://localhost:3001/login     200
-/register  http://localhost:3001/register  200
+/login     https://lms-zwod.onrender.com/login     200
+/register  https://lms-zwod.onrender.com/register  200
 
 # API endpoints (if you have others)
-/api/*     http://localhost:3001/api/:splat 200
+/api/*     https://lms-zwod.onrender.com/api/:splat 200
 
 # SPA fallback
 /*         /index.html   200

@@ -17,11 +17,11 @@ function LeaveHistory() {
     async function fetchLeaveHistory() {
       try {
         const [leaveRes, typeRes] = await Promise.all([
-          fetch("http://localhost:3001/leave-requests/my", {
+          fetch("https://lms-zwod.onrender.com/leave-requests/my", {
             method: "GET",
             credentials: "include",
           }),
-          fetch("http://localhost:3001/leave-types/eligibility", {
+          fetch("https://lms-zwod.onrender.com/leave-types/eligibility", {
             method: "GET",
             credentials: "include",
           }),

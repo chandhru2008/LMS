@@ -5,7 +5,7 @@ import { Employee } from '../empolyee/employee-entity';
 import { LeaveBalance } from '../leave-balances/leave-balance-entity';
 import { LeaveApproval } from '../leave-approval/leave-approval-entity';
 import { In, Repository } from 'typeorm';
-import { sendEmail } from '../../mailservice';
+import { sendEmail } from '../../common/service/mailservice';
 
 export class LeaveRequestService {
   private leaveRequestRepo: Repository<LeaveRequest>;

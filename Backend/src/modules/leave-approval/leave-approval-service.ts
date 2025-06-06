@@ -2,7 +2,7 @@ import { DataSource } from 'typeorm';
 import { LeaveApproval } from './leave-approval-entity';
 import { LeaveRequest } from '../leave-requests/leave-request-entity';
 import { LeaveBalance } from '../leave-balances/leave-balance-entity';
-import { sendEmail } from '../../mailservice';
+import { sendEmail } from '../../common/service/mailservice';
 import { getEmailHtml } from '../../common/helpers/email-helper';
 import { notifyNextApproverIfAny } from '../../common/helpers/notification-helper';
 import { calculateLeaveDays } from '../../common/utils/date-utils';
