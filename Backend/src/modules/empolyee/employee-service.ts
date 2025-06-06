@@ -123,6 +123,22 @@ export class EmployeeService {
     } catch (e) {
       console.log("Error in getting employees by role : ", e);
     }
+  }
 
+  async getAllManagers(){
+    try{
+      return await this.repo.find({where : {role : 'manager'}});
+    }catch(e){
+      console.log(e);
+      throw new Error(e);
+    }
+  }
+
+  async getAllHrManagers(){
+    try{
+      return await this.repo.find({where : {role : 'hr_manager'}});
+    }catch(e){
+      throw new Error(e);
+    }
   }
 }

@@ -24,7 +24,7 @@ export class LeaveRequestService {
 
   async getAllLeaveRequests() {
     const allLeaveRequests = await this.leaveRequestRepo.find({
-      relations: ['employee', 'leaveType', 'approvals'],
+      relations: ['employee', 'leaveType', 'approvals', 'approvals.employee'],
     });
 
     if (!allLeaveRequests) throw new Error('Error in fetching leave requests');
@@ -115,12 +115,49 @@ export class LeaveRequestService {
 
 
   async getMyLeaveRequests(employeeId: string) {
-    return await this.leaveRequestRepo.find({
+  try {
+    const leaveRequests = await this.leaveRequestRepo.find({
       where: { employee: { id: employeeId } },
-      relations: ['leaveType', 'approvals'],
+      relations: ['leaveType', 'approvals', 'approvals.approver'],
       order: { start_date: 'DESC' },
     });
+
+    const filtered = leaveRequests.map(lr => ({
+      id: lr.id,
+      description: lr.description,
+      status: lr.status,
+      start_date: lr.start_date,
+      end_date: lr.end_date,
+      created_at: lr.created_at,
+      leaveType: {
+        id: lr.leaveType.id,
+        name: lr.leaveType.name,
+      },
+      approvals: lr.approvals.map(appr => ({
+        id: appr.id,
+        level: appr.level,
+        approverRole: appr.approverRole,
+        status: appr.status,
+        remarks: appr.remarks,
+        approvedAt: appr.approvedAt,
+        approver: appr.approver
+          ? {
+              name: appr.approver.name,
+              email: appr.approver.email,
+              role: appr.approver.role,
+            }
+          : null,
+      })),
+    }));
+
+    console.log(filtered);
+    return filtered;
+  } catch (e) {
+    console.log(e);
   }
+}
+
+
 
   async findById(id: string) {
     return await this.leaveRequestRepo.findOne({
@@ -151,7 +188,7 @@ export class LeaveRequestService {
   async createLeaveRequest(data: any) {
     const {
       employeeId,
-      leaveTypeId,
+      leaveTypeName,
       startDate,
       endDate,
       description,
@@ -165,7 +202,7 @@ export class LeaveRequestService {
     });
     if (!employee) throw new Error('Employee not found');
 
-    const leaveType = await this.leaveTypeRepo.findOneBy({ id: leaveTypeId });
+    const leaveType = await this.leaveTypeRepo.findOneBy({ name: leaveTypeName });
     if (!leaveType) throw new Error('Leave Type not found');
 
     const existingLeaves = await this.leaveRequestRepo.find({
@@ -216,7 +253,7 @@ export class LeaveRequestService {
     const leaveInfo = `${employee.name} applied ${leaveType.name} for ${leaveDays} day(s) from ${startDate} to ${endDate}`;
     const html = `
     <p>Click the button below to open the app:</p>
-    <a href="http://localhost:3001" style="padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:5px;">
+    <a href="https://lms-zwod.onrender.com" style="padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:5px;">
       Go to App
     </a>
   `;

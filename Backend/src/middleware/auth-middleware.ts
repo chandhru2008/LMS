@@ -1,5 +1,5 @@
 import { Request, ResponseToolkit } from '@hapi/hapi';
-import { getTokenFromRequest, verifyToken } from '../utils/jwtUtil';
+import { getTokenFromRequest, verifyToken } from '../common/utils/jwt-util';
 
 export const authenticate = async (request: Request, h: ResponseToolkit) => {
     try {

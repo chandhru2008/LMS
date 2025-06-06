@@ -114,10 +114,16 @@ function LeaveRequestApproval() {
     return <p className="text-center text-gray-500">Unauthorized or unknown role.</p>;
   }
 
-  const filteredRequests = leaveRequests.filter(
-    (req) => req.leaveDetails.approvalStatus[approvalField] === "Pending"
-  );
+  const filteredRequests = leaveRequests.filter((req) => {
+    const status = req.leaveDetails.approvalStatus;
+    const currentApproval = status[approvalField];
 
+    if (role === "hr") {
+      return status.managerApproval === "Approved" && currentApproval === "Pending";
+    }
+
+    return currentApproval === "Pending";
+  });
   return (
     <div className="w-[70%] mx-auto my-6">
       <div className="flex justify-between items-center mb-6 px-2">
@@ -146,9 +152,8 @@ function LeaveRequestApproval() {
                     {leaveDetails.leaveType}
                   </span>
                   <span
-                    className={`text-xs font-semibold px-3 py-1 rounded-full ${
-                      statusColors[leaveDetails.status] || "bg-gray-200 text-gray-700"
-                    }`}
+                    className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColors[leaveDetails.status] || "bg-gray-200 text-gray-700"
+                      }`}
                   >
                     {leaveDetails.status}
                   </span>

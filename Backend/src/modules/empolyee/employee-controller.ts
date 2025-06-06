@@ -1,6 +1,6 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { EmployeeService } from './employee-service'
-import { generateJWTToken, verifyToken } from "../../utils/jwtUtil";
+import { generateJWTToken } from '../../common/utils/jwt-util'
 import { LoginEmployeePayload, RegisterEmployeePayload } from "../../types";
 
 
@@ -27,7 +27,7 @@ export class EmployeeController {
   async registerEmployee(request: Request, h: ResponseToolkit) {
     try {
 
-     const employeeData = request.payload  as RegisterEmployeePayload ;
+      const employeeData = request.payload as RegisterEmployeePayload;
       await this.employeeService.registerEmployee(employeeData);
       return h.response({ message: 'Employee registered successfully' }).code(200);
 
@@ -42,7 +42,7 @@ export class EmployeeController {
     try {
       const { email, password } = request.payload as LoginEmployeePayload;
       const employee = await this.employeeService.loginEmployee({ email, password });
-      const role = employee.role 
+      const role = employee.role
       const JWTToken = generateJWTToken(employee);
       console.log("new  JWT : ", JWTToken)
       h.state('userSession', { token: JWTToken });
@@ -65,7 +65,7 @@ export class EmployeeController {
 
       return h.response({
         name: name,
-        email : email,
+        email: email,
         role: role,
       }).code(200);
     } catch (error) {
@@ -103,4 +103,21 @@ export class EmployeeController {
     }
   }
 
+  async getAllManagers(request : Request,h: ResponseToolkit) {
+    try {
+      const allManagers = await this.employeeService.getAllManagers();
+      return h.response(allManagers).code(200);
+    } catch (e) {
+      return h.response({ message: e }).code(400);
+    }
+  }
+
+  async getAllHrManagers(h: ResponseToolkit) {
+    try {
+      const allHrManagers = await this.employeeService.getAllHrManagers();
+      return h.response(allHrManagers).code(200);
+    } catch (e) {
+      return h.response({ message: e }).code(400);
+    }
+  }
 }

@@ -33,7 +33,7 @@ export class LeaveRequestController {
     try {
 
       const bodyData = request.payload as any;
-      const leaveTypeId = bodyData.leaveTypeId;
+      const leaveTypeName = bodyData.leaveTypeName;
       const startDate = bodyData.fromDate;
       const endDate = bodyData.toDate;
       const description = bodyData.reason;
@@ -41,7 +41,7 @@ export class LeaveRequestController {
       const employeeRole = request.auth.credentials.payload.role
 
       const data = {
-        leaveTypeId: leaveTypeId,
+        leaveTypeName: leaveTypeName,
         startDate: startDate,
         endDate: endDate,
         employeeId: employeeId,
@@ -67,6 +67,7 @@ export class LeaveRequestController {
   async getMyLeaveRequests(request: Request, h: ResponseToolkit) {
     try {
       const employeeId = request.auth.credentials.payload.id
+      console.log(employeeId)
       const leaveRequest = await this.leaveRequestService.getMyLeaveRequests(employeeId);
       return h.response({ leaveRequest }).code(201);
     } catch (e) {

@@ -161,5 +161,26 @@ class EmployeeService {
             }
         });
     }
+    getAllManagers() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.repo.find({ where: { role: 'manager' } });
+            }
+            catch (e) {
+                console.log(e);
+                throw new Error(e);
+            }
+        });
+    }
+    getAllHrManagers() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.repo.find({ where: { role: 'hr_manager' } });
+            }
+            catch (e) {
+                throw new Error(e);
+            }
+        });
+    }
 }
 exports.EmployeeService = EmployeeService;

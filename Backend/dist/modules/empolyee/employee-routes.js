@@ -74,6 +74,19 @@ function employeeRoute(server, employeeController) {
                     return employeeController.getEmployeeByRole(request, h);
                 }
             }
+        },
+        {
+            method: 'GET',
+            path: '/get-all-managers',
+            handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
+                return yield employeeController.getAllManagers(request, h);
+            })
+        }, {
+            method: 'GET',
+            path: '/get-all-hr-managers',
+            handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
+                return yield employeeController.getAllHrManagers(h);
+            })
         }
     ]);
 }

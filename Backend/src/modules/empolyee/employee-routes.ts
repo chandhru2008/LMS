@@ -1,4 +1,4 @@
-import { Server } from '@hapi/hapi';
+import { ResponseToolkit, Server } from '@hapi/hapi';
 import { EmployeeController } from './employee-controller';
 import { authenticate, authorizeRoles } from '../../middleware/auth-middleware';
 
@@ -70,6 +70,19 @@ export function employeeRoute(server: Server, employeeController: EmployeeContro
         handler: (request, h) => {
           return employeeController.getEmployeeByRole(request, h);
         }
+      }
+    },
+    {
+      method: 'GET',
+      path: '/get-all-managers',
+      handler: async (request , h) => {
+        return await employeeController.getAllManagers(request, h)
+      }
+    }, {
+      method: 'GET',
+      path: '/get-all-hr-managers',
+      handler: async (request, h) => {
+        return await employeeController.getAllHrManagers(h)
       }
     }
   ]);

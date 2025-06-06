@@ -2,18 +2,18 @@ import { DataSource } from 'typeorm';
 import { LeaveApproval } from './leave-approval-entity';
 import { LeaveRequest } from '../leave-requests/leave-request-entity';
 import { LeaveBalance } from '../leave-balances/leave-balance-entity';
+import { sendEmail } from '../../mailservice';
+import { getEmailHtml } from '../../common/helpers/email-helper';
+import { notifyNextApproverIfAny } from '../../common/helpers/notification-helper';
+import { calculateLeaveDays } from '../../common/utils/date-utils';
 
 export class LeaveApprovalService {
     constructor(private dataSource: DataSource) { }
 
     async getAllPendingApprovals() {
-
-
         const approvals = await this.dataSource.getRepository(LeaveApproval).find({
-            where: { status: 'Pending' },
             relations: ['leaveRequest', 'leaveRequest.employee', 'leaveRequest.leaveType'],
         });
-
 
         const grouped = new Map();
 
@@ -31,9 +31,13 @@ export class LeaveApprovalService {
                     leaveType: approval.leaveRequest.leaveType.name,
                     description: approval.leaveRequest.description,
                     managerApproval: null,
+                    managerRemark: null,
                     hrApproval: null,
+                    hrRemark: null,
                     hrManagerApproval: null,
+                    hrManagerRemark: null,
                     directorApproval: null,
+                    directorRemark: null,
                     overallStatus: approval.leaveRequest.status,
                 });
             }
@@ -42,24 +46,26 @@ export class LeaveApprovalService {
             switch (approval.approverRole) {
                 case 'manager':
                     roleGroup.managerApproval = approval.status;
+                    roleGroup.managerRemark = approval.remarks;
                     break;
                 case 'hr':
                     roleGroup.hrApproval = approval.status;
-                    break;
-                case 'director':
-                    roleGroup.directorApproval = approval.status;
+                    roleGroup.hrRemark = approval.remarks;
                     break;
                 case 'hr_manager':
                     roleGroup.hrManagerApproval = approval.status;
+                    roleGroup.hrManagerRemark = approval.remarks;
+                    break;
+                case 'director':
+                    roleGroup.directorApproval = approval.status;
+                    roleGroup.directorRemark = approval.remarks;
                     break;
             }
         }
 
-        const result = Array.from(grouped.values());
-
-        return result;
-
+        return Array.from(grouped.values());
     }
+
 
     async getManagerPendingApprovel(approverId: string) {
 
@@ -138,99 +144,85 @@ export class LeaveApprovalService {
         const leaveBalanceRepo = this.dataSource.getRepository(LeaveBalance);
 
 
-        const approvals = await approvalRepo.findOne({
+        const approval = await approvalRepo.findOne({
             where: { leaveRequest: { id: leaveRequestId }, approverRole: role },
             relations: ['leaveRequest', 'leaveRequest.employee', 'approver'],
         });
 
-        if (!approvals) {
-            throw new Error('Approval recored not found')
-        }
+        const leaveRequest = await leaveRequestRepo.findOne({
+            where: { id: leaveRequestId },
+            relations: ['leaveType', 'employee'],
+        });
 
-        const today = new Date();
-        const leaveEndDate = new Date(approvals.leaveRequest.end_date);
+        if (!approval || !leaveRequest) throw new Error('Approval or Leave Request not found');
 
-        if (leaveEndDate < today) {
+        // Prevent approving expired leave
+        if (new Date(approval.leaveRequest.end_date) < new Date()) {
             throw new Error('Cannot approve leave requests for past dates');
         }
 
-
-
-        if (!approvals.approver || approvals.approver.id === null) {
-            approvals.approver = { id: approverId } as any;
-
-            if (decision === 'Approve') {
-                approvals.status = 'Approved'
-            } else if (decision === 'Reject') {
-                approvals.status = 'Rejected'
-            }
-            try {
-                await approvalRepo.save(approvals);
-            } catch (err) {
-                console.error('Failed to save approval:', err);
-            }
-        } else {
-            if (decision === 'Approve') {
-
-                approvals.status = 'Approved'
-            } else if (decision === 'Reject') {
-                approvals.status = 'Rejected'
-            } try {
-                approvals.remarks = remark;
-                await approvalRepo.save(approvals);
-            } catch (err) {
-                console.error('Failed to save approval:', err);
-            }
+        // Assign approver if not already set
+        if (!approval.approver || approval.approver.id === null) {
+            approval.approver = { id: approverId } as any;
         }
-        const allApproval = await approvalRepo.find({
+
+        // Update status and remarks
+        approval.status = decision === 'Approve' ? 'Approved' : 'Rejected';
+        approval.remarks = remark;
+        approval.approvedAt = new Date();
+
+
+        // Save approval
+        try {
+            await approvalRepo.save(approval);
+        } catch (err) {
+            console.error('Failed to save approval:', err);
+            throw new Error('Database error during approval save');
+        }
+
+        // Notify next role if required
+        await notifyNextApproverIfAny(this.dataSource, role, leaveRequestId, leaveRequest);
+
+        // Check if all approvals are completed
+        const allApprovals = await approvalRepo.find({
             where: { leaveRequest: { id: leaveRequestId } },
-            relations: ['leaveRequest', 'leaveRequest.employee', 'approver'],
-        })
+        });
 
-        if (!allApproval) {
-            throw new Error('Leave approval records not found')
+        const allApproved = allApprovals.every(a => a.status === 'Approved');
+        if (!allApproved) return 'Approval saved';
+
+        // Finalize leave request
+        leaveRequest.status = 'Approved';
+        await leaveRequestRepo.save(leaveRequest);
+
+        // Update leave balance
+        const leaveBalance = await leaveBalanceRepo.findOne({
+            where: {
+                leaveType: { id: leaveRequest.leaveType.id },
+                employee: { id: leaveRequest.employee.id },
+            },
+        });
+
+        if (!leaveBalance) throw new Error('Leave balance not found');
+
+        const leaveDays = calculateLeaveDays(leaveRequest.start_date, leaveRequest.end_date);
+        if (leaveBalance.remaining_leaves < leaveDays) {
+            throw new Error('Insufficient leave balance');
         }
-        const allApproved = allApproval.every(a => a.status === 'Approved');
 
-        const leaveRequest = await leaveRequestRepo.findOne({ where: { id: leaveRequestId }, relations: ['leaveType', 'employee'] });
+        leaveBalance.used_leaves += leaveDays;
+        leaveBalance.remaining_leaves = leaveBalance.total - leaveBalance.used_leaves;
+        await leaveBalanceRepo.save(leaveBalance);
 
+        // Notify employee
+        const leaveInfo = `Your leave request for ${leaveRequest.leaveType.name} from ${leaveRequest.start_date} to ${leaveRequest.end_date} has been fully approved.`;
+        const description = leaveRequest.description;
+        const html = getEmailHtml();
+        sendEmail(leaveRequest.employee.email, leaveInfo, description, html);
 
-
-        if (!leaveRequest) {
-            throw new Error('Leave request not found');
-        }
-
-
-
-
-        if (allApproved) {
-            leaveRequest.status = 'Approved';
-            await leaveRequestRepo.save(leaveRequest);
-
-            const leaveBalance = await leaveBalanceRepo.findOne({ where: { leaveType: { id: leaveRequest.leaveType.id }, employee: { id: leaveRequest.employee.id } } });
-
-            function calculateLeaveDays(startDate: string, endDate: string): number {
-                const start = new Date(startDate);
-                const end = new Date(endDate);
-                const diffTime = Math.abs(end.getTime() - start.getTime());
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive
-                return diffDays;
-            }
-
-            if (!leaveBalance) {
-                throw new Error('Leave balance not found');
-            }
-
-            const leaveDays = calculateLeaveDays(leaveRequest.start_date, leaveRequest.end_date);
-            if (leaveBalance.remaining_leaves < leaveDays) {
-                throw new Error('Insufficient leave balance')
-            }
-            leaveBalance.used_leaves = leaveBalance.used_leaves + leaveDays;
-            leaveBalance.remaining_leaves = leaveBalance.total - leaveBalance.used_leaves
-            leaveBalanceRepo.save(leaveBalance);
-            return 'Leave fully approved';
-        };
+        return 'Leave fully approved';
     }
+
 }
 
 
