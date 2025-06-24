@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchAuth = async () => {
         try {
-            const res = await fetch('http://localhost:3001/check-auth', {
+            const res = await fetch('https://lms-zwod.onrender.com/check-auth', {
                 method: 'GET',
                 credentials: 'include'
             });

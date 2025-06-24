@@ -22,7 +22,7 @@ function LeaveBalances() {
     async function fetchLeaveBalances(): Promise<void> {
       try {
         setIsLoading(true);
-        const response = await fetch("http://localhost:3001/leave-balances", {
+        const response = await fetch("https://lms-zwod.onrender.com/leave-balances", {
           method: "GET",
           credentials: "include",
         });
