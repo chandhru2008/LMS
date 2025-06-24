@@ -51,7 +51,7 @@ function Registration() {
     if (role === 'hr') userDetails.hrManagerEmail = hrManagerEmail;
 
     try {
-      const res = await fetch('http://localhost:3001/register', {
+      const res = await fetch('https://lms-zwod.onrender.com/register', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

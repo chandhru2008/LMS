@@ -32,7 +32,7 @@ function LeaveRequestApproval() {
 
     async function fetchLeaveRequests() {
       try {
-        const res = await fetch("http://localhost:3001/approvals", {
+        const res = await fetch("https://lms-zwod.onrender.com/approvals", {
           method: "GET",
           credentials: "include",
         });
@@ -73,7 +73,7 @@ function LeaveRequestApproval() {
     const remarks = remarksMap[id] || "";
 
     try {
-      const res = await fetch(`http://localhost:3001/approvals/decision`, {
+      const res = await fetch(`https://lms-zwod.onrender.com/approvals/decision`, {
         method: "PUT",
         credentials: "include",
         headers: {

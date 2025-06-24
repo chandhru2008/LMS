@@ -48,10 +48,6 @@ export class Employee {
     manager?: Employee;
 
 
-    @ManyToOne(() => Employee, { nullable: true })
-    @JoinColumn({ name: "hr_id" })
-    hr?: Employee;
-
 
     @ManyToOne(() => Employee, { nullable: true })
     @JoinColumn({ name: "hr_manager_id" })
@@ -71,6 +67,6 @@ export class Employee {
     leaveBalances!: LeaveBalance[];
 
     @OneToMany(() => LeaveApproval, (approval) => approval.approver)
-approvalsGiven: LeaveApproval[];
+    approvalsGiven: LeaveApproval[];
 
 }

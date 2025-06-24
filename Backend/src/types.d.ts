@@ -30,6 +30,24 @@ interface RegisterEmployeePayload {
     hrManagerEmail: string;
 }
 
+interface RegisterEmployeePayloadFromExcel {
+    id: string;
+    name: string;
+    email: string;
+    password: string;
+    role: 'hr' | 'manager' | 'hr_manager' | 'director' | 'employee';
+    gender: 'male' | 'female';
+    materialStatus: 'single' | 'married';
+    managerEmail: string;
+    hrManagerEmail: string;
+    casualLeaves: number;
+    sickLeaves: number;
+    emergencyLeaves: number;
+    maternityLeave: number;
+    paternityLeaves: number;
+    unpaidLeaves: number;
+}
+
 interface LoginEmployeePayload {
     email: string;
     password: string;
@@ -49,4 +67,6 @@ interface Employee {
     materialStatus: 'single' | 'married';
     managerEmail: string;
     hrManagerEmail: string;
+    created_at: Date;
+    updated_at: Date;
 }

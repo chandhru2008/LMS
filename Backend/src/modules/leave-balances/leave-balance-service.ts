@@ -1,6 +1,8 @@
 import { dataSource } from '../../config/db/conn';
 import { LeaveBalance } from './leave-balance-entity';
 import { DefaultLeaveEntitlementService } from '../default-leave-entitlement/default-leave-entitlement-service';
+import { Employee } from '../empolyee/employee-entity';
+import { LeaveType } from '../leave-types/leave-type-model';
 
 
 export class LeaveBalanceService {
