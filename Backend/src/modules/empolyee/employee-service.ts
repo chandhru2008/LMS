@@ -125,20 +125,25 @@ export class EmployeeService {
     }
   }
 
-  async getAllManagers(){
-    try{
-      return await this.repo.find({where : {role : 'manager'}});
-    }catch(e){
+  async getAllManagers() {
+    try {
+      return await this.repo.find({ where: { role: 'manager' } });
+    } catch (e) {
       console.log(e);
       throw new Error(e);
     }
   }
 
-  async getAllHrManagers(){
-    try{
-      return await this.repo.find({where : {role : 'hr_manager'}});
-    }catch(e){
+  async getAllHrManagers() {
+    try {
+      return await this.repo.find({ where: { role: 'hr_manager' } });
+    } catch (e) {
       throw new Error(e);
     }
+  }
+
+  async getGender(){
+    const gender =  await this.repo.count({where : {gender : 'male'}});
+    return gender;
   }
 }

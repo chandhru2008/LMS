@@ -3,6 +3,7 @@ import { EmployeeController } from './employee-controller';
 import { authenticate, authorizeRoles } from '../../middleware/auth-middleware';
 
 
+
 export function employeeRoute(server: Server, employeeController: EmployeeController) {
   server.route([
     {
@@ -15,7 +16,7 @@ export function employeeRoute(server: Server, employeeController: EmployeeContro
         handler: async (request, h) => {
           return await employeeController.registerEmployee(request, h);
         }
-      }
+      },
     },
 
     {
@@ -52,7 +53,7 @@ export function employeeRoute(server: Server, employeeController: EmployeeContro
       path: '/get-all-employees',
       options: {
         pre: [{ method: authenticate },
-        { method: authorizeRoles(['hr', 'director']) }
+        { method: authorizeRoles(['rh', 'director']) }
         ],
         handler: (request, h) => {
           return employeeController.getAllEmployee(request, h);
@@ -75,15 +76,34 @@ export function employeeRoute(server: Server, employeeController: EmployeeContro
     {
       method: 'GET',
       path: '/get-all-managers',
-      handler: async (request , h) => {
+      handler: async (request, h) => {
         return await employeeController.getAllManagers(request, h)
       }
-    }, {
+    },
+    {
       method: 'GET',
       path: '/get-all-hr-managers',
       handler: async (request, h) => {
         return await employeeController.getAllHrManagers(h)
       }
-    }
+    }, {
+      method: 'POST',
+      path: '/employees/bulk-upload',
+      options: {
+        payload: {
+          output: 'stream',
+          parse: true,
+          allow: 'multipart/form-data',
+          maxBytes: 10 * 1024 * 1024, // 10MB
+          multipart: true,
+        },
+      },
+      handler: (request, response) => EmployeeController.uploadHandler(request, response)
+    },
+    {
+      method : 'GET',
+      path : '/get-gender',
+      handler : (r, res)=>  employeeController.getGender()
+        }
   ]);
 }

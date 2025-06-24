@@ -1,7 +1,7 @@
 // index.ts
 import 'reflect-metadata'; // For TypeORM
 import { dataSource } from './config/db/conn';
-import { createServer } from './config/server';
+import { createServer } from './config/server'
 
 async function init() {
   try {
