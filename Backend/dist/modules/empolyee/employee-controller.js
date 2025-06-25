@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmployeeController = void 0;
 const jwt_util_1 = require("../../common/utils/jwt-util");
+const excelWorker_1 = require("../../common/utils/excelWorker");
 class EmployeeController {
     constructor(employeeService) {
         this.employeeService = employeeService;
@@ -124,6 +125,43 @@ class EmployeeController {
             catch (e) {
                 return h.response({ message: e }).code(400);
             }
+        });
+    }
+    static uploadHandler(request, h) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = request.payload;
+                if (!data || !data.file) {
+                    return h.response({ error: 'No file provided' }).code(400);
+                }
+                const file = data.file;
+                const buffer = yield EmployeeController.streamToBuffer(file);
+                const employees = yield (0, excelWorker_1.parseExcel)(buffer);
+                if (employees.length === 0) {
+                    return h.response({ message: 'No valid employee data found in the file' }).code(400);
+                }
+                yield (0, excelWorker_1.pushEmployeesToQueue)(employees);
+                return h.response({ message: `Successfully queued ${employees.length} employees for creation.` }).code(200);
+            }
+            catch (error) {
+                console.error('Bulk upload error:', error);
+                return h.response({ error: error.message || 'Failed to process upload' }).code(500);
+            }
+        });
+    }
+    static streamToBuffer(stream) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                const chunks = [];
+                stream.on('data', (chunk) => chunks.push(chunk));
+                stream.on('end', () => resolve(Buffer.concat(chunks)));
+                stream.on('error', reject);
+            });
+        });
+    }
+    getGender() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.employeeService.getGender();
         });
     }
 }

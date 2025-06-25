@@ -59,11 +59,6 @@ __decorate([
 ], Employee.prototype, "manager", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => Employee, { nullable: true }),
-    (0, typeorm_1.JoinColumn)({ name: "hr_id" }),
-    __metadata("design:type", Employee)
-], Employee.prototype, "hr", void 0);
-__decorate([
-    (0, typeorm_1.ManyToOne)(() => Employee, { nullable: true }),
     (0, typeorm_1.JoinColumn)({ name: "hr_manager_id" }),
     __metadata("design:type", Employee)
 ], Employee.prototype, "hrManager", void 0);

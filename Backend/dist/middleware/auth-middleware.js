@@ -14,7 +14,6 @@ const jwt_util_1 = require("../common/utils/jwt-util");
 const authenticate = (request, h) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const token = (0, jwt_util_1.getTokenFromRequest)(request);
-        console.log("Token : ", token);
         if (!token) {
             throw new Error('JWT token must be provided');
         }

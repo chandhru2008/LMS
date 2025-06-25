@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.employeeRoute = employeeRoute;
+const employee_controller_1 = require("./employee-controller");
 const auth_middleware_1 = require("../../middleware/auth-middleware");
 function employeeRoute(server, employeeController) {
     server.route([
@@ -23,7 +24,7 @@ function employeeRoute(server, employeeController) {
                 handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
                     return yield employeeController.registerEmployee(request, h);
                 })
-            }
+            },
         },
         {
             method: 'POST',
@@ -56,7 +57,7 @@ function employeeRoute(server, employeeController) {
             path: '/get-all-employees',
             options: {
                 pre: [{ method: auth_middleware_1.authenticate },
-                    { method: (0, auth_middleware_1.authorizeRoles)(['hr', 'director']) }
+                    { method: (0, auth_middleware_1.authorizeRoles)(['rh', 'director']) }
                 ],
                 handler: (request, h) => {
                     return employeeController.getAllEmployee(request, h);
@@ -81,12 +82,31 @@ function employeeRoute(server, employeeController) {
             handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
                 return yield employeeController.getAllManagers(request, h);
             })
-        }, {
+        },
+        {
             method: 'GET',
             path: '/get-all-hr-managers',
             handler: (request, h) => __awaiter(this, void 0, void 0, function* () {
                 return yield employeeController.getAllHrManagers(h);
             })
+        }, {
+            method: 'POST',
+            path: '/employees/bulk-upload',
+            options: {
+                payload: {
+                    output: 'stream',
+                    parse: true,
+                    allow: 'multipart/form-data',
+                    maxBytes: 10 * 1024 * 1024, // 10MB
+                    multipart: true,
+                },
+            },
+            handler: (request, response) => employee_controller_1.EmployeeController.uploadHandler(request, response)
+        },
+        {
+            method: 'GET',
+            path: '/get-gender',
+            handler: (r, res) => employeeController.getGender()
         }
     ]);
 }
