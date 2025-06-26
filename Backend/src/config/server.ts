@@ -33,7 +33,7 @@ export async function createServer(): Promise<Hapi.Server> {
     ttl: 24 * 60 * 60 * 1000,
     isSecure: true,
     isSameSite: 'None',
-    domain: 'https://lms-zwod.onrender.com',
+    domain: 'lms-zwod.onrender.com',
     isHttpOnly: true,
     path: '/',
     encoding: 'base64json',
