@@ -11,7 +11,6 @@ function Login() {
 
 
   useEffect(() => {
-    console.log(login)
     if (login) { console.log(login); navigate('/'); }
   }, [login, navigate])
 

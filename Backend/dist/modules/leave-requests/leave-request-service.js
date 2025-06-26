@@ -145,7 +145,6 @@ class LeaveRequestService {
                             : null,
                     })),
                 }));
-                console.log(filtered);
                 return filtered;
             }
             catch (e) {

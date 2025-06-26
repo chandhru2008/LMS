@@ -43,8 +43,6 @@ class LeaveApprovalController {
                 const role = request.auth.credentials.payload.role;
                 const approverId = request.auth.credentials.payload.id;
                 const remarks = body.remarks;
-                console.log("Body : ", body);
-                console.log("remark : ", remarks);
                 const result = yield this.leaveApprovalService.approveLeave(leaveRequestId, decision, role, approverId, remarks);
                 return h.response({ message: result }).code(200);
             }

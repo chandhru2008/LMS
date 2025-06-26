@@ -67,7 +67,6 @@ export class LeaveRequestController {
   async getMyLeaveRequests(request: Request, h: ResponseToolkit) {
     try {
       const employeeId = request.auth.credentials.payload.id
-      console.log(employeeId)
       const leaveRequest = await this.leaveRequestService.getMyLeaveRequests(employeeId);
       return h.response({ leaveRequest }).code(201);
     } catch (e) {

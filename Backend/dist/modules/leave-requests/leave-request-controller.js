@@ -66,7 +66,6 @@ class LeaveRequestController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const employeeId = request.auth.credentials.payload.id;
-                console.log(employeeId);
                 const leaveRequest = yield this.leaveRequestService.getMyLeaveRequests(employeeId);
                 return h.response({ leaveRequest }).code(201);
             }

@@ -2,7 +2,6 @@ import { Request, ResponseToolkit } from "@hapi/hapi";
 import { EmployeeService } from './employee-service'
 import { generateJWTToken } from '../../common/utils/jwt-util'
 import { LoginEmployeePayload, RegisterEmployeePayload } from "../../types";
-import { parseExcel, pushEmployeesToQueue } from "../../common/utils/excelWorker";
 import { Readable } from "stream";
 
 
@@ -46,7 +45,6 @@ export class EmployeeController {
       const employee = await this.employeeService.loginEmployee({ email, password });
       const role = employee.role
       const JWTToken = generateJWTToken(employee);
-      console.log("new  JWT : ", JWTToken)
       h.state('userSession', { token: JWTToken });
       return h.response({ message: 'Login successful', role }).code(200);
     } catch (error) {
@@ -123,35 +121,4 @@ export class EmployeeController {
     }
   }
 
-  static async uploadHandler(request: Request, h: ResponseToolkit) {
-    try {
-      const data = request.payload as any;
-      if (!data || !data.file) {
-        return h.response({ error: 'No file provided' }).code(400);
-      }
-      const file = data.file; 
-      const buffer = await EmployeeController.streamToBuffer(file);
-      const employees = await parseExcel(buffer);
-      if (employees.length === 0) {
-        return h.response({ message: 'No valid employee data found in the file' }).code(400);
-      } 
-      await pushEmployeesToQueue(employees);
-      return h.response({ message: `Successfully queued ${employees.length} employees for creation.` }).code(200);
-    } catch (error: any) {
-      console.error('Bulk upload error:', error);
-      return h.response({ error: error.message || 'Failed to process upload' }).code(500);
-    }
-  }
-  static async streamToBuffer(stream: Readable): Promise<Buffer> {
-    return new Promise((resolve, reject) => {
-      const chunks: Buffer[] = [];
-      stream.on('data', (chunk) => chunks.push(chunk));
-      stream.on('end', () => resolve(Buffer.concat(chunks)));
-      stream.on('error', reject);
-    });
-  }
-
-  async getGender(){
-    return await this.employeeService.getGender();
-  }
 }

@@ -20,11 +20,9 @@ function DashBoard() {
         if (authData) {
             setRole(authData.role);
             if (!login) {
-                console.log(login)
                 navigate('/login');
             }
         }
-        console.log(authData)
     }, [authData, login, navigate]);
 
 

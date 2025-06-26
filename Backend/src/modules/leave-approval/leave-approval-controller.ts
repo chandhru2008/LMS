@@ -29,8 +29,6 @@ export class LeaveApprovalController {
             const role = request.auth.credentials.payload.role
             const approverId = request.auth.credentials.payload.id;
             const remarks = body.remarks
-            console.log("Body : ", body);
-            console.log("remark : ", remarks)
             const result = await this.leaveApprovalService.approveLeave(leaveRequestId, decision, role, approverId, remarks);
             return h.response({ message: result }).code(200);
         } catch (err) {

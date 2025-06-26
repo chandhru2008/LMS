@@ -182,11 +182,5 @@ class EmployeeService {
             }
         });
     }
-    getGender() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const gender = yield this.repo.count({ where: { gender: 'male' } });
-            return gender;
-        });
-    }
 }
 exports.EmployeeService = EmployeeService;

@@ -141,9 +141,4 @@ export class EmployeeService {
       throw new Error(e);
     }
   }
-
-  async getGender(){
-    const gender =  await this.repo.count({where : {gender : 'male'}});
-    return gender;
-  }
 }
